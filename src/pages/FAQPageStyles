@@ -1,0 +1,386 @@
+export const faqPageStyles = {
+  // Container principal
+  container: {
+    fontFamily: "'Poppins', sans-serif",
+    minHeight: '100vh'
+  },
+
+  // FAQ Section
+  faqSection: {
+    background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+    padding: '5rem 1rem',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+
+  // Background decorations
+  backgroundDecoration1: {
+    position: 'absolute',
+    top: '-50px',
+    right: '-50px',
+    width: '200px',
+    height: '200px',
+    background: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: '50%',
+    filter: 'blur(40px)'
+  },
+
+  backgroundDecoration2: {
+    position: 'absolute',
+    bottom: '-100px',
+    left: '-100px',
+    width: '300px',
+    height: '300px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '50%',
+    filter: 'blur(60px)'
+  },
+
+  // Content wrapper
+  contentWrapper: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    position: 'relative',
+    zIndex: 10
+  },
+
+  // Main title
+  mainTitle: {
+    fontSize: '4rem',
+    fontWeight: '800',
+    color: '#000000',
+    marginBottom: '4rem',
+    textAlign: 'center',
+    textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
+    letterSpacing: '-0.02em'
+  },
+
+  // Questions container
+  questionsContainer: {
+    maxWidth: '900px',
+    margin: '0 auto'
+  },
+
+  // Question card
+  questionCard: {
+    marginBottom: '1.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)'
+  },
+
+  // Question header
+  questionHeader: (isActive) => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5rem',
+    cursor: 'pointer',
+    padding: '1.5rem',
+    transition: 'all 0.3s ease',
+    background: isActive ? 'linear-gradient(90deg, #ff6b35, #f7931e)' : 'transparent'
+  }),
+
+  // Question number badges
+  questionNumber: (questionNum, isActive) => {
+    const gradients = {
+      1: 'linear-gradient(135deg, #ff6b35, #dc2626)',
+      2: 'linear-gradient(135deg, #f7931e, #ffcd3c)',
+      3: 'linear-gradient(135deg, #ffcd3c, #ff6b35)',
+      4: 'linear-gradient(135deg, #dc2626, #ff6b35)'
+    };
+
+    return {
+      background: isActive ? '#000000' : gradients[questionNum],
+      color: 'white',
+      padding: '1rem',
+      fontSize: '1.5rem',
+      fontWeight: '700',
+      minWidth: '60px',
+      height: '60px',
+      textAlign: 'center',
+      borderRadius: '12px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.3s ease',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+    };
+  },
+
+  // Question title
+  questionTitle: (isActive) => ({
+    fontSize: '1.4rem',
+    color: isActive ? '#ffffff' : '#000000',
+    margin: '0',
+    fontWeight: '600',
+    transition: 'color 0.3s ease',
+    flex: 1
+  }),
+
+  // Chevron icon
+  chevronIcon: (isActive) => ({
+    color: isActive ? '#ffffff' : '#666666',
+    transition: 'all 0.3s ease'
+  }),
+
+  // Answer content
+  answerContent: {
+    padding: '0 1.5rem 1.5rem 1.5rem',
+    fontSize: '1.1rem',
+    lineHeight: '1.7',
+    color: '#374151',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    animation: 'slideDown 0.3s ease-out'
+  },
+
+  // Contact Form Section
+  contactFormSection: {
+    background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
+    color: 'white',
+    padding: '6rem 1rem',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+
+  // Contact form decorations
+  contactDecoration1: {
+    position: 'absolute',
+    top: '20%',
+    right: '10%',
+    width: '150px',
+    height: '150px',
+    background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(50px)'
+  },
+
+  contactDecoration2: {
+    position: 'absolute',
+    bottom: '20%',
+    left: '10%',
+    width: '200px',
+    height: '200px',
+    background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(60px)'
+  },
+
+  // Contact form container
+  contactFormContainer: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    position: 'relative',
+    zIndex: 10
+  },
+
+  // Contact form title
+  contactFormTitle: {
+    fontSize: '3.5rem',
+    fontWeight: '800',
+    marginBottom: '3rem',
+    textAlign: 'center',
+    background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    letterSpacing: '-0.02em'
+  },
+
+  // Success message
+  successMessage: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    border: '2px solid #10b981',
+    color: '#10b981',
+    padding: '1rem',
+    borderRadius: '12px',
+    marginBottom: '2rem',
+    fontSize: '0.95rem',
+    fontWeight: '500',
+    textAlign: 'center',
+    backdropFilter: 'blur(5px)'
+  },
+
+  // Error message
+  errorMessage: {
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    border: '2px solid #ef4444',
+    color: '#ef4444',
+    padding: '1rem',
+    borderRadius: '12px',
+    marginBottom: '2rem',
+    fontSize: '0.95rem',
+    fontWeight: '500',
+    textAlign: 'center',
+    backdropFilter: 'blur(5px)'
+  },
+
+  // Form container
+  form: {
+    display: 'grid',
+    gap: '1.5rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    padding: '3rem',
+    borderRadius: '20px',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backdropFilter: 'blur(10px)'
+  },
+
+  // Form grid - two columns
+  formGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem'
+  },
+
+  // Form field container
+  formField: {
+    // Container pentru câmpurile individuale
+  },
+
+  // Form labels
+  formLabel: {
+    display: 'block',
+    marginBottom: '0.5rem',
+    fontWeight: '600',
+    color: '#f7931e'
+  },
+
+  // Form inputs
+  formInput: (isLoading) => ({
+    width: '100%',
+    padding: '1rem',
+    borderRadius: '12px',
+    border: '2px solid rgba(255, 255, 255, 0.1)',
+    fontSize: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    color: '#ffffff',
+    boxSizing: 'border-box',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Poppins', sans-serif",
+    opacity: isLoading ? 0.7 : 1
+  }),
+
+  // Form select
+  formSelect: (isLoading) => ({
+    width: '100%',
+    padding: '1rem',
+    borderRadius: '12px',
+    border: '2px solid rgba(255, 255, 255, 0.1)',
+    fontSize: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    color: '#ffffff',
+    boxSizing: 'border-box',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Poppins', sans-serif",
+    opacity: isLoading ? 0.7 : 1
+  }),
+
+  // Form textarea
+  formTextarea: (isLoading) => ({
+    width: '100%',
+    padding: '1rem',
+    borderRadius: '12px',
+    border: '2px solid rgba(255, 255, 255, 0.1)',
+    fontSize: '1rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    color: '#ffffff',
+    resize: 'vertical',
+    boxSizing: 'border-box',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Poppins', sans-serif",
+    opacity: isLoading ? 0.7 : 1
+  }),
+
+  // Select options
+  selectOption: {
+    backgroundColor: '#1f1f1f',
+    color: '#ffffff'
+  },
+
+  // Submit button
+  submitButton: (isLoading) => ({
+    background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
+    color: 'white',
+    border: 'none',
+    padding: '1.2rem 2rem',
+    borderRadius: '12px',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    cursor: isLoading ? 'not-allowed' : 'pointer',
+    transition: 'all 0.3s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    marginTop: '1rem',
+    boxShadow: isLoading ? 'none' : '0 8px 32px rgba(255, 107, 53, 0.3)',
+    fontFamily: "'Poppins', sans-serif",
+    opacity: isLoading ? 0.7 : 1
+  }),
+
+  // Input focus handlers
+  inputFocusStyles: {
+    borderColor: '#ff6b35',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+  },
+
+  inputBlurStyles: {
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)'
+  },
+
+  // Button hover handlers
+  buttonHoverStyles: {
+    transform: 'translateY(-2px)',
+    boxShadow: '0 12px 40px rgba(255, 107, 53, 0.4)'
+  },
+
+  buttonNormalStyles: {
+    transform: 'translateY(0)',
+    boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)'
+  },
+
+  // Global styles as string
+  globalStyles: `
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+    
+    @keyframes slideDown {
+      from { 
+        opacity: 0; 
+        transform: translateY(-20px); 
+        maxHeight: 0;
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+        maxHeight: 500px;
+      }
+    }
+
+    input::placeholder,
+    textarea::placeholder,
+    select {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      h1 {
+        fontSize: 2.5rem !important;
+      }
+      
+      h2 {
+        fontSize: 2.5rem !important;
+      }
+      
+      .grid-two-cols {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  `
+};
