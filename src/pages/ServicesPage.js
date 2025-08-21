@@ -720,11 +720,8 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     </>
                   ) : (
                     <>
-                      📞 <strong style={{ color: '#10b981' }}>Confirmare programare</strong><br/>
-                      • Vei fi contactat în următoarele 24 de ore pentru confirmarea definitivă<br/>
-                      • Vei primi email cu detaliile complete și link-ul pentru sesiunea online<br/>
-                      • Poți modifica sau anula programarea contactându-ne direct<br/>
-                      • Prima sesiune este gratuită pentru evaluarea nivelului
+                      📞 <strong style={{ color: '#10b981' }}>Sesiunea a fost programată cu succes! </strong><br/>
+                      • Poți vedea detaliile programarii din pagina de profil. <br/>
                     </>
                   )}
                 </div>
