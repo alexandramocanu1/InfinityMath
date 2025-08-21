@@ -34,7 +34,6 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   
-  // Încărcăm orele reale din Firebase
   const [adminSchedules, setAdminSchedules] = useState({
     evaluare: [],
     bac: []
@@ -43,13 +42,13 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   const services = {
     evaluare: { 
       name: 'Clasa a 7-a', 
-      price: 60, 
+      price: '60 RON / Sesiune', 
       duration: '1h 30 minute', 
       color: '#f59e0b' // galben
     },
     bac: { 
       name: 'Clasa a 8-a', 
-      price: 60, 
+      price: '60 RON / Sesiune', 
       duration: '1h 30 minute', 
       color: '#ea580c' // portocaliu
     }
@@ -108,7 +107,7 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   };
 
   const handleServiceSelect = (serviceId) => {
-    if (services[serviceId].price === "-") return; // Nu permite selectarea serviciilor indisponibile
+    if (services[serviceId].price === "-") return;
     setSelectedService(serviceId);
     setStep(1);
     setSelectedSchedule(null);
@@ -412,7 +411,7 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                             ...servicesPageStyles.servicePrice,
                             color: service.color
                           }}>
-                            {service.price} RON
+                            {service.price} 
                           </div>
                           <div style={servicesPageStyles.serviceDuration}>
                             {service.duration} / sesiune
