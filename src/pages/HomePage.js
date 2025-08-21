@@ -29,14 +29,14 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
       id: 'evaluare',
       name: 'Clasa a 7-a',
       price: '60 RON',
-      duration: '1.5 ore',
+      duration: '1h 30 min',
       color: '#f59e0b'
     },
     {
       id: 'bac',
       name: 'Clasa a 8-a', 
       price: '60 RON',
-      duration: '2 ore',
+      duration: '1h 30 min',
       color: '#ea580c'
     }
   ];
@@ -210,8 +210,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
           </h1>
           
           <p style={homePageStyles.heroSubtitle}>
-            Cursuri online de matematică personalizate pentru a-ți atinge obiectivele academice 
-            cu încredere și rezultate garantate.
+            Construim impreuna drumul spre succes! 
           </p>
 
           <button
@@ -230,7 +229,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
             <div style={homePageStyles.sectionHeader}>
               <h2 style={homePageStyles.sectionTitle}>Cursuri Online</h2>
               <p style={homePageStyles.sectionSubtitle}>
-                Alege programul potrivit pentru obiectivele tale academice
+                Alege programul potrivit pentru tine
               </p>
             </div>
 
@@ -354,7 +353,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
             <p style={homePageStyles.howText}>
               Cursurile mele de matematică au loc <strong>săptămânal, online</strong>, și sunt dedicate 
               pregătirii pentru <strong>Evaluarea Națională și Bacalaureat</strong>. Fiecare sesiune 
-              durează aproximativ <strong>90 de minute</strong> și se desfășoară în direct, cu posibilitatea 
+              durează aproximativ <strong>90 de minute</strong> și se desfășoară online, live pe Google Meet, cu posibilitatea 
               de a pune întrebări și de a interacționa.
             </p>
             
@@ -471,7 +470,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
                 textAlign: 'center',
                 backdropFilter: 'blur(5px)'
               }}>
-                ✅ Mesajul a fost trimis cu succes! Îți voi răspunde în cel mai scurt timp.
+                ✅ Mesajul a fost trimis cu succes!
               </div>
             )}
 
@@ -698,7 +697,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
                     fontFamily: "'Poppins', sans-serif",
                     opacity: isLoading ? 0.7 : 1
                   }}
-                  placeholder="Detalii suplimentare sau întrebări..."
+                  placeholder="Întrebări despre lecții? Trimiteți un mesaj..."
                   onFocus={(e) => {
                     e.target.style.borderColor = '#ff6b35';
                     e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
