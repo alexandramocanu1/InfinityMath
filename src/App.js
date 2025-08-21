@@ -92,7 +92,7 @@ function App() {
                   color: '#6b7280', 
                   fontSize: '0.875rem' 
                 }}>
-                  Matematică Online
+                 Infinity Math
                 </p>
               </div>
             </div>
