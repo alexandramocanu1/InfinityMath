@@ -726,7 +726,6 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
 =======
                       📞 <strong style={{ color: '#10b981' }}>Sesiunea a fost programată cu succes! </strong><br/>
                       • Poți vedea detaliile programarii din pagina de profil. <br/>
->>>>>>> c609dc5d4094181a04f1dbfe53779d7bf9316d22
                     </>
                   )}
                 </div>
