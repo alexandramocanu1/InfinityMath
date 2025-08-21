@@ -719,13 +719,8 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     </>
                   ) : (
                     <>
-<<<<<<< HEAD
                       📞 <strong style={{ color: '#10b981' }}>Sesiune programată cu succes!</strong><br/>
                       • Poți vedea programarile tale din pagina de profil<br/>
-                      • Vei primi email cu detaliile complete și link-ul pentru sesiunea online<br/>
-=======
-                      📞 <strong style={{ color: '#10b981' }}>Sesiunea a fost programată cu succes! </strong><br/>
-                      • Poți vedea detaliile programarii din pagina de profil. <br/>
                     </>
                   )}
                 </div>
