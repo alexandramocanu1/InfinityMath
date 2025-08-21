@@ -28,14 +28,15 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
     {
       id: 'evaluare',
       name: 'Clasa a 7-a',
-      price: '60 RON',
+      price: '60 RON / Sesiune',
       duration: '1h 30 min',
       color: '#f59e0b'
     },
+    //Aici de adaugat si ceva mai mic ca de fapt e 240 pe luna ca sa nu fie misleading
     {
       id: 'bac',
       name: 'Clasa a 8-a', 
-      price: '60 RON',
+      price: '60 RON / Sesiune',
       duration: '1h 30 min',
       color: '#ea580c'
     }
@@ -317,7 +318,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
               <div style={homePageStyles.aboutImageContainer}>
                 <img 
                   src="/images/profil.png" 
-                  alt="Radu Ordean - Profesor Matematică"
+                  alt="Radu Ordean - Profesor de Matematică"
                   style={homePageStyles.aboutImage}
                   onError={(e) => {
                     e.target.style.display = 'none';
