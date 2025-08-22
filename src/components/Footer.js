@@ -6,17 +6,17 @@ const Footer = () => {
   const documents = [
     {
       name: 'Termeni și Condiții',
-      file: 'Termeni_si_Conditii_InfinityMath.docx',
+      file: 'Termeni_si_Conditii_InfinityMath.pdf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Returnare',
-      file: 'Politica_Retur.docx',
+      file: 'Politica_Retur.pdf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Confidențialitate',
-      file: 'Politica_Confidentialitate.docx',
+      file: 'Politica_Confidentialitate.pddf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     }
   ];
