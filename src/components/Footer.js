@@ -176,23 +176,38 @@ const Footer = () => {
         <div style={footerStyles.divider}></div>
 
         <div style={footerStyles.bottom}>
-                 
+          
           <div style={footerStyles.logoSection}>
-            {/* Logo-uri ANPC */}
-            <img 
-              src="/images/ANPC.jpeg" 
-              alt="ANPC" 
-              style={footerStyles.anpcImage}
-              onMouseOver={(e) => e.target.style.opacity = '1'}
-              onMouseOut={(e) => e.target.style.opacity = '0.8'}
-            />
-            <img 
-              src="/images/ANPC2.jpeg" 
-              alt="ANPC Soluționarea Online" 
-              style={footerStyles.anpcImage}
-              onMouseOver={(e) => e.target.style.opacity = '1'}
-              onMouseOut={(e) => e.target.style.opacity = '0.8'}
-            />
+            {/* Logo-uri ANPC cu linkuri */}
+            <a 
+              href="https://anpc.ro/ce-este-sal/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <img 
+                src="/images/ANPC.jpeg" 
+                alt="ANPC - Soluționarea Alternativă a Litigiilor" 
+                style={footerStyles.anpcImage}
+                onMouseOver={(e) => e.target.style.opacity = '1'}
+                onMouseOut={(e) => e.target.style.opacity = '0.8'}
+              />
+            </a>
+            
+            <a 
+              href="https://ec.europa.eu/consumers/odr" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <img 
+                src="/images/ANPC2.jpeg" 
+                alt="ANPC - Soluționarea Online a Litigiilor" 
+                style={footerStyles.anpcImage}
+                onMouseOver={(e) => e.target.style.opacity = '1'}
+                onMouseOut={(e) => e.target.style.opacity = '0.8'}
+              />
+            </a>
             
             {/* Logo NTP */}
             <div style={footerStyles.ntpContainer}>
