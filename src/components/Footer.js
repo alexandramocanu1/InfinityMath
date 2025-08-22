@@ -6,17 +6,17 @@ const Footer = () => {
   const documents = [
     {
       name: 'Termeni și Condiții',
-      file: 'Termeni_si_Conditii_InfinityMath.pdf',
+      file: 'Termeni_si_Conditii_InfinityMath.pdf', // ✅ Schimbat la .pdf
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Returnare',
-      file: 'Politica_Retur.pdf',
+      file: 'Politica_Retur.pdf', // ✅ Schimbat la .pdf
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Confidențialitate',
-      file: 'Politica_Confidentialitate.pddf',
+      file: 'Politica_Confidentialitate.pdf', // ✅ Schimbat la .pdf
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     }
   ];
@@ -112,15 +112,11 @@ const Footer = () => {
   };
 
   const handleDocumentClick = (fileName) => {
-    // Soluția DEFINITIVĂ - folosește Google PDF Viewer
-    const fileUrl = `${window.location.origin}/documents/${fileName}`;
-    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    // Pentru PDF-uri: deschide într-o pagină nouă
+    const fileUrl = `/documents/${fileName}`;
     
-    console.log('PDF URL:', fileUrl);
-    console.log('Google Viewer URL:', googleViewerUrl);
-    
-    // Deschide cu Google PDF Viewer
-    window.open(googleViewerUrl, '_blank', 'noopener,noreferrer');
+    // Deschide PDF-ul într-un tab nou ca viewer în browser
+    window.open(fileUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -176,7 +172,7 @@ const Footer = () => {
         <div style={footerStyles.divider}></div>
 
         <div style={footerStyles.bottom}>
-          
+                    
           <div style={footerStyles.logoSection}>
             {/* Logo-uri ANPC cu linkuri */}
             <a 
