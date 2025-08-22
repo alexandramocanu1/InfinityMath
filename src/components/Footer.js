@@ -1,21 +1,22 @@
 import React from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
+import NTPLogo from 'ntp-logo-react';
 
 const Footer = () => {
   const documents = [
     {
       name: 'Termeni și Condiții',
-      file: 'Termeni_si_Conditii_InfinityMath.pdf',
+      file: 'Termeni_si_Conditii_InfinityMath.docx',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Returnare',
-      file: 'Politica_Retur.pdf',
+      file: 'Politica_Retur.docx',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Confidențialitate',
-      file: 'Politica_Confidentialitate.pdf',
+      file: 'Politica_Confidentialitate.docx',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     }
   ];
@@ -81,19 +82,45 @@ const Footer = () => {
     },
     bottom: {
       display: 'flex',
-      justifyContent: 'center',
+      justifyContent: 'space-between',
       alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: '1rem',
       fontSize: '0.875rem',
-      color: '#9ca3af',
-      textAlign: 'center'
+      color: '#9ca3af'
     },
     copyright: {
       margin: 0
+    },
+    logoSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      flexWrap: 'wrap'
+    },
+    anpcImage: {
+      height: '40px',
+      width: 'auto',
+      opacity: 0.8,
+      transition: 'opacity 0.2s ease'
+    },
+    ntpContainer: {
+      height: '35px',
+      display: 'flex',
+      alignItems: 'center'
     }
   };
 
   const handleDocumentClick = (fileName) => {
-    window.open(`/documents/${fileName}`, '_blank');
+    // Soluția DEFINITIVĂ - folosește Google PDF Viewer
+    const fileUrl = `${window.location.origin}/documents/${fileName}`;
+    const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+    
+    console.log('PDF URL:', fileUrl);
+    console.log('Google Viewer URL:', googleViewerUrl);
+    
+    // Deschide cu Google PDF Viewer
+    window.open(googleViewerUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -146,13 +173,37 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* <div style={footerStyles.divider}></div>
+        <div style={footerStyles.divider}></div>
 
         <div style={footerStyles.bottom}>
-          <p style={footerStyles.copyright}>
-            © 2025 Infinity Math. Toate drepturile rezervate.
-          </p>
-        </div> */}
+                 
+          <div style={footerStyles.logoSection}>
+            {/* Logo-uri ANPC */}
+            <img 
+              src="/images/ANPC.jpeg" 
+              alt="ANPC" 
+              style={footerStyles.anpcImage}
+              onMouseOver={(e) => e.target.style.opacity = '1'}
+              onMouseOut={(e) => e.target.style.opacity = '0.8'}
+            />
+            <img 
+              src="/images/ANPC2.jpeg" 
+              alt="ANPC Soluționarea Online" 
+              style={footerStyles.anpcImage}
+              onMouseOver={(e) => e.target.style.opacity = '1'}
+              onMouseOut={(e) => e.target.style.opacity = '0.8'}
+            />
+            
+            {/* Logo NTP */}
+            <div style={footerStyles.ntpContainer}>
+              <NTPLogo 
+                color="#ffffff" 
+                version="orizontal" 
+                secret="154714" 
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </footer>
   );
