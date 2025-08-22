@@ -23,6 +23,8 @@ import { auth, db } from './config';
 
 // ===== AUTHENTICATION SERVICES =====
 
+// În firebase/services.js - înlocuiește funcția registerUser cu aceasta:
+
 export const registerUser = async (userData) => {
   try {
     console.log('🔄 Începe înregistrarea pentru:', userData.email);
@@ -38,31 +40,33 @@ export const registerUser = async (userData) => {
     console.log('✅ Utilizator creat în Auth:', user.uid);
 
     // Determină tipul de cont (admin dacă email-ul conține "admin")
-    const tipCont = userData.email.includes('admin') ? 'admin' : userData.tipCont;
+    const tipCont = userData.email.includes('admin') ? 'admin' : 'elev';
     console.log('📝 Tip cont determinat:', tipCont);
 
-    // Creează documentul utilizatorului în Firestore
+    // Creează documentul utilizatorului în Firestore - CÂMPURI CORECTE
     const userDocData = {
-      nume: userData.nume,
-      prenume: userData.prenume,
+      numeElev: userData.numeElev,          // ✅ CORECT
+      prenumeElev: userData.prenumeElev,    // ✅ CORECT
       email: userData.email,
-      telefon: userData.telefon,
+      telefon: userData.telefon,             // ✅ CORECT
       tipCont: tipCont,
       createdAt: serverTimestamp(),
-      subscriptie: {
-        activa: false,
+      abonament: {                          // ✅ CORECT (nu subscriptie)
+        activ: false,
         tip: 'evaluare',
-        pret: '0 RON',
-        dataExpirare: null,
-        recurenta: false
-      },
-      copii: []
+        dataInceperii: null,
+        linkCurs: null,
+        ziuaSaptamanii: null,
+        oraCurs: null,
+        dataUrmatoareiSedinte: null
+      }
     };
 
     console.log('📝 Creez document în Firestore pentru:', user.uid);
+    console.log('📝 Date document:', userDocData);
     
-    // Folosește setDoc cu merge pentru a evita suprascrieri accidentale
-    await setDoc(doc(db, 'users', user.uid), userDocData, { merge: true });
+    // Folosește setDoc pentru a crea documentul
+    await setDoc(doc(db, 'users', user.uid), userDocData);
     
     // Verifică imediat dacă documentul a fost creat
     const verifyDoc = await getDoc(doc(db, 'users', user.uid));
@@ -77,7 +81,18 @@ export const registerUser = async (userData) => {
   } catch (error) {
     console.error('❌ Eroare la înregistrare:', error);
     console.error('❌ Detalii eroare:', error.code, error.message);
-    return { success: false, error: error.message };
+    
+    let errorMessage = 'Eroare la înregistrare. Te rog să încerci din nou.';
+    
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'Această adresă de email este deja folosită.';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'Parola trebuie să aibă cel puțin 6 caractere.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'Adresa de email nu este validă.';
+    }
+    
+    return { success: false, error: errorMessage };
   }
 };
 

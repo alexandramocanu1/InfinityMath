@@ -380,32 +380,27 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
             </h2>
             
             <div style={homePageStyles.reviewsGrid}>
-              {reviews.slice(0, 7).map((review, index) => {
-                const gridPosition = getGridPosition(index);
-                
-                return (
-                  <div 
-                    key={review.id} 
-                    style={{
-                      ...homePageStyles.reviewItem.base,
-                      gridColumn: gridPosition.column,
-                      gridRow: gridPosition.row
+              {reviews.map((review, index) => (
+                <div 
+                  key={review.id} 
+                  style={{
+                    ...homePageStyles.reviewItem.base,
+                    // Înălțimi variate pentru un aspect masonry
+                    height: index % 4 === 0 ? '280px' : 
+                          index % 3 === 0 ? '220px' : 
+                          index % 2 === 0 ? '240px' : '200px'
+                  }}
+                >
+                  <img 
+                    src={`/images/${review.image}`}
+                    alt={review.alt}
+                    style={homePageStyles.reviewImage}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
                     }}
-                    onClick={() => openModal(index)}
-                    onMouseOver={(e) => Object.assign(e.currentTarget.style, homePageStyles.reviewItem.hover)}
-                    onMouseOut={(e) => Object.assign(e.currentTarget.style, homePageStyles.reviewItem.base)}
-                  >
-                    <img 
-                      src={`/images/${review.image}`}
-                      alt={review.alt}
-                      style={homePageStyles.reviewImage}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                );
-              })}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>

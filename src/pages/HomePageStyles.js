@@ -342,38 +342,40 @@ export const homePageStyles = {
   },
 
   reviewsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gridTemplateRows: 'repeat(2, 160px)',
-    gap: '1rem',
-    maxWidth: '900px',
-    margin: '0 auto'
-  },
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+  gap: '1.5rem',
+  maxWidth: '1200px',
+  margin: '0 auto',
+  padding: '0 1rem'
+},
+
 
   reviewItem: {
-    base: {
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-      position: 'relative',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      backdropFilter: 'blur(10px)'
-    },
-    hover: {
-      transform: 'scale(1.02)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)'
-    }
+  base: {
+    transition: 'all 0.3s ease',
+    borderRadius: '16px',
+    overflow: 'hidden',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+    position: 'relative',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    border: '2px solid rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(10px)',
+    transform: 'rotate(0deg)'
   },
+  hover: {
+    transform: 'scale(1.05) rotate(0deg)',
+    boxShadow: '0 16px 48px rgba(0, 0, 0, 0.25)',
+    zIndex: 10
+  }
+},
 
   reviewImage: {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    transition: 'transform 0.3s ease'
-  },
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  transition: 'transform 0.3s ease'
+},
 
   // Contact Form Section
   contactSection: {
