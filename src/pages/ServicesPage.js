@@ -54,7 +54,6 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
     }
   };
 
-  // Încarcă programele din Firebase la montarea componentei
   useEffect(() => {
     loadSchedulesFromFirebase();
   }, []);
@@ -80,7 +79,6 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
             ora: scheduleData.ora,
             tip: scheduleData.tip,
             enrolledCount: scheduleData.enrolledCount || 0
-            // Nu includem link-ul pentru securitate
           });
         }
       });
@@ -208,22 +206,22 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
     setIsLoading(true);
     
     try {
-      if (currentUser && userData) {
-        // Utilizator autentificat - înscrie direct cu datele din profil
-        const enrollmentData = {
-          userId: currentUser.uid,
-          scheduleId: selectedSchedule.id,
-          serviceTip: selectedService,
-          clientName: `${userData.prenumeElev} ${userData.numeElev}`,
-          clientEmail: userData.email,
-          clientPhone: userData.telefon,
-          scheduleDay: selectedSchedule.zi,
-          scheduleTime: selectedSchedule.ora,
-          serviceName: currentService.name,
-          servicePrice: currentService.price,
-          createdAt: serverTimestamp(),
-          status: 'confirmed' // Utilizatorii autentificați sunt confirmați automat
-        };
+    if (currentUser && userData) {
+      // Utilizator autentificat - înscrie direct cu datele din profil
+      const enrollmentData = {
+        userId: currentUser.uid,
+        scheduleId: selectedSchedule.id,
+        serviceTip: selectedService,
+        clientName: `${userData.prenumeElev} ${userData.numeElev}`, // ✅ Corect
+        clientEmail: userData.email,
+        clientPhone: userData.telefon, // ✅ Corect
+        scheduleDay: selectedSchedule.zi,
+        scheduleTime: selectedSchedule.ora,
+        serviceName: currentService.name,
+        servicePrice: currentService.price,
+        createdAt: serverTimestamp(),
+        status: 'confirmed'
+      };
         
         // Adăugăm înscrierea în colecția 'enrollments'
         await addDoc(collection(db, 'enrollments'), enrollmentData);
@@ -650,14 +648,14 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     
                     {/* Afișăm datele utilizatorului autentificat sau din formular */}
                     <div style={servicesPageStyles.finalSummaryRow}>
-                      <span style={servicesPageStyles.finalSummaryLabel}>Client:</span>
-                      <span style={servicesPageStyles.finalSummaryValue}>
-                        {currentUser && userData 
-                          ? `${userData.prenumeElev} ${userData.numeElev}`
-                          : clientData.name
-                        }
-                      </span>
-                    </div>
+                    <span style={servicesPageStyles.finalSummaryLabel}>Client:</span>
+                    <span style={servicesPageStyles.finalSummaryValue}>
+                      {currentUser && userData 
+                        ? `${userData.prenumeElev} ${userData.numeElev}` // ✅ Corect
+                        : clientData.name
+                      }
+                    </span>
+                  </div>
                     
                     <div style={servicesPageStyles.finalSummaryRow}>
                       <span style={servicesPageStyles.finalSummaryLabel}>Email:</span>
@@ -808,6 +806,366 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
             </div>
           </div>
         </div>
+
+        {/* Auth Modal - adaugă înaintea success modal-ului */}
+{showAuthModal && (
+  <div style={servicesPageStyles.modal.overlay}>
+    <div style={{
+      ...servicesPageStyles.modal.content,
+      maxWidth: '500px',
+      padding: '2rem'
+    }}>
+      <button
+        onClick={closeAuthModal}
+        style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          background: 'none',
+          border: 'none',
+          fontSize: '1.5rem',
+          cursor: 'pointer',
+          color: '#6b7280'
+        }}
+      >
+        ×
+      </button>
+
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <Lock style={{ 
+          width: '3rem', 
+          height: '3rem', 
+          color: currentService?.color || '#ea580c',
+          marginBottom: '1rem' 
+        }} />
+        <h2 style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '600', 
+          color: '#1f2937',
+          marginBottom: '0.5rem' 
+        }}>
+          Cont Necesar
+        </h2>
+        <p style={{ color: '#6b7280' }}>
+          Pentru a continua cu programarea, ai nevoie de un cont.
+        </p>
+      </div>
+
+      {authError && (
+        <div style={{
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          padding: '0.75rem',
+          borderRadius: '8px',
+          marginBottom: '1rem',
+          fontSize: '0.875rem'
+        }}>
+          {authError}
+        </div>
+      )}
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', marginBottom: '1rem' }}>
+          <button
+            onClick={() => setShowRegister(false)}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              backgroundColor: !showRegister ? (currentService?.color || '#ea580c') : 'transparent',
+              color: !showRegister ? 'white' : '#6b7280',
+              border: `2px solid ${currentService?.color || '#ea580c'}`,
+              borderRadius: '8px 0 0 8px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Logare
+          </button>
+          <button
+            onClick={() => setShowRegister(true)}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              backgroundColor: showRegister ? (currentService?.color || '#ea580c') : 'transparent',
+              color: showRegister ? 'white' : '#6b7280',
+              border: `2px solid ${currentService?.color || '#ea580c'}`,
+              borderRadius: '0 8px 8px 0',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            Cont Nou
+          </button>
+        </div>
+      </div>
+
+      {!showRegister ? (
+        // Formular Login
+        <form onSubmit={handleLogin}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={loginForm.email}
+              onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+              required
+              disabled={authLoading}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                boxSizing: 'border-box'
+              }}
+              placeholder="email@exemplu.ro"
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              Parolă
+            </label>
+            <input
+              type="password"
+              value={loginForm.password}
+              onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+              required
+              disabled={authLoading}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                boxSizing: 'border-box'
+              }}
+              placeholder="Parola ta"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={authLoading}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: currentService?.color || '#ea580c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: authLoading ? 'not-allowed' : 'pointer',
+              opacity: authLoading ? 0.7 : 1
+            }}
+          >
+            {authLoading ? 'Se conectează...' : 'Conectează-te'}
+          </button>
+        </form>
+      ) : (
+        // Formular Register
+        <form onSubmit={handleRegister}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                Nume
+              </label>
+              <input
+                type="text"
+                value={registerForm.numeElev}
+                onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
+                required
+                disabled={authLoading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Nume"
+              />
+            </div>
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                Prenume
+              </label>
+              <input
+                type="text"
+                value={registerForm.prenumeElev}
+                onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
+                required
+                disabled={authLoading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Prenume"
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={registerForm.email}
+              onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+              required
+              disabled={authLoading}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                boxSizing: 'border-box'
+              }}
+              placeholder="email@exemplu.ro"
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ 
+              display: 'block', 
+              marginBottom: '0.5rem', 
+              fontWeight: '500',
+              color: '#374151'
+            }}>
+              Telefon
+            </label>
+            <input
+              type="tel"
+              value={registerForm.telefon}
+              onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
+              required
+              disabled={authLoading}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '2px solid #e5e7eb',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                boxSizing: 'border-box'
+              }}
+              placeholder="+40 XXX XXX XXX"
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                Parolă
+              </label>
+              <input
+                type="password"
+                value={registerForm.password}
+                onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                required
+                disabled={authLoading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Parolă"
+              />
+            </div>
+            <div>
+              <label style={{ 
+                display: 'block', 
+                marginBottom: '0.5rem', 
+                fontWeight: '500',
+                color: '#374151'
+              }}>
+                Confirmă Parola
+              </label>
+              <input
+                type="password"
+                value={registerForm.confirmPassword}
+                onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
+                required
+                disabled={authLoading}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Confirmă parola"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={authLoading}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: currentService?.color || '#ea580c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: authLoading ? 'not-allowed' : 'pointer',
+              opacity: authLoading ? 0.7 : 1
+            }}
+          >
+            {authLoading ? 'Se creează contul...' : 'Creează Cont'}
+          </button>
+        </form>
+      )}
+    </div>
+  </div>
+)}
 
         {/* Success Modal */}
         {isComplete && (

@@ -285,7 +285,7 @@ const FAQPage = () => {
                   </div>
                   {activeQuestion === q.id && (
                     <div style={{
-                      padding: '0 1.5rem 1.5rem 1.5rem',
+                      padding: '2rem 1.5rem 2.5rem 1.5rem',
                       fontSize: '1.1rem',
                       lineHeight: '1.7',
                       color: '#374151',
