@@ -6,6 +6,7 @@ import FAQPage from './pages/FAQPage';
 import ContactPage from './pages/ContactPage';
 import ProfilePage from './pages/ProfilePage';
 import { AuthProvider } from './contexts/AuthContext';
+import Footer from './components/Footer';
 import './App.css';
 
 function App() {
@@ -62,7 +63,12 @@ function App() {
 
   return (
     <AuthProvider>
-      <div style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
         {/* Header */}
         <header style={headerStyle}>
           <div style={navStyle}>
@@ -86,13 +92,14 @@ function App() {
                   color: '#1f2937',
                   fontWeight: '700' 
                 }}>
+                  Infinity Math
                 </h1>
                 <p style={{ 
                   margin: 0, 
                   color: '#6b7280', 
                   fontSize: '0.875rem' 
                 }}>
-                 Infinity Math
+                  Matematică pentru toți
                 </p>
               </div>
             </div>
@@ -192,25 +199,30 @@ function App() {
           </div>
         </header>
 
-        {/* Content */}
-        {currentPage === 'home' && (
-          <HomePage 
-            setCurrentPage={setCurrentPage} 
-            setSelectedService={setSelectedService}
-          />
-        )}
-        
-        {currentPage === 'services' && (
-          <ServicesPage 
-            selectedService={selectedService}
-            setSelectedService={setSelectedService}
-            setCurrentPage={setCurrentPage}
-          />
-        )}
-        
-        {currentPage === 'faq' && <FAQPage />}
-        {currentPage === 'contact' && <ContactPage />}
-        {currentPage === 'profile' && <ProfilePage />}
+        {/* Content - flex: 1 pentru a ocupa spațiul disponibil */}
+        <main style={{ flex: 1 }}>
+          {currentPage === 'home' && (
+            <HomePage 
+              setCurrentPage={setCurrentPage} 
+              setSelectedService={setSelectedService}
+            />
+          )}
+          
+          {currentPage === 'services' && (
+            <ServicesPage 
+              selectedService={selectedService}
+              setSelectedService={setSelectedService}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
+          
+          {currentPage === 'faq' && <FAQPage />}
+          {currentPage === 'contact' && <ContactPage />}
+          {currentPage === 'profile' && <ProfilePage />}
+        </main>
+
+        {/* Footer */}
+        <Footer />
 
         {/* CSS pentru animații */}
         <style>
