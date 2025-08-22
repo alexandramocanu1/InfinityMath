@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Mail, Phone, Check, ArrowLeft, ArrowRight, BookOpen, AlertCircle, Lock } from 'lucide-react';
-import { collection, getDocs, addDoc, serverTimestamp, updateDoc, doc, increment } from 'firebase/firestore';
+import { collection, getDocs, addDoc, serverTimestamp, updateDoc, doc, increment, getDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
 import { registerUser, loginUser } from '../firebase/services';
 import { db } from '../firebase/config';
 import { servicesPageStyles } from './ServicesPageStyles';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../firebase/config';
 
 const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) => {
   const { currentUser, userData } = useAuth();
@@ -38,6 +40,58 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
     evaluare: [],
     bac: []
   });
+
+
+
+const handleGoogleLogin = async () => {
+  setAuthLoading(true);
+  setAuthError('');
+
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    
+    // Verifică dacă utilizatorul are deja un document în Firestore
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    if (!userDoc.exists()) {
+      // Creează documentul pentru utilizatorul nou
+      const userDocData = {
+        numeElev: user.displayName?.split(' ')[1] || 'Elev',
+        prenumeElev: user.displayName?.split(' ')[0] || 'Nou',
+        email: user.email,
+        telefon: '',
+        tipCont: user.email.includes('admin') ? 'admin' : 'elev',
+        createdAt: serverTimestamp(),
+        abonament: {
+          activ: false,
+          tip: 'evaluare',
+          dataInceperii: null,
+          linkCurs: null,
+          ziuaSaptamanii: null,
+          oraCurs: null,
+          dataUrmatoareiSedinte: null
+        }
+      };
+
+      await setDoc(doc(db, 'users', user.uid), userDocData);
+      console.log('✅ Document creat pentru Google user:', user.uid);
+    }
+
+    // Închide modal-ul și continuă la pasul final
+    setShowAuthModal(false);
+    setStep(3);
+    
+  } catch (error) {
+    console.error('❌ Eroare la Google Login:', error);
+    setAuthError('Eroare la autentificarea cu Google. Te rog să încerci din nou.');
+  }
+  
+  setAuthLoading(false);
+};
+
+
 
   const services = {
     evaluare: { 
@@ -807,365 +861,481 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
           </div>
         </div>
 
-        {/* Auth Modal - adaugă înaintea success modal-ului */}
-{showAuthModal && (
-  <div style={servicesPageStyles.modal.overlay}>
-    <div style={{
-      ...servicesPageStyles.modal.content,
-      maxWidth: '500px',
-      padding: '2rem'
-    }}>
-      <button
-        onClick={closeAuthModal}
-        style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          background: 'none',
-          border: 'none',
-          fontSize: '1.5rem',
-          cursor: 'pointer',
-          color: '#6b7280'
-        }}
-      >
-        ×
-      </button>
-
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <Lock style={{ 
-          width: '3rem', 
-          height: '3rem', 
-          color: currentService?.color || '#ea580c',
-          marginBottom: '1rem' 
-        }} />
-        <h2 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          marginBottom: '0.5rem' 
-        }}>
-          Cont Necesar
-        </h2>
-        <p style={{ color: '#6b7280' }}>
-          Pentru a continua cu programarea, ai nevoie de un cont.
-        </p>
-      </div>
-
-      {authError && (
-        <div style={{
-          backgroundColor: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: '#dc2626',
-          padding: '0.75rem',
-          borderRadius: '8px',
-          marginBottom: '1rem',
-          fontSize: '0.875rem'
-        }}>
-          {authError}
-        </div>
-      )}
-
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', marginBottom: '1rem' }}>
-          <button
-            onClick={() => setShowRegister(false)}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: !showRegister ? (currentService?.color || '#ea580c') : 'transparent',
-              color: !showRegister ? 'white' : '#6b7280',
-              border: `2px solid ${currentService?.color || '#ea580c'}`,
-              borderRadius: '8px 0 0 8px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Logare
-          </button>
-          <button
-            onClick={() => setShowRegister(true)}
-            style={{
-              flex: 1,
-              padding: '0.75rem',
-              backgroundColor: showRegister ? (currentService?.color || '#ea580c') : 'transparent',
-              color: showRegister ? 'white' : '#6b7280',
-              border: `2px solid ${currentService?.color || '#ea580c'}`,
-              borderRadius: '0 8px 8px 0',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            Cont Nou
-          </button>
-        </div>
-      </div>
-
-      {!showRegister ? (
-        // Formular Login
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
+{/* Auth Modal */}
+        {showAuthModal && (
+          <div style={servicesPageStyles.modal.overlay}>
+            <div style={{
+              ...servicesPageStyles.modal.content,
+              maxWidth: '500px',
+              padding: '2rem'
             }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={loginForm.email}
-              onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
-              required
-              disabled={authLoading}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
-              placeholder="email@exemplu.ro"
-            />
-          </div>
-
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Parolă
-            </label>
-            <input
-              type="password"
-              value={loginForm.password}
-              onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-              required
-              disabled={authLoading}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
-              placeholder="Parola ta"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={authLoading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              backgroundColor: currentService?.color || '#ea580c',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: authLoading ? 'not-allowed' : 'pointer',
-              opacity: authLoading ? 0.7 : 1
-            }}
-          >
-            {authLoading ? 'Se conectează...' : 'Conectează-te'}
-          </button>
-        </form>
-      ) : (
-        // Formular Register
-        <form onSubmit={handleRegister}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Nume
-              </label>
-              <input
-                type="text"
-                value={registerForm.numeElev}
-                onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
-                required
-                disabled={authLoading}
+              <button
+                onClick={closeAuthModal}
                 style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  color: '#6b7280'
                 }}
-                placeholder="Nume"
-              />
-            </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Prenume
-              </label>
-              <input
-                type="text"
-                value={registerForm.prenumeElev}
-                onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
-                required
-                disabled={authLoading}
-                style={{
-                  width: '100%',
+              >
+                ×
+              </button>
+
+              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <Lock style={{ 
+                  width: '3rem', 
+                  height: '3rem', 
+                  color: currentService?.color || '#ea580c',
+                  marginBottom: '1rem' 
+                }} />
+                <h2 style={{ 
+                  fontSize: '1.5rem', 
+                  fontWeight: '600', 
+                  color: '#1f2937',
+                  marginBottom: '0.5rem' 
+                }}>
+                  Cont Necesar
+                </h2>
+                <p style={{ color: '#6b7280' }}>
+                  Pentru a continua cu programarea, ai nevoie de un cont.
+                </p>
+              </div>
+
+              {authError && (
+                <div style={{
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#dc2626',
                   padding: '0.75rem',
-                  border: '2px solid #e5e7eb',
                   borderRadius: '8px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
-                placeholder="Prenume"
-              />
+                  marginBottom: '1rem',
+                  fontSize: '0.875rem'
+                }}>
+                  {authError}
+                </div>
+              )}
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', marginBottom: '1rem' }}>
+                  <button
+                    onClick={() => setShowRegister(false)}
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem',
+                      backgroundColor: !showRegister ? (currentService?.color || '#ea580c') : 'transparent',
+                      color: !showRegister ? 'white' : '#6b7280',
+                      border: `2px solid ${currentService?.color || '#ea580c'}`,
+                      borderRadius: '8px 0 0 8px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Logare
+                  </button>
+                  <button
+                    onClick={() => setShowRegister(true)}
+                    style={{
+                      flex: 1,
+                      padding: '0.75rem',
+                      backgroundColor: showRegister ? (currentService?.color || '#ea580c') : 'transparent',
+                      color: showRegister ? 'white' : '#6b7280',
+                      border: `2px solid ${currentService?.color || '#ea580c'}`,
+                      borderRadius: '0 8px 8px 0',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cont Nou
+                  </button>
+                </div>
+              </div>
+
+              {!showRegister ? (
+                // Formular Login
+                <>
+                  <form onSubmit={handleLogin}>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ 
+                        display: 'block', 
+                        marginBottom: '0.5rem', 
+                        fontWeight: '500',
+                        color: '#374151'
+                      }}>
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={loginForm.email}
+                        onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                        required
+                        disabled={authLoading}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="email@exemplu.ro"
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                      <label style={{ 
+                        display: 'block', 
+                        marginBottom: '0.5rem', 
+                        fontWeight: '500',
+                        color: '#374151'
+                      }}>
+                        Parolă
+                      </label>
+                      <input
+                        type="password"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                        required
+                        disabled={authLoading}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="Parola ta"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: currentService?.color || '#ea580c',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: authLoading ? 'not-allowed' : 'pointer',
+                        opacity: authLoading ? 0.7 : 1
+                      }}
+                    >
+                      {authLoading ? 'Se conectează...' : 'Conectează-te'}
+                    </button>
+                  </form>
+
+                  {/* Google Login Button */}
+                  <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      margin: '1rem 0', 
+                      color: '#6b7280' 
+                    }}>
+                      <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                      <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>sau</span>
+                      <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                    </div>
+                    
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={authLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: '#ffffff',
+                        color: '#374151',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: '500',
+                        cursor: authLoading ? 'not-allowed' : 'pointer',
+                        opacity: authLoading ? 0.7 : 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        if (!authLoading) {
+                          e.target.style.backgroundColor = '#f9fafb';
+                          e.target.style.borderColor = '#d1d5db';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (!authLoading) {
+                          e.target.style.backgroundColor = '#ffffff';
+                          e.target.style.borderColor = '#e5e7eb';
+                        }
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      {authLoading ? 'Se conectează...' : 'Continuă cu Google'}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                // Formular Register
+                <>
+                  <form onSubmit={handleRegister}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                      <div>
+                        <label style={{ 
+                          display: 'block', 
+                          marginBottom: '0.5rem', 
+                          fontWeight: '500',
+                          color: '#374151'
+                        }}>
+                          Nume
+                        </label>
+                        <input
+                          type="text"
+                          value={registerForm.numeElev}
+                          onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
+                          required
+                          disabled={authLoading}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            boxSizing: 'border-box'
+                          }}
+                          placeholder="Nume"
+                        />
+                      </div>
+                      <div>
+                        <label style={{ 
+                          display: 'block', 
+                          marginBottom: '0.5rem', 
+                          fontWeight: '500',
+                          color: '#374151'
+                        }}>
+                          Prenume
+                        </label>
+                        <input
+                          type="text"
+                          value={registerForm.prenumeElev}
+                          onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
+                          required
+                          disabled={authLoading}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            boxSizing: 'border-box'
+                          }}
+                          placeholder="Prenume"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ 
+                        display: 'block', 
+                        marginBottom: '0.5rem', 
+                        fontWeight: '500',
+                        color: '#374151'
+                      }}>
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={registerForm.email}
+                        onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                        required
+                        disabled={authLoading}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="email@exemplu.ro"
+                      />
+                    </div>
+
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ 
+                        display: 'block', 
+                        marginBottom: '0.5rem', 
+                        fontWeight: '500',
+                        color: '#374151'
+                      }}>
+                        Telefon
+                      </label>
+                      <input
+                        type="tel"
+                        value={registerForm.telefon}
+                        onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
+                        required
+                        disabled={authLoading}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box'
+                        }}
+                        placeholder="+40 XXX XXX XXX"
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <div>
+                        <label style={{ 
+                          display: 'block', 
+                          marginBottom: '0.5rem', 
+                          fontWeight: '500',
+                          color: '#374151'
+                        }}>
+                          Parolă
+                        </label>
+                        <input
+                          type="password"
+                          value={registerForm.password}
+                          onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                          required
+                          disabled={authLoading}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            boxSizing: 'border-box'
+                          }}
+                          placeholder="Parolă"
+                        />
+                      </div>
+                      <div>
+                        <label style={{ 
+                          display: 'block', 
+                          marginBottom: '0.5rem', 
+                          fontWeight: '500',
+                          color: '#374151'
+                        }}>
+                          Confirmă Parola
+                        </label>
+                        <input
+                          type="password"
+                          value={registerForm.confirmPassword}
+                          onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
+                          required
+                          disabled={authLoading}
+                          style={{
+                            width: '100%',
+                            padding: '0.75rem',
+                            border: '2px solid #e5e7eb',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
+                            boxSizing: 'border-box'
+                          }}
+                          placeholder="Confirmă parola"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={authLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: currentService?.color || '#ea580c',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        cursor: authLoading ? 'not-allowed' : 'pointer',
+                        opacity: authLoading ? 0.7 : 1
+                      }}
+                    >
+                      {authLoading ? 'Se creează contul...' : 'Creează Cont'}
+                    </button>
+                  </form>
+
+                  {/* Google Login Button */}
+                  <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      margin: '1rem 0', 
+                      color: '#6b7280' 
+                    }}>
+                      <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                      <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>sau</span>
+                      <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                    </div>
+                    
+                    <button
+                      onClick={handleGoogleLogin}
+                      disabled={authLoading}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        backgroundColor: '#ffffff',
+                        color: '#374151',
+                        border: '2px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
+                        fontWeight: '500',
+                        cursor: authLoading ? 'not-allowed' : 'pointer',
+                        opacity: authLoading ? 0.7 : 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        if (!authLoading) {
+                          e.target.style.backgroundColor = '#f9fafb';
+                          e.target.style.borderColor = '#d1d5db';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (!authLoading) {
+                          e.target.style.backgroundColor = '#ffffff';
+                          e.target.style.borderColor = '#e5e7eb';
+                        }
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      {authLoading ? 'Se conectează...' : 'Continuă cu Google'}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={registerForm.email}
-              onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
-              required
-              disabled={authLoading}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
-              placeholder="email@exemplu.ro"
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Telefon
-            </label>
-            <input
-              type="tel"
-              value={registerForm.telefon}
-              onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
-              required
-              disabled={authLoading}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
-              placeholder="+40 XXX XXX XXX"
-            />
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Parolă
-              </label>
-              <input
-                type="password"
-                value={registerForm.password}
-                onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                required
-                disabled={authLoading}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
-                placeholder="Parolă"
-              />
-            </div>
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Confirmă Parola
-              </label>
-              <input
-                type="password"
-                value={registerForm.confirmPassword}
-                onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
-                required
-                disabled={authLoading}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
-                placeholder="Confirmă parola"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={authLoading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              backgroundColor: currentService?.color || '#ea580c',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: authLoading ? 'not-allowed' : 'pointer',
-              opacity: authLoading ? 0.7 : 1
-            }}
-          >
-            {authLoading ? 'Se creează contul...' : 'Creează Cont'}
-          </button>
-        </form>
-      )}
-    </div>
-  </div>
-)}
+        )}
 
         {/* Success Modal */}
         {isComplete && (
