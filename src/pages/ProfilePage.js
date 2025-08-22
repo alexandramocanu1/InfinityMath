@@ -11,9 +11,10 @@ import {
   getUserEnrollments,
   enrollUserToSession
 } from '../firebase/services';
-import { doc, setDoc, serverTimestamp, collection, addDoc, getDocs, updateDoc, query, where } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { doc, setDoc, serverTimestamp, collection, addDoc, getDocs, updateDoc, query, where, getDoc } from 'firebase/firestore';
+import { db, auth } from '../firebase/config';
 import { profilePageStyles } from './ProfilePageStyles';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 const ProfilePage = () => {
   const { currentUser, userData, updateUserData } = useAuth();
@@ -45,6 +46,52 @@ const ProfilePage = () => {
   
   // Pentru elevi - cursurile la care sunt înscriși
   const [studentEnrollments, setStudentEnrollments] = useState([]);
+
+  // Google Login
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      // Verifică dacă utilizatorul are deja un document în Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (!userDoc.exists()) {
+        // Creează documentul pentru utilizatorul nou
+        const userDocData = {
+          numeElev: user.displayName?.split(' ')[1] || 'Elev',
+          prenumeElev: user.displayName?.split(' ')[0] || 'Nou',
+          email: user.email,
+          telefon: '',
+          tipCont: user.email.includes('admin') ? 'admin' : 'elev',
+          createdAt: serverTimestamp(),
+          abonament: {
+            activ: false,
+            tip: 'evaluare',
+            dataInceperii: null,
+            linkCurs: null,
+            ziuaSaptamanii: null,
+            oraCurs: null,
+            dataUrmatoareiSedinte: null
+          }
+        };
+
+        await setDoc(doc(db, 'users', user.uid), userDocData);
+        console.log('✅ Document creat pentru Google user:', user.uid);
+        updateUserData(userDocData);
+      }
+      
+    } catch (error) {
+      console.error('❌ Eroare la Google Auth:', error);
+      setError('Eroare la autentificarea cu Google. Te rog să încerci din nou.');
+    }
+    
+    setLoading(false);
+  };
 
   // AUTO-FIX: Creează documentul automat dacă nu există
   useEffect(() => {
@@ -374,143 +421,259 @@ const ProfilePage = () => {
           )}
 
           {!showRegister ? (
-            <form onSubmit={handleLogin} style={profilePageStyles.form}>
-              <div>
-                <label style={profilePageStyles.label}>Email</label>
-                <div style={profilePageStyles.inputWrapper}>
-                  <Mail style={profilePageStyles.inputIcon} />
+            <>
+              <form onSubmit={handleLogin} style={profilePageStyles.form}>
+                <div>
+                  <label style={profilePageStyles.label}>Email</label>
+                  <div style={profilePageStyles.inputWrapper}>
+                    <Mail style={profilePageStyles.inputIcon} />
+                    <input
+                      type="email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
+                      placeholder="email@exemplu.ro"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={profilePageStyles.label}>Parolă</label>
+                  <div style={profilePageStyles.inputWrapper}>
+                    <Lock style={profilePageStyles.inputIcon} />
+                    <input
+                      type="password"
+                      value={loginForm.password}
+                      onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    ...profilePageStyles.submitButton,
+                    backgroundColor: loading ? '#9ca3af' : '#2563eb'
+                  }}
+                >
+                  {loading ? 'Se autentifică...' : 'Autentificare'}
+                </button>
+              </form>
+
+              {/* Google Login Button pentru Login */}
+              <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  margin: '1rem 0', 
+                  color: '#6b7280' 
+                }}>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                  <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>sau</span>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                </div>
+                
+                <button
+                  onClick={handleGoogleAuth}
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#ffffff',
+                    color: '#374151',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#f9fafb';
+                      e.target.style.borderColor = '#d1d5db';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#ffffff';
+                      e.target.style.borderColor = '#e5e7eb';
+                    }
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  {loading ? 'Se conectează...' : 'Continuă cu Google'}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <form onSubmit={handleRegister} style={profilePageStyles.form}>
+                <div style={profilePageStyles.formRow}>
+                  <div>
+                    <label style={profilePageStyles.label}>Nume elev</label>
+                    <input
+                      type="text"
+                      value={registerForm.numeElev}
+                      onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={profilePageStyles.input}
+                      placeholder="Nume elev"
+                    />
+                  </div>
+                  <div>
+                    <label style={profilePageStyles.label}>Prenume elev</label>
+                    <input
+                      type="text"
+                      value={registerForm.prenumeElev}
+                      onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={profilePageStyles.input}
+                      placeholder="Prenume elev"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={profilePageStyles.label}>Email</label>
                   <input
                     type="email"
-                    value={loginForm.email}
-                    onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                    value={registerForm.email}
+                    onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
                     required
                     disabled={loading}
-                    style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
+                    style={profilePageStyles.input}
                     placeholder="email@exemplu.ro"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label style={profilePageStyles.label}>Parolă</label>
-                <div style={profilePageStyles.inputWrapper}>
-                  <Lock style={profilePageStyles.inputIcon} />
-                  <input
-                    type="password"
-                    value={loginForm.password}
-                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
-                    required
-                    disabled={loading}
-                    style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  ...profilePageStyles.submitButton,
-                  backgroundColor: loading ? '#9ca3af' : '#2563eb'
-                }}
-              >
-                {loading ? 'Se autentifică...' : 'Autentificare'}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} style={profilePageStyles.form}>
-              <div style={profilePageStyles.formRow}>
                 <div>
-                  <label style={profilePageStyles.label}>Nume elev</label>
+                  <label style={profilePageStyles.label}>Telefon</label>
                   <input
-                    type="text"
-                    value={registerForm.numeElev}
-                    onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
+                    type="tel"
+                    value={registerForm.telefon}
+                    onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
                     required
                     disabled={loading}
                     style={profilePageStyles.input}
-                    placeholder="Nume elev"
+                    placeholder="+40 123 456 789"
                   />
                 </div>
-                <div>
-                  <label style={profilePageStyles.label}>Prenume elev</label>
-                  <input
-                    type="text"
-                    value={registerForm.prenumeElev}
-                    onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
-                    required
-                    disabled={loading}
-                    style={profilePageStyles.input}
-                    placeholder="Prenume elev"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label style={profilePageStyles.label}>Email</label>
-                <input
-                  type="email"
-                  value={registerForm.email}
-                  onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
-                  required
+                <div style={profilePageStyles.formRow}>
+                  <div>
+                    <label style={profilePageStyles.label}>Parolă</label>
+                    <input
+                      type="password"
+                      value={registerForm.password}
+                      onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={profilePageStyles.input}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <div>
+                    <label style={profilePageStyles.label}>Confirmă parola</label>
+                    <input
+                      type="password"
+                      value={registerForm.confirmPassword}
+                      onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
+                      required
+                      disabled={loading}
+                      style={profilePageStyles.input}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
                   disabled={loading}
-                  style={profilePageStyles.input}
-                  placeholder="email@exemplu.ro"
-                />
-              </div>
+                  style={{
+                    ...profilePageStyles.submitButton,
+                    backgroundColor: loading ? '#9ca3af' : '#10b981'
+                  }}
+                >
+                  {loading ? 'Se înregistrează...' : 'Înregistrare'}
+                </button>
+              </form>
 
-              <div>
-                <label style={profilePageStyles.label}>Telefon</label>
-                <input
-                  type="tel"
-                  value={registerForm.telefon}
-                  onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
-                  required
+              {/* Google Login Button pentru Register */}
+              <div style={{ margin: '1.5rem 0', textAlign: 'center' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  margin: '1rem 0', 
+                  color: '#6b7280' 
+                }}>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                  <span style={{ margin: '0 1rem', fontSize: '0.875rem' }}>sau</span>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#e5e7eb' }}></div>
+                </div>
+                
+                <button
+                  onClick={handleGoogleAuth}
                   disabled={loading}
-                  style={profilePageStyles.input}
-                  placeholder="+40 123 456 789"
-                />
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#ffffff',
+                    color: '#374151',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#f9fafb';
+                      e.target.style.borderColor = '#d1d5db';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!loading) {
+                      e.target.style.backgroundColor = '#ffffff';
+                      e.target.style.borderColor = '#e5e7eb';
+                    }
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  {loading ? 'Se conectează...' : 'Continuă cu Google'}
+                </button>
               </div>
-
-              <div style={profilePageStyles.formRow}>
-                <div>
-                  <label style={profilePageStyles.label}>Parolă</label>
-                  <input
-                    type="password"
-                    value={registerForm.password}
-                    onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
-                    required
-                    disabled={loading}
-                    style={profilePageStyles.input}
-                    placeholder="••••••••"
-                  />
-                </div>
-                <div>
-                  <label style={profilePageStyles.label}>Confirmă parola</label>
-                  <input
-                    type="password"
-                    value={registerForm.confirmPassword}
-                    onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
-                    required
-                    disabled={loading}
-                    style={profilePageStyles.input}
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  ...profilePageStyles.submitButton,
-                  backgroundColor: loading ? '#9ca3af' : '#10b981'
-                }}
-              >
-                {loading ? 'Se înregistrează...' : 'Înregistrare'}
-              </button>
-            </form>
+            </>
           )}
 
           <div style={profilePageStyles.authSwitch}>
