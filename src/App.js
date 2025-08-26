@@ -71,20 +71,19 @@ function App() {
       }}>
         {/* Header */}
         <header style={headerStyle}>
-          <div style={navStyle}>
-            <div style={logoStyle} onClick={() => setCurrentPage('home')}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white'
-              }}>
-                <BookOpen style={{ width: '1.5rem', height: '1.5rem' }} />
-              </div>
+          <div style={navStyle} className="header-nav">
+            <div style={logoStyle} className="logo-container" onClick={() => setCurrentPage('home')}>
+              <img 
+                src="/images/logo_VIII_1.png" 
+                alt="Infinity Math" 
+                className="logo-image"
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px',
+                  objectFit: 'cover'
+                }}
+              />
               <div>
                 <h1 style={{ 
                   margin: 0, 
@@ -104,7 +103,7 @@ function App() {
               </div>
             </div>
             
-            <nav style={menuStyle}>
+            <nav style={menuStyle} className="header-menu">
               <button 
                 onClick={() => setCurrentPage('home')}
                 style={getButtonStyle('home')}
@@ -224,12 +223,63 @@ function App() {
         {/* Footer */}
         <Footer />
 
-        {/* CSS pentru animații */}
+        {/* CSS pentru animații și responsive */}
         <style>
           {`
             @keyframes spin {
               0% { transform: rotate(0deg); }
               100% { transform: rotate(360deg); }
+            }
+            
+            /* Mobile responsive styles */
+            @media (max-width: 768px) {
+              .header-nav {
+                flex-direction: column !important;
+                gap: 1rem !important;
+                padding: 0 0.5rem !important;
+              }
+              
+              .header-menu {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+                width: 100% !important;
+              }
+              
+              .header-menu button {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.85rem !important;
+                text-align: center !important;
+              }
+              
+              .logo-container {
+                justify-content: center !important;
+              }
+              
+              .logo-container h1 {
+                font-size: 1.25rem !important;
+              }
+              
+              .logo-container p {
+                font-size: 0.8rem !important;
+              }
+              
+              .logo-image {
+                width: 40px !important;
+                height: 40px !important;
+              }
+            }
+            
+            @media (max-width: 480px) {
+              .header-menu {
+                grid-template-columns: 1fr !important;
+                gap: 0.5rem !important;
+              }
+              
+              .header-menu button {
+                padding: 0.75rem !important;
+                font-size: 0.9rem !important;
+              }
             }
           `}
         </style>

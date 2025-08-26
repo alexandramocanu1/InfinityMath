@@ -225,89 +225,99 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
         </section>
 
         {/* Cursuri Online Section */}
-        <section style={homePageStyles.servicesSection}>
-          <div style={homePageStyles.maxWidth}>
-            <div style={homePageStyles.sectionHeader}>
-              <h2 style={homePageStyles.sectionTitle}>Cursuri Online</h2>
-              <p style={homePageStyles.sectionSubtitle}>
-                Alege programul potrivit pentru tine
-              </p>
-            </div>
+<section style={homePageStyles.servicesSection}>
+  <div style={homePageStyles.maxWidth}>
+    <div style={homePageStyles.sectionHeader}>
+      <h2 style={homePageStyles.sectionTitle}>Cursuri Online</h2>
+      <p style={homePageStyles.sectionSubtitle}>
+        Alege programul potrivit pentru tine
+      </p>
+    </div>
 
-            <div style={homePageStyles.servicesGrid}>
-              {services.map((service) => (
-                <div 
-                  key={service.id} 
-                  style={{
-                    ...homePageStyles.serviceCard.base,
-                    opacity: service.available !== false ? 1 : 0.6,
-                    cursor: service.available !== false ? 'pointer' : 'not-allowed'
-                  }}
-                  onClick={() => handleServiceSelect(service.id)}
-                  onMouseOver={(e) => {
-                    if (service.available !== false) {
-                      Object.assign(e.currentTarget.style, homePageStyles.serviceCard.hover);
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (service.available !== false) {
-                      Object.assign(e.currentTarget.style, homePageStyles.serviceCard.base);
-                    }
-                  }}
-                >
-                  <div style={{
-                    ...homePageStyles.serviceIcon,
-                    backgroundColor: service.available !== false ? service.color : '#9ca3af'
-                  }}>
-                    <BookOpen style={{ width: '2rem', height: '2rem', color: 'white' }} />
-                  </div>
-                  
-                  <h3 style={homePageStyles.serviceTitle}>{service.name}</h3>
-                  
-                  <p style={homePageStyles.serviceDescription}>
-                    {service.description}
-                  </p>
-                  
-                  <div style={homePageStyles.servicePricing}>
-                    <div style={{
-                      ...homePageStyles.servicePrice,
-                      color: service.available !== false ? service.color : '#9ca3af'
-                    }}>
-                      {service.price}
-                    </div>
-                    <div style={homePageStyles.serviceDuration}>
-                      {service.duration} / sesiune
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleServiceSelect(service.id);
-                    }}
-                    style={{
-                      ...homePageStyles.serviceButton.base,
-                      backgroundColor: service.available !== false ? service.color : '#d1d5db',
-                      cursor: service.available !== false ? 'pointer' : 'not-allowed'
-                    }}
-                    onMouseOver={(e) => {
-                      if (service.available !== false) {
-                        e.target.style.opacity = '0.9';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (service.available !== false) {
-                        e.target.style.opacity = '1';
-                      }
-                    }}
-                  >
-                    {service.available !== false ? 'Selectează' : 'Indisponibil'}
-                  </button>
-                </div>
-              ))}
+    <div style={homePageStyles.servicesGrid}>
+      {services.map((service) => (
+        <div 
+          key={service.id} 
+          style={{
+            ...homePageStyles.serviceCard.base,
+            opacity: service.available !== false ? 1 : 0.6,
+            cursor: service.available !== false ? 'pointer' : 'not-allowed'
+          }}
+          onClick={() => handleServiceSelect(service.id)}
+          onMouseOver={(e) => {
+            if (service.available !== false) {
+              Object.assign(e.currentTarget.style, homePageStyles.serviceCard.hover);
+            }
+          }}
+          onMouseOut={(e) => {
+            if (service.available !== false) {
+              Object.assign(e.currentTarget.style, homePageStyles.serviceCard.base);
+            }
+          }}
+        >
+          <div style={{
+            ...homePageStyles.serviceIcon,
+            backgroundColor: 'transparent',
+            boxShadow: 'none'
+          }}>
+            <img 
+              src={service.id === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
+              alt={service.name}
+              style={{
+                width: '4rem',
+                height: '4rem',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+          
+          <h3 style={homePageStyles.serviceTitle}>{service.name}</h3>
+          
+          <p style={homePageStyles.serviceDescription}>
+            {service.description}
+          </p>
+          
+          <div style={homePageStyles.servicePricing}>
+            <div style={{
+              ...homePageStyles.servicePrice,
+              color: service.available !== false ? service.color : '#9ca3af'
+            }}>
+              {service.price}
+            </div>
+            <div style={homePageStyles.serviceDuration}>
+              {service.duration} / sesiune
             </div>
           </div>
-        </section>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleServiceSelect(service.id);
+            }}
+            style={{
+              ...homePageStyles.serviceButton.base,
+              backgroundColor: service.available !== false ? service.color : '#d1d5db',
+              cursor: service.available !== false ? 'pointer' : 'not-allowed'
+            }}
+            onMouseOver={(e) => {
+              if (service.available !== false) {
+                e.target.style.opacity = '0.9';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (service.available !== false) {
+                e.target.style.opacity = '1';
+              }
+            }}
+          >
+            {service.available !== false ? 'Selectează' : 'Indisponibil'}
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
         {/* Cine sunt Section */}
         <section style={homePageStyles.aboutSection}>

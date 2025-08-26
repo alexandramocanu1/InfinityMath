@@ -548,7 +548,7 @@ const ProfilePage = () => {
                       required
                       disabled={loading}
                       style={profilePageStyles.input}
-                      placeholder="Prenume elev"
+                      placeholder="    Prenume elev"
                     />
                   </div>
                 </div>
