@@ -427,84 +427,94 @@ const handleGoogleLogin = async () => {
           <div style={servicesPageStyles.contentCard}>
             
             {/* Step 0: Service Selection */}
-            {step === 0 && (
-              <div style={servicesPageStyles.servicesGrid}>
-                {Object.entries(services).map(([serviceId, service]) => (
-                  <div 
-                    key={serviceId} 
-                    onClick={() => handleServiceSelect(serviceId)}
-                    style={{
-                      ...servicesPageStyles.serviceCard.base,
-                      border: selectedService === serviceId ? `3px solid ${service.color}` : 
-                              service.price !== "-" ? '2px solid #e5e7eb' : '2px solid #d1d5db',
-                      opacity: service.price !== "-" ? 1 : 0.6,
-                      cursor: service.price !== "-" ? 'pointer' : 'not-allowed'
-                    }}
-                    onMouseOver={(e) => handleServiceCardHover(e, service, true)}
-                    onMouseOut={(e) => handleServiceCardHover(e, service, false)}
-                  >
-                    <div style={{
-                      ...servicesPageStyles.serviceIcon,
-                      backgroundColor: service.price !== "-" ? service.color : '#9ca3af'
-                    }}>
-                      <BookOpen style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
-                    </div>
-                    
-                    <h4 style={servicesPageStyles.serviceTitle}>{service.name}</h4>
-                    
-                    <p style={servicesPageStyles.serviceDescription}>
-                      {service.description}
-                    </p>
-                    
-                    {service.price !== "-" ? (
-                      <>
-                        <div style={servicesPageStyles.servicePricing}>
-                          <div style={{
-                            ...servicesPageStyles.servicePrice,
-                            color: service.color
-                          }}>
-                            {service.price} 
-                          </div>
-                          <div style={servicesPageStyles.serviceDuration}>
-                            {service.duration} / sesiune
-                          </div>
-                        </div>
-
-                        <div style={servicesPageStyles.serviceAvailability}>
-                          {adminSchedules[serviceId]?.length || 0} programe disponibile
-                        </div>
-                        
-                        <div style={{
-                          ...servicesPageStyles.serviceSelectButton,
-                          backgroundColor: service.color
-                        }}>
-                          Selectează
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div style={servicesPageStyles.serviceUnavailable.pricing}>
-                          <div style={servicesPageStyles.serviceUnavailable.price}>
-                            În curând
-                          </div>
-                          <div style={servicesPageStyles.serviceUnavailable.duration}>
-                            Pregătim cursul
-                          </div>
-                        </div>
-
-                        <div style={servicesPageStyles.serviceUnavailable.availability}>
-                          Cursul nu este încă disponibil
-                        </div>
-                        
-                        <div style={servicesPageStyles.serviceUnavailable.button}>
-                          Indisponibil
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
+{step === 0 && (
+  <div style={servicesPageStyles.servicesGrid}>
+    {Object.entries(services).map(([serviceId, service]) => (
+      <div 
+        key={serviceId} 
+        onClick={() => handleServiceSelect(serviceId)}
+        style={{
+          ...servicesPageStyles.serviceCard.base,
+          border: selectedService === serviceId ? `3px solid ${service.color}` : 
+                  service.price !== "-" ? '2px solid #e5e7eb' : '2px solid #d1d5db',
+          opacity: service.price !== "-" ? 1 : 0.6,
+          cursor: service.price !== "-" ? 'pointer' : 'not-allowed'
+        }}
+        onMouseOver={(e) => handleServiceCardHover(e, service, true)}
+        onMouseOut={(e) => handleServiceCardHover(e, service, false)}
+      >
+        <div style={{
+          ...servicesPageStyles.serviceIcon,
+          backgroundColor: 'transparent',
+          boxShadow: 'none'
+        }}>
+          <img 
+            src={serviceId === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
+            alt={service.name}
+            style={{
+              width: '70px',
+              height: '70px',
+              borderRadius: '50%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
+        
+        <h4 style={servicesPageStyles.serviceTitle}>{service.name}</h4>
+        
+        <p style={servicesPageStyles.serviceDescription}>
+          {service.description}
+        </p>
+        
+        {service.price !== "-" ? (
+          <>
+            <div style={servicesPageStyles.servicePricing}>
+              <div style={{
+                ...servicesPageStyles.servicePrice,
+                color: service.color
+              }}>
+                {service.price} 
               </div>
-            )}
+              <div style={servicesPageStyles.serviceDuration}>
+                {service.duration} / sesiune
+              </div>
+            </div>
+
+            <div style={servicesPageStyles.serviceAvailability}>
+              {adminSchedules[serviceId]?.length || 0} programe disponibile
+            </div>
+            
+            <div style={{
+              ...servicesPageStyles.serviceSelectButton,
+              backgroundColor: service.color
+            }}>
+              Selectează
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={servicesPageStyles.serviceUnavailable.pricing}>
+              <div style={servicesPageStyles.serviceUnavailable.price}>
+                În curând
+              </div>
+              <div style={servicesPageStyles.serviceUnavailable.duration}>
+                Pregătim cursul
+              </div>
+            </div>
+
+            <div style={servicesPageStyles.serviceUnavailable.availability}>
+              Cursul nu este încă disponibil
+            </div>
+            
+            <div style={servicesPageStyles.serviceUnavailable.button}>
+              Indisponibil
+            </div>
+          </>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
             {/* Step 1: Schedule Selection */}
             {step === 1 && (

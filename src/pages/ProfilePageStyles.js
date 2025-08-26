@@ -18,21 +18,21 @@ export const profilePageStyles = {
   },
 
   authCard: {
-    backgroundColor: 'white',
-    padding: '3rem',
-    borderRadius: '12px',
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-    width: '100%',
-    maxWidth: '500px'
-  },
+  backgroundColor: 'white',
+  padding: '2rem', // Redus de la '3rem'
+  borderRadius: '12px',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+  width: '100%',
+  maxWidth: '650px' // Mărit de la '500px'
+},
 
-  authTitle: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: '2rem',
-    color: '#000000'
-  },
+authTitle: {
+  fontSize: '1.8rem', // Redus de la '2rem'
+  fontWeight: '700',
+  textAlign: 'center',
+  marginBottom: '1.5rem', // Redus de la '2rem'
+  color: '#000000'
+},
 
   errorMessage: {
     backgroundColor: '#fef2f2',
@@ -46,7 +46,7 @@ export const profilePageStyles = {
 
   form: {
     display: 'grid',
-    gap: '1.5rem'
+    gap: '1.2rem'
   },
 
   formRow: {
