@@ -306,7 +306,7 @@ function App() {
               backgroundColor: currentPage === 'home' ? '#f0f9ff' : 'transparent',
               color: currentPage === 'home' ? '#2563eb' : '#374151'
             }}>
-              🏠 Acasă
+               Acasă
             </div>
             
             <div onClick={() => handleMobileMenuItemClick('services')} style={{
@@ -314,7 +314,7 @@ function App() {
               backgroundColor: currentPage === 'services' ? '#f0f9ff' : 'transparent',
               color: currentPage === 'services' ? '#2563eb' : '#374151'
             }}>
-              📚 Cursuri
+               Cursuri
             </div>
             
             <div onClick={() => handleMobileMenuItemClick('faq')} style={{
@@ -322,7 +322,7 @@ function App() {
               backgroundColor: currentPage === 'faq' ? '#f0f9ff' : 'transparent',
               color: currentPage === 'faq' ? '#2563eb' : '#374151'
             }}>
-              ❓ FAQ
+               FAQ
             </div>
             
             <div onClick={() => handleMobileMenuItemClick('contact')} style={{
@@ -330,7 +330,7 @@ function App() {
               backgroundColor: currentPage === 'contact' ? '#f0f9ff' : 'transparent',
               color: currentPage === 'contact' ? '#2563eb' : '#374151'
             }}>
-              📞 Contact
+               Contact
             </div>
             
             <div onClick={() => handleMobileMenuItemClick('profile')} style={{
@@ -338,7 +338,7 @@ function App() {
               backgroundColor: currentPage === 'profile' ? '#f0f9ff' : 'transparent',
               color: currentPage === 'profile' ? '#2563eb' : '#374151'
             }}>
-              👤 Profilul Meu
+               Profilul Meu
             </div>
           </div>
         </div>
