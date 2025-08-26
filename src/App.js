@@ -12,6 +12,7 @@ import './App.css';
 function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedService, setSelectedService] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const headerStyle = {
     backgroundColor: 'white',
@@ -61,6 +62,77 @@ function App() {
     color: currentPage === page ? 'white' : '#374151'
   });
 
+  const hamburgerStyle = {
+    display: 'none',
+    flexDirection: 'column',
+    cursor: 'pointer',
+    padding: '0.5rem',
+    gap: '4px'
+  };
+
+  const hamburgerLineStyle = {
+    width: '24px',
+    height: '3px',
+    backgroundColor: '#374151',
+    borderRadius: '2px',
+    transition: 'all 0.3s ease'
+  };
+
+  const mobileOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 1000,
+    display: isMobileMenuOpen ? 'flex' : 'none'
+  };
+
+  const mobileMenuStyle = {
+    position: 'fixed',
+    top: 0,
+    right: isMobileMenuOpen ? 0 : '-300px',
+    width: '280px',
+    height: '100%',
+    backgroundColor: 'white',
+    boxShadow: '-2px 0 10px rgba(0,0,0,0.1)',
+    transition: 'right 0.3s ease',
+    zIndex: 1001,
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const mobileMenuHeaderStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #e5e7eb',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  };
+
+  const mobileMenuItemStyle = {
+    padding: '1rem',
+    borderBottom: '1px solid #f3f4f6',
+    cursor: 'pointer',
+    fontSize: '1.1rem',
+    fontWeight: '500',
+    color: '#374151',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+    transition: 'background-color 0.2s ease'
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleMobileMenuItemClick = (page) => {
+    setCurrentPage(page);
+    closeMobileMenu();
+  };
+
   return (
     <AuthProvider>
       <div style={{ 
@@ -71,12 +143,11 @@ function App() {
       }}>
         {/* Header */}
         <header style={headerStyle}>
-          <div style={navStyle} className="header-nav">
-            <div style={logoStyle} className="logo-container" onClick={() => setCurrentPage('home')}>
+          <div style={navStyle}>
+            <div style={logoStyle} onClick={() => setCurrentPage('home')}>
               <img 
                 src="/images/logo_VIII_1.png" 
                 alt="Infinity Math" 
-                className="logo-image"
                 style={{
                   width: '48px',
                   height: '48px',
@@ -103,7 +174,8 @@ function App() {
               </div>
             </div>
             
-            <nav style={menuStyle} className="header-menu">
+            {/* Desktop Navigation */}
+            <nav style={menuStyle} className="desktop-menu">
               <button 
                 onClick={() => setCurrentPage('home')}
                 style={getButtonStyle('home')}
@@ -195,8 +267,81 @@ function App() {
                 Profilul Meu
               </button>
             </nav>
+
+            {/* Mobile Hamburger Menu */}
+            <div 
+              style={hamburgerStyle} 
+              className="mobile-hamburger"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <div style={hamburgerLineStyle}></div>
+              <div style={hamburgerLineStyle}></div>
+              <div style={hamburgerLineStyle}></div>
+            </div>
           </div>
         </header>
+
+        {/* Mobile Menu Overlay */}
+        <div style={mobileOverlayStyle} onClick={closeMobileMenu}>
+          <div style={mobileMenuStyle} onClick={(e) => e.stopPropagation()}>
+            <div style={mobileMenuHeaderStyle}>
+              <h3 style={{ margin: 0, color: '#1f2937' }}>Meniu</h3>
+              <button 
+                onClick={closeMobileMenu}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  padding: '0.25rem',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div onClick={() => handleMobileMenuItemClick('home')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'home' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'home' ? '#2563eb' : '#374151'
+            }}>
+              🏠 Acasă
+            </div>
+            
+            <div onClick={() => handleMobileMenuItemClick('services')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'services' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'services' ? '#2563eb' : '#374151'
+            }}>
+              📚 Cursuri
+            </div>
+            
+            <div onClick={() => handleMobileMenuItemClick('faq')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'faq' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'faq' ? '#2563eb' : '#374151'
+            }}>
+              ❓ FAQ
+            </div>
+            
+            <div onClick={() => handleMobileMenuItemClick('contact')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'contact' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'contact' ? '#2563eb' : '#374151'
+            }}>
+              📞 Contact
+            </div>
+            
+            <div onClick={() => handleMobileMenuItemClick('profile')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'profile' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'profile' ? '#2563eb' : '#374151'
+            }}>
+              👤 Profilul Meu
+            </div>
+          </div>
+        </div>
 
         {/* Content - flex: 1 pentru a ocupa spațiul disponibil */}
         <main style={{ flex: 1 }}>
@@ -233,52 +378,18 @@ function App() {
             
             /* Mobile responsive styles */
             @media (max-width: 768px) {
-              .header-nav {
-                flex-direction: column !important;
-                gap: 1rem !important;
-                padding: 0 0.5rem !important;
+              .desktop-menu {
+                display: none !important;
               }
               
-              .header-menu {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 0.5rem !important;
-                width: 100% !important;
-              }
-              
-              .header-menu button {
-                padding: 0.5rem 0.75rem !important;
-                font-size: 0.85rem !important;
-                text-align: center !important;
-              }
-              
-              .logo-container {
-                justify-content: center !important;
-              }
-              
-              .logo-container h1 {
-                font-size: 1.25rem !important;
-              }
-              
-              .logo-container p {
-                font-size: 0.8rem !important;
-              }
-              
-              .logo-image {
-                width: 40px !important;
-                height: 40px !important;
+              .mobile-hamburger {
+                display: flex !important;
               }
             }
             
-            @media (max-width: 480px) {
-              .header-menu {
-                grid-template-columns: 1fr !important;
-                gap: 0.5rem !important;
-              }
-              
-              .header-menu button {
-                padding: 0.75rem !important;
-                font-size: 0.9rem !important;
+            @media (min-width: 769px) {
+              .mobile-hamburger {
+                display: none !important;
               }
             }
           `}
