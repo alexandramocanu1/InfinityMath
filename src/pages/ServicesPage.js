@@ -7,6 +7,9 @@ import { db } from '../firebase/config';
 import { servicesPageStyles } from './ServicesPageStyles';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { CreditCard, Shield } from 'lucide-react';
+import NTPLogo from 'ntp-logo-react';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) => {
   const { currentUser, userData } = useAuth();
@@ -41,6 +44,10 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
     bac: []
   });
 
+  // Pentru Netopia
+const [showPayment, setShowPayment] = useState(false);
+const [paymentData, setPaymentData] = useState(null);
+const [paymentLoading, setPaymentLoading] = useState(false);
 
 
 const handleGoogleLogin = async () => {
@@ -94,19 +101,21 @@ const handleGoogleLogin = async () => {
 
 
   const services = {
-    evaluare: { 
-      name: 'Clasa a 7-a', 
-      price: '60 RON / Sesiune', 
-      duration: '1h 30 minute', 
-      color: '#f59e0b' // galben
-    },
-    bac: { 
-      name: 'Clasa a 8-a', 
-      price: '60 RON / Sesiune', 
-      duration: '1h 30 minute', 
-      color: '#ea580c' // portocaliu
-    }
-  };
+  evaluare: { 
+    name: 'Clasa a 7-a', 
+    price: '60 RON / Sesiune',
+    priceValue: 240, 
+    duration: '1h 30 minute', 
+    color: '#f59e0b'
+  },
+  bac: { 
+    name: 'Clasa a 8-a', 
+    price: '60 RON / Sesiune',
+    priceValue: 240, 
+    duration: '1h 30 minute', 
+    color: '#ea580c'
+  }
+};
 
   useEffect(() => {
     loadSchedulesFromFirebase();
@@ -256,77 +265,146 @@ const handleGoogleLogin = async () => {
     });
   };
 
-  const handleFinalSubmit = async () => {
-    setIsLoading(true);
+  const generatePaymentData = () => {
+  const currentService = services[selectedService];
+  const orderAmount = currentService.priceValue;
+  
+  const orderId = `INF_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  const paymentData = {
+    orderId: orderId,
+    amount: orderAmount,
+    currency: 'RON',
+    description: `${currentService.name} - ${selectedSchedule.zi} ${selectedSchedule.ora}`,
     
-    try {
+    customerInfo: {
+      email: currentUser && userData ? userData.email : clientData.email,
+      phone: currentUser && userData ? userData.telefon : clientData.phone,
+      firstName: currentUser && userData ? userData.prenumeElev : clientData.name.split(' ')[0],
+      lastName: currentUser && userData ? userData.numeElev : clientData.name.split(' ').slice(1).join(' ')
+    },
+    
+    returnUrls: {
+      success: `${window.location.origin}/payment-success`,
+      cancel: `${window.location.origin}/payment-cancel`,
+      error: `${window.location.origin}/payment-error`
+    },
+    
+    metadata: {
+      scheduleId: selectedSchedule.id,
+      serviceTip: selectedService,
+      userId: currentUser?.uid || null
+    }
+  };
+
+  return paymentData;
+};
+
+const handlePaymentSuccess = async (paymentResult) => {
+  try {
+    if (paymentData?.enrollmentId) {
+      const enrollmentRef = doc(db, 'enrollments', paymentData.enrollmentId);
+      await updateDoc(enrollmentRef, {
+        status: 'confirmed',
+        paymentStatus: 'paid',
+        paymentId: paymentResult.ntpID,
+        paymentDate: serverTimestamp()
+      });
+      
+      const scheduleRef = doc(db, 'schedules', selectedSchedule.id);
+      await updateDoc(scheduleRef, {
+        enrolledCount: increment(1)
+      });
+      
+      console.log('Payment successful, enrollment confirmed');
+    }
+    
+    setShowPayment(false);
+    setIsComplete(true);
+    
+  } catch (error) {
+    console.error('Eroare la confirmarea plății:', error);
+    alert('Plata a fost procesată, dar a apărut o eroare la confirmarea înscrierii. Te rugăm să ne contactezi.');
+  }
+};
+
+const handlePaymentCancel = () => {
+  setShowPayment(false);
+  alert('Plata a fost anulată. Înscrierea nu a fost finalizată.');
+};
+
+
+  const handleFinalSubmit = async () => {
+  setIsLoading(true);
+  
+  try {
     if (currentUser && userData) {
-      // Utilizator autentificat - înscrie direct cu datele din profil
       const enrollmentData = {
         userId: currentUser.uid,
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
-        clientName: `${userData.prenumeElev} ${userData.numeElev}`, // ✅ Corect
+        clientName: `${userData.prenumeElev} ${userData.numeElev}`,
         clientEmail: userData.email,
-        clientPhone: userData.telefon, // ✅ Corect
+        clientPhone: userData.telefon,
         scheduleDay: selectedSchedule.zi,
         scheduleTime: selectedSchedule.ora,
         serviceName: currentService.name,
         servicePrice: currentService.price,
         createdAt: serverTimestamp(),
-        status: 'confirmed'
+        status: 'pending_payment' // Status nou pentru plată în așteptare
       };
-        
-        // Adăugăm înscrierea în colecția 'enrollments'
-        await addDoc(collection(db, 'enrollments'), enrollmentData);
-        
-        // Incrementăm numărul de înscriși la program
-        const scheduleRef = doc(db, 'schedules', selectedSchedule.id);
-        await updateDoc(scheduleRef, {
-          enrolledCount: increment(1)
-        });
-        
-        console.log('User enrollment saved:', enrollmentData);
-        
-      } else {
-        // Utilizator neautentificat - salvează cu datele din formular
-        const enrollmentData = {
-          scheduleId: selectedSchedule.id,
-          serviceTip: selectedService,
-          clientName: clientData.name,
-          clientEmail: clientData.email,
-          clientPhone: clientData.phone,
-          clientMessage: clientData.message,
-          scheduleDay: selectedSchedule.zi,
-          scheduleTime: selectedSchedule.ora,
-          serviceName: currentService.name,
-          servicePrice: currentService.price,
-          createdAt: serverTimestamp(),
-          status: 'pending' // Utilizatorii neautentificați rămân în așteptare
-        };
-        
-        await addDoc(collection(db, 'enrollments'), enrollmentData);
-        console.log('Guest enrollment saved:', enrollmentData);
-      }
       
+      const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
+      
+      const paymentInfo = generatePaymentData();
+      paymentInfo.enrollmentId = enrollmentRef.id;
+      
+      setPaymentData(paymentInfo);
+      setShowPayment(true);
+      
+      console.log('Enrollment saved with payment pending:', enrollmentData);
+      
+    } else {
+      const enrollmentData = {
+        scheduleId: selectedSchedule.id,
+        serviceTip: selectedService,
+        clientName: clientData.name,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone,
+        clientMessage: clientData.message,
+        scheduleDay: selectedSchedule.zi,
+        scheduleTime: selectedSchedule.ora,
+        serviceName: currentService.name,
+        servicePrice: currentService.price,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      };
+      
+      await addDoc(collection(db, 'enrollments'), enrollmentData);
       setIsComplete(true);
-      
-    } catch (error) {
-      console.error('Eroare la salvarea programării:', error);
-      alert('Eroare la salvarea programării. Te rog să încerci din nou.');
+      console.log('Guest enrollment saved:', enrollmentData);
     }
     
-    setIsLoading(false);
-  };
+  } catch (error) {
+    console.error('Eroare la salvarea programării:', error);
+    alert('Eroare la salvarea programării. Te rog să încerci din nou.');
+  }
+  
+  setIsLoading(false);
+};
+
+
 
   const resetBooking = () => {
-    setStep(0);
-    setSelectedService('');
-    setSelectedSchedule(null);
-    setClientData({ name: '', email: '', phone: '', message: '' });
-    setIsComplete(false);
-    setCurrentPage('home');
-  };
+  setStep(0);
+  setSelectedService('');
+  setSelectedSchedule(null);
+  setClientData({ name: '', email: '', phone: '', message: '' });
+  setIsComplete(false);
+  setShowPayment(false); 
+  setPaymentData(null); 
+  setCurrentPage('home');
+};
 
   const currentService = selectedService ? services[selectedService] : null;
   const availableSchedules = selectedService ? adminSchedules[selectedService] || [] : [];
@@ -1346,6 +1424,173 @@ const handleGoogleLogin = async () => {
             </div>
           </div>
         )}
+
+
+        {/* Modal de plata */}
+        {showPayment && paymentData && (
+  <div style={servicesPageStyles.modal.overlay}>
+    <div style={{
+      ...servicesPageStyles.modal.content,
+      maxWidth: '600px',
+      padding: '2rem'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '1rem',
+          marginBottom: '1rem'
+        }}>
+          <CreditCard style={{ 
+            width: '2.5rem', 
+            height: '2.5rem', 
+            color: currentService?.color || '#ea580c'
+          }} />
+          <NTPLogo 
+            color={currentService?.color || '#ea580c'} 
+            version="orizontal" 
+            secret="154714"
+            style={{ height: '40px' }}
+          />
+        </div>
+        <h2 style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '600', 
+          color: '#1f2937',
+          marginBottom: '0.5rem' 
+        }}>
+          Finalizează plata
+        </h2>
+        <p style={{ color: '#6b7280' }}>
+          Vei fi redirecționat către platforma securizată Netopia pentru a finaliza plata.
+        </p>
+      </div>
+
+      <div style={{
+        backgroundColor: '#f8fafc',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        marginBottom: '2rem',
+        border: '1px solid #e2e8f0'
+      }}>
+        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '600' }}>
+          Sumar comandă
+        </h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <span>{currentService?.name}</span>
+          <span>{currentService?.priceValue} RON</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+          <span>Program: {selectedSchedule?.zi} {selectedSchedule?.ora}</span>
+        </div>
+        <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600' }}>
+          <span>Total de plată:</span>
+          <span style={{ color: currentService?.color }}>{currentService?.priceValue} RON</span>
+        </div>
+      </div>
+
+      <div style={{
+        backgroundColor: '#f0f9ff',
+        padding: '1rem',
+        borderRadius: '8px',
+        marginBottom: '2rem',
+        fontSize: '0.875rem',
+        color: '#0369a1'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <Shield style={{ width: '1rem', height: '1rem' }} />
+          <strong>Plată 100% securizată</strong>
+        </div>
+        <ul style={{ margin: '0', paddingLeft: '1.5rem' }}>
+          <li>Toate tranzacțiile sunt protejate SSL</li>
+          <li>Datele cardului nu sunt stocate pe serverele noastre</li>
+          <li>Poți plăti cu card Visa, MasterCard sau PayPal</li>
+          <li>Vei primi confirmarea pe email imediat</li>
+        </ul>
+      </div>
+
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <button
+          onClick={handlePaymentCancel}
+          style={{
+            flex: 1,
+            padding: '0.75rem',
+            backgroundColor: '#f3f4f6',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer'
+          }}
+        >
+          Anulează
+        </button>
+        <button
+  onClick={async () => {
+    setPaymentLoading(true);
+    try {
+      // Import getFunctions and httpsCallable at the top of your file
+      const functions = getFunctions();
+      const createPayment = httpsCallable(functions, "createPayment");
+
+      console.log('Calling createPayment with data:', paymentData);
+
+      const result = await createPayment(paymentData);
+      
+      console.log('createPayment result:', result);
+
+      if (result.data.success) {
+        console.log('Redirecting to:', result.data.paymentUrl);
+        // Redirect către Netopia
+        window.location.href = result.data.paymentUrl;
+      } else {
+        throw new Error(result.data.message || "Eroare la generarea plății");
+      }
+    } catch (error) {
+      console.error("Eroare detaliată la inițierea plății:", error);
+      
+      // Afișează mai multe detalii despre eroare
+      if (error.code) {
+        alert(`Eroare: ${error.code} - ${error.message}`);
+      } else {
+        alert("Eroare la inițierea plății. Verifică consola pentru detalii.");
+      }
+      
+      setPaymentLoading(false);
+    }
+  }}
+  disabled={paymentLoading}
+  style={{
+    flex: 2,
+    padding: "0.75rem",
+    backgroundColor: currentService?.color || "#ea580c",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    fontWeight: "600",
+    cursor: paymentLoading ? "not-allowed" : "pointer",
+    opacity: paymentLoading ? 0.7 : 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.5rem",
+  }}
+>
+  {paymentLoading ? (
+    <>Procesăm plata...</>
+  ) : (
+    <>Plătește {currentService?.priceValue} RON</>
+  )}
+</button>
+      </div>
+    </div>
+  </div>
+)}
+
 
         {/* Success Modal */}
         {isComplete && (
