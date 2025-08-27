@@ -127,40 +127,31 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
  */
 async function createNetopiaPaymentUrl(order, isSandbox) {
   try {
-    console.log("Creating Netopia payment URL for order:", order.orderId);
+    console.log("Creating Netopia redirect URL for order:", order.orderId);
 
-    // Folosește endpoint-urile corecte mobilPay pentru plăți directe cu cardul
-    const baseUrl = isSandbox ?
-        "https://secure-sandbox.mobilpay.ro/public/card/new" :
-        "https://secure.mobilpay.ro/public/card/new";
+    // Returnează URL-ul către pagina ta de redirect
+    const baseUrl = process.env.GCLOUD_PROJECT ?
+      `https://${process.env.GCLOUD_PROJECT}.web.app` :
+      "http://localhost:3000";
 
-    // Parametrii corecți pentru Netopia/mobilPay
-    const queryParams = new URLSearchParams({
-      account: NETOPIA_CONFIG.SIGNATURE,
+    const redirectParams = new URLSearchParams({
+      signature: NETOPIA_CONFIG.SIGNATURE,
+      orderId: order.orderId,
       amount: order.amount.toString(),
-      curr: order.currency,
-      invoice_id: order.orderId,
-      details: order.description,
-      lang: "ro",
-
-      // Date client
-      fname: order.firstName || "",
-      lname: order.lastName || "",
+      currency: order.currency,
+      description: order.description,
+      returnUrl: order.returnUrl,
+      cancelUrl: order.cancelUrl,
+      firstName: order.firstName || "",
+      lastName: order.lastName || "",
       email: order.email || "",
       phone: order.phone || "",
-
-      confirm_url: NETOPIA_CONFIG.WEBHOOK_URL,
-      return_url: order.returnUrl,
-      cancel_return_url: order.cancelUrl,
+      sandbox: isSandbox.toString(),
     });
 
-    const directUrl = `${baseUrl}?${queryParams.toString()}`;
-    console.log("Direct Netopia URL created:", directUrl);
-
-    return directUrl;
+    return `${baseUrl}/netopia-redirect.html?${redirectParams.toString()}`;
   } catch (error) {
-    console.error("Eroare la crearea URL-ului Netopia:", error);
-    // Fallback la pagina ta de redirect
+    console.error("Eroare la crearea URL-ului de redirect:", error);
     return createRedirectUrl(order, isSandbox);
   }
 }

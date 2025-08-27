@@ -129,9 +129,10 @@
         const phone = urlParams.get('phone') || '';
         
         // Determină URL-ul Netopia corect
-        const netopiaUrl = isSandbox ? 
-            'https://secure-sandbox.mobilpay.ro/public/card/new' :
-            'https://secure.mobilpay.ro/public/card/new';
+        // În netopia-redirect.html, schimbă netopiaUrl la:
+const netopiaUrl = isSandbox ? 
+    'https://sandboxsecure.mobilpay.ro' :
+    'https://secure.mobilpay.ro';
         
         // Arată warning-ul pentru sandbox
         if (isSandbox) {
