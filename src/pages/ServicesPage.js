@@ -120,46 +120,49 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
 });
 
 /**
- * Creează URL-ul de plată pentru Netopia
+ * Creează URL-ul de plată pentru Netopia (folosește endpoint-urile corecte mobilPay)
  * @param {Object} order - Obiectul cu detaliile comenzii
  * @param {boolean} isSandbox - True pentru sandbox, false pentru producție
  * @return {Promise<string>} URL-ul de plată
  */
 async function createNetopiaPaymentUrl(order, isSandbox) {
   try {
+    console.log('Creating Netopia payment URL for order:', order.orderId);
+    
+    // Folosește endpoint-urile corecte mobilPay pentru plăți directe cu cardul
     const baseUrl = isSandbox ?
-        "https://sandbox.netopia-payments.com" :
-        "https://www.netopia-payments.com";
+        "https://secure-sandbox.mobilpay.ro/public/card/new" :
+        "https://secure.mobilpay.ro/public/card/new";
 
-    // Pentru Netopia, trebuie să faci un POST request pentru a obține URL-ul
-    const fetch = require("node-fetch");
-
-    const response = await fetch(`${baseUrl}/payment/card`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${NETOPIA_CONFIG.SIGNATURE}`,
-      },
-      body: JSON.stringify(order),
+    // Parametrii corecți pentru Netopia/mobilPay
+    const queryParams = new URLSearchParams({
+      account: NETOPIA_CONFIG.SIGNATURE,        // Signature-ul contului
+      amount: order.amount.toString(),          // Suma
+      curr: order.currency,                     // Valuta (curr, nu currency)
+      invoice_id: order.orderId,                // ID-ul comenzii (invoice_id, nu orderId)
+      details: order.description,               // Descrierea (details, nu description)
+      lang: 'ro',                              // Limba
+      
+      // Date client
+      fname: order.firstName || '',
+      lname: order.lastName || '',
+      email: order.email || '',
+      phone: order.phone || '',
+      
+      // URL-uri de return
+      confirm_url: NETOPIA_CONFIG.WEBHOOK_URL,  // Pentru confirmare server-to-server
+      return_url: order.returnUrl,              // Pagina de succes
+      cancel_return_url: order.cancelUrl        // Pagina de anulare
     });
 
-    if (!response.ok) {
-      console.log(`Netopia API error: ${response.status}, falling back to redirect URL`);
-      // Fallback la redirect URL dacă API-ul nu funcționează
-      return createRedirectUrl(order, isSandbox);
-    }
-
-    const result = await response.json();
-
-    if (result.paymentURL) {
-      return result.paymentURL;
-    } else {
-      // Fallback pentru testare dacă API-ul nu returnează URL-ul așteptat
-      return createRedirectUrl(order, isSandbox);
-    }
+    const directUrl = `${baseUrl}?${queryParams.toString()}`;
+    console.log('Direct Netopia URL created:', directUrl);
+    
+    return directUrl;
+    
   } catch (error) {
     console.error("Eroare la crearea URL-ului Netopia:", error);
-    // Fallback pentru cazul în care API-ul nu funcționează
+    // Fallback la pagina ta de redirect
     return createRedirectUrl(order, isSandbox);
   }
 }
@@ -171,25 +174,28 @@ async function createNetopiaPaymentUrl(order, isSandbox) {
  * @return {string} URL-ul de redirecționare către Netopia
  */
 function createRedirectUrl(order, isSandbox) {
+  // Folosește endpoint-urile corecte mobilPay în loc de netopia-payments.com
   const baseUrl = isSandbox ?
-      "https://sandbox.netopia-payments.com" :
-      "https://www.netopia-payments.com";
+      "https://secure-sandbox.mobilpay.ro/public/card/new" :
+      "https://secure.mobilpay.ro/public/card/new";
 
   const queryParams = new URLSearchParams({
-    signature: NETOPIA_CONFIG.SIGNATURE,
-    orderId: order.orderId,  // ✅ Fixed: use order.orderId instead of order.order.orderID
-    amount: order.amount.toString(),  // ✅ Fixed: use order.amount
-    currency: order.currency,  // ✅ Fixed: use order.currency
-    description: encodeURIComponent(order.description),  // ✅ Fixed: use order.description
-    returnUrl: encodeURIComponent(order.returnUrl),  // ✅ Added return URL
-    cancelUrl: encodeURIComponent(order.cancelUrl),  // ✅ Added cancel URL
-    firstName: encodeURIComponent(order.firstName || ''),  // ✅ Added customer info
-    lastName: encodeURIComponent(order.lastName || ''),
-    email: encodeURIComponent(order.email || ''),
-    phone: encodeURIComponent(order.phone || ''),
+    account: NETOPIA_CONFIG.SIGNATURE,        // account în loc de signature
+    amount: order.amount.toString(),          // amount rămâne la fel
+    curr: order.currency,                     // curr în loc de currency
+    invoice_id: order.orderId,                // invoice_id în loc de orderId
+    details: encodeURIComponent(order.description), // details în loc de description
+    lang: 'ro',                              // limba română
+    fname: encodeURIComponent(order.firstName || ""),
+    lname: encodeURIComponent(order.lastName || ""),
+    email: encodeURIComponent(order.email || ""),
+    phone: encodeURIComponent(order.phone || ""),
+    confirm_url: encodeURIComponent(NETOPIA_CONFIG.WEBHOOK_URL),
+    return_url: encodeURIComponent(order.returnUrl),
+    cancel_return_url: encodeURIComponent(order.cancelUrl),
   });
 
-  return `${baseUrl}/payment/card?${queryParams.toString()}`;
+  return `${baseUrl}?${queryParams.toString()}`;
 }
 
 // Endpoint pentru confirmarea plăților (simulare pentru testare)
