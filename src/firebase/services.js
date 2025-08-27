@@ -20,7 +20,7 @@ import {
   arrayUnion,
   arrayRemove
 } from 'firebase/firestore';
-import { auth, db, app } from './config';
+import app, { auth, db } from './config';
 
 // ===== AUTHENTICATION SERVICES =====
 
