@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { 
   doc, 
   setDoc, 
@@ -19,7 +20,7 @@ import {
   arrayUnion,
   arrayRemove
 } from 'firebase/firestore';
-import { auth, db } from './config';
+import { auth, db, app } from './config';
 
 // ===== AUTHENTICATION SERVICES =====
 
@@ -381,4 +382,33 @@ export const formatDate = (timestamp) => {
 export const formatDateTime = (timestamp) => {
   if (!timestamp) return '';
   return timestamp.toDate().toLocaleString('ro-RO');
+};
+
+
+
+export const createPayment = async (orderData) => {
+  try {
+const functions = getFunctions(app);
+const createPaymentFn = httpsCallable(functions, 'createPayment');
+    const result = await createPaymentFn(orderData);
+
+    const { encryptedData, netopiaUrl } = result.data;
+
+    // Creează formular POST și trimite către Netopia
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = netopiaUrl;
+
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "data";
+    input.value = encryptedData;
+
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+  } catch (error) {
+    console.error("Eroare la crearea plății:", error);
+    throw error;
+  }
 };

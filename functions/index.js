@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
@@ -12,7 +13,7 @@ try {
       "31DH-KZHF-ONEY-OCYK-ZKHS",
     PRIVATE_KEY: functions.config().netopia?.private_key || null,
     PUBLIC_CERT: functions.config().netopia?.public_cert || null,
-    SANDBOX_URL: "https://secure-sandbox.mobilpay.ro/public/card/new",
+    SANDBOX_URL: "https://sandboxsecure.mobilpay.ro",
     LIVE_URL: "https://secure.mobilpay.ro/public/card/new",
     IS_SANDBOX: functions.config().netopia?.is_sandbox === "true",
     WEBHOOK_URL:
@@ -30,13 +31,25 @@ try {
     SIGNATURE: "31DH-KZHF-ONEY-OCYK-ZKHS",
     PRIVATE_KEY: null,
     PUBLIC_CERT: null,
-    SANDBOX_URL: "https://secure-sandbox.mobilpay.ro/public/card/new",
+    SANDBOX_URL: "https://sandboxsecure.mobilpay.ro",
     LIVE_URL: "https://secure.mobilpay.ro/public/card/new",
     IS_SANDBOX: true,
     WEBHOOK_URL:
       "https://us-central1-infinity-math-53be3.cloudfunctions.net/netopiaWebhook",
   };
 }
+
+/**
+ * Criptează payload-ul pentru Netopia folosind certificatul public.
+ * @param {Object} payload - Obiectul de date al comenzii.
+ * @return {string} Payload-ul criptat în Base64.
+ */
+function encryptPayload(payload) {
+  const buffer = Buffer.from(JSON.stringify(payload));
+  const cipher = crypto.publicEncrypt(NETOPIA_CONFIG.PUBLIC_CERT, buffer);
+  return cipher.toString("base64");
+}
+
 
 // === FUNCȚIA DE PLATĂ ===
 exports.createPayment = functions.https.onCall(async (data, context) => {
