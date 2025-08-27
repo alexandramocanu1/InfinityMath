@@ -68,6 +68,16 @@
         .manual-button:hover {
             background: #5a67d8;
         }
+
+        .sandbox-warning {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -76,19 +86,25 @@
         <h2>Redirecționare către Netopia</h2>
         <p>Te redirecționăm către platforma de plăți securizată...</p>
         
+        <div id="sandboxWarning" class="sandbox-warning">
+            Mod SANDBOX - Pentru testare. Vei fi redirecționat către mediul de test Netopia.
+        </div>
+        
         <!-- Form pentru Netopia - va fi completat prin JavaScript -->
         <form id="netopia-form" method="POST" action="">
-            <input type="hidden" name="signature" value="">
-            <input type="hidden" name="orderId" value="">
+            <input type="hidden" name="account" value="">
             <input type="hidden" name="amount" value="">
-            <input type="hidden" name="currency" value="">
-            <input type="hidden" name="description" value="">
-            <input type="hidden" name="returnUrl" value="">
-            <input type="hidden" name="cancelUrl" value="">
-            <input type="hidden" name="firstName" value="">
-            <input type="hidden" name="lastName" value="">
+            <input type="hidden" name="curr" value="">
+            <input type="hidden" name="invoice_id" value="">
+            <input type="hidden" name="details" value="">
+            <input type="hidden" name="lang" value="ro">
+            <input type="hidden" name="fname" value="">
+            <input type="hidden" name="lname" value="">
             <input type="hidden" name="email" value="">
             <input type="hidden" name="phone" value="">
+            <input type="hidden" name="confirm_url" value="">
+            <input type="hidden" name="return_url" value="">
+            <input type="hidden" name="cancel_return_url" value="">
         </form>
         
         <button class="manual-button" onclick="submitManually()">
@@ -112,25 +128,36 @@
         const email = urlParams.get('email') || '';
         const phone = urlParams.get('phone') || '';
         
-        // Determină URL-ul Netopia
+        // Determină URL-ul Netopia corect
         const netopiaUrl = isSandbox ? 
-            'https://sandbox.netopia-payments.com/payment/card' :
-            'https://www.netopia-payments.com/payment/card';
+            'https://secure-sandbox.mobilpay.ro/public/card/new' :
+            'https://secure.mobilpay.ro/public/card/new';
         
-        // Completează form-ul
+        // Arată warning-ul pentru sandbox
+        if (isSandbox) {
+            document.getElementById('sandboxWarning').style.display = 'block';
+        }
+        
+        // Completează form-ul cu parametrii corecți pentru Netopia
         const form = document.getElementById('netopia-form');
         form.action = netopiaUrl;
-        form.elements['signature'].value = signature;
-        form.elements['orderId'].value = orderId;
+        form.elements['account'].value = signature;
         form.elements['amount'].value = amount;
-        form.elements['currency'].value = currency;
-        form.elements['description'].value = decodeURIComponent(description);
-        form.elements['returnUrl'].value = returnUrl;
-        form.elements['cancelUrl'].value = cancelUrl;
-        form.elements['firstName'].value = firstName;
-        form.elements['lastName'].value = lastName;
+        form.elements['curr'].value = currency;
+        form.elements['invoice_id'].value = orderId;
+        form.elements['details'].value = decodeURIComponent(description || 'Plată Infinity Math');
+        form.elements['fname'].value = firstName;
+        form.elements['lname'].value = lastName;
         form.elements['email'].value = email;
         form.elements['phone'].value = phone;
+        form.elements['return_url'].value = returnUrl;
+        form.elements['cancel_return_url'].value = cancelUrl;
+        
+        // Pentru confirm_url, folosește webhook-ul (va fi setat de server)
+        const confirmUrl = window.location.origin.includes('localhost') ? 
+            'https://us-central1-infinity-math-53be3.cloudfunctions.net/netopiaWebhook' :
+            `https://us-central1-${window.location.hostname.split('.')[0]}.cloudfunctions.net/netopiaWebhook`;
+        form.elements['confirm_url'].value = confirmUrl;
         
         // Funcție pentru submit manual
         function submitManually() {
@@ -141,8 +168,18 @@
         setTimeout(() => {
             if (orderId && amount && signature) {
                 console.log('Submitting to Netopia with data:', {
-                    signature, orderId, amount, currency, 
-                    firstName, lastName, email, phone
+                    account: signature, 
+                    amount: amount, 
+                    curr: currency,
+                    invoice_id: orderId,
+                    details: description,
+                    fname: firstName, 
+                    lname: lastName, 
+                    email: email, 
+                    phone: phone,
+                    return_url: returnUrl,
+                    cancel_return_url: cancelUrl,
+                    netopiaUrl: netopiaUrl
                 });
                 form.submit();
             } else {
@@ -151,8 +188,18 @@
                 document.querySelector('.manual-button').style.display = 'inline-block';
                 document.querySelector('h2').textContent = 'Date incomplete';
                 document.querySelector('p').textContent = 'Te rugăm să încerci din nou procesul de plată.';
+                console.error('Missing required parameters:', {
+                    orderId, amount, signature
+                });
             }
         }, 2000);
+
+        // Log pentru debugging
+        console.log('Redirect page loaded with params:', {
+            orderId, amount, currency, signature, isSandbox,
+            firstName, lastName, email, phone,
+            returnUrl, cancelUrl
+        });
     </script>
 </body>
 </html>

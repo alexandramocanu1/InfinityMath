@@ -145,6 +145,7 @@ async function createNetopiaPaymentUrl(order, isSandbox) {
 
     if (!response.ok) {
       console.log(`Netopia API error: ${response.status}, fall bk redir URL`);
+      // Fallback la redirect URL dacă API-ul nu funcționează
       return createRedirectUrl(order, isSandbox);
     }
 
