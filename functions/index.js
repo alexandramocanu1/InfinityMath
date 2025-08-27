@@ -119,7 +119,6 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
   }
 });
 
-// Funcție pentru crearea URL-ului de plată Netopia
 /**
  * Creează URL-ul de plată pentru Netopia
  * @param {Object} order - Obiectul cu detaliile comenzii
@@ -145,7 +144,8 @@ async function createNetopiaPaymentUrl(order, isSandbox) {
     });
 
     if (!response.ok) {
-      throw new Error(`Netopia API error: ${response.status}`);
+      console.log(`Netopia API error: ${response.status}, fall bk redir URL`);
+      return createRedirectUrl(order, isSandbox);
     }
 
     const result = await response.json();
@@ -154,34 +154,41 @@ async function createNetopiaPaymentUrl(order, isSandbox) {
       return result.paymentURL;
     } else {
       // Fallback pentru testare dacă API-ul nu returnează URL-ul așteptat
-      const queryParams = new URLSearchParams({
-        signature: NETOPIA_CONFIG.SIGNATURE,
-        orderId: order.order.orderID,
-        amount: order.order.amount.toString(),
-        currency: order.order.currency,
-        description: encodeURIComponent(order.order.description),
-      });
-
-      return `${baseUrl}/payment/card?${queryParams.toString()}`;
+      return createRedirectUrl(order, isSandbox);
     }
   } catch (error) {
     console.error("Eroare la crearea URL-ului Netopia:", error);
-
     // Fallback pentru cazul în care API-ul nu funcționează
-    const baseUrl = isSandbox ?
-        "https://sandbox.netopia-payments.com" :
-        "https://www.netopia-payments.com";
-
-    const queryParams = new URLSearchParams({
-      signature: NETOPIA_CONFIG.SIGNATURE,
-      orderId: order.order.orderID,
-      amount: order.order.amount.toString(),
-      currency: order.order.currency,
-      description: encodeURIComponent(order.order.description),
-    });
-
-    return `${baseUrl}/payment/card?${queryParams.toString()}`;
+    return createRedirectUrl(order, isSandbox);
   }
+}
+
+/**
+ * Creează un URL de redirecționare pentru Netopia cu parametri în query string
+ * @param {Object} order - Obiectul cu detaliile comenzii
+ * @param {boolean} isSandbox - True pentru sandbox, false pentru producție
+ * @return {string} URL-ul de redirecționare către Netopia
+ */
+function createRedirectUrl(order, isSandbox) {
+  const baseUrl = isSandbox ?
+      "https://sandbox.netopia-payments.com" :
+      "https://www.netopia-payments.com";
+
+  const queryParams = new URLSearchParams({
+    signature: NETOPIA_CONFIG.SIGNATURE,
+    orderId: order.orderId,
+    amount: order.amount.toString(),
+    currency: order.currency,
+    description: encodeURIComponent(order.description),
+    returnUrl: encodeURIComponent(order.returnUrl),
+    cancelUrl: encodeURIComponent(order.cancelUrl),
+    firstName: encodeURIComponent(order.firstName || ""),
+    lastName: encodeURIComponent(order.lastName || ""),
+    email: encodeURIComponent(order.email || ""),
+    phone: encodeURIComponent(order.phone || ""),
+  });
+
+  return `${baseUrl}/payment/card?${queryParams.toString()}`;
 }
 
 // Endpoint pentru confirmarea plăților (simulare pentru testare)
