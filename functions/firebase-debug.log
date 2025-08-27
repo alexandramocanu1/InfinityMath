@@ -1,0 +1,74 @@
+[debug] [2025-08-27T16:48:24.198Z] ----------------------------------------------------------------------
+[debug] [2025-08-27T16:48:24.200Z] Command:       C:\Users\alexa\Programs\node.exe C:\Users\alexa\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js functions:shell
+[debug] [2025-08-27T16:48:24.201Z] CLI Version:   14.14.0
+[debug] [2025-08-27T16:48:24.201Z] Platform:      win32
+[debug] [2025-08-27T16:48:24.201Z] Node Version:  v20.14.0
+[debug] [2025-08-27T16:48:24.201Z] Time:          Wed Aug 27 2025 19:48:24 GMT+0300 (Eastern European Summer Time)
+[debug] [2025-08-27T16:48:24.201Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-27T16:48:24.388Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-27T16:48:24.388Z] > authorizing via signed-in user (alexandramocanu264@gmail.com)
+[debug] [2025-08-27T16:48:24.388Z] [iam] checking project infinity-math-53be3 for permissions ["firebase.projects.get"]
+[debug] [2025-08-27T16:48:24.389Z] Checked if tokens are valid: true, expires at: 1756315564884
+[debug] [2025-08-27T16:48:24.389Z] Checked if tokens are valid: true, expires at: 1756315564884
+[debug] [2025-08-27T16:48:24.390Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/infinity-math-53be3:testIamPermissions [none]
+[debug] [2025-08-27T16:48:24.390Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/infinity-math-53be3:testIamPermissions x-goog-quota-user=projects/infinity-math-53be3
+[debug] [2025-08-27T16:48:24.391Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/infinity-math-53be3:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-08-27T16:48:25.292Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/infinity-math-53be3:testIamPermissions 200
+[debug] [2025-08-27T16:48:25.292Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/infinity-math-53be3:testIamPermissions {"permissions":["firebase.projects.get"]}
+[debug] [2025-08-27T16:48:25.299Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-08-27T16:48:25.341Z] defaultcredentials: writing to file C:\Users\alexa\AppData\Roaming\firebase\alexandramocanu264_gmail_com_application_default_credentials.json
+[debug] [2025-08-27T16:48:25.344Z] DEBUG: Setting GAC to C:\Users\alexa\AppData\Roaming\firebase\alexandramocanu264_gmail_com_application_default_credentials.json
+[debug] [2025-08-27T16:48:25.345Z] Checked if tokens are valid: true, expires at: 1756315564884
+[debug] [2025-08-27T16:48:25.345Z] Checked if tokens are valid: true, expires at: 1756315564884
+[debug] [2025-08-27T16:48:25.345Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/infinity-math-53be3/adminSdkConfig [none]
+[debug] [2025-08-27T16:48:25.729Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/infinity-math-53be3/adminSdkConfig 200
+[debug] [2025-08-27T16:48:25.730Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/infinity-math-53be3/adminSdkConfig {"projectId":"infinity-math-53be3","storageBucket":"infinity-math-53be3.firebasestorage.app"}
+[debug] [2025-08-27T16:48:25.747Z] [functions] Watching "C:\Users\alexa\Desktop\site\functions" for Cloud Functions...
+[debug] [2025-08-27T16:48:25.757Z] Validating nodejs source
+[warn] !  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] !  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2025-08-27T16:48:26.665Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "private": true
+}
+[debug] [2025-08-27T16:48:26.665Z] Building nodejs source
+[debug] [2025-08-27T16:48:26.666Z] Failed to find version of module node: reached end of search path C:\Users\alexa\Desktop\site\functions\node_modules
+[info] +  functions: Using node@20 from host. 
+[debug] [2025-08-27T16:48:26.669Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-08-27T16:48:26.676Z] Found firebase-functions binary at 'C:\Users\alexa\Desktop\site\functions\node_modules\.bin\firebase-functions'
+[info] Serving at port 8702
+
+[info] Netopia config loaded: { hasSignature: true, hasPrivateKey: false, isSandbox: false }
+
+[debug] [2025-08-27T16:48:27.146Z] Got response from /__/functions.yaml {"endpoints":{"createPayment":{"platform":"gcfv1","labels":{},"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"callableTrigger":{},"entryPoint":"createPayment"},"confirmPayment":{"platform":"gcfv1","labels":{},"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"callableTrigger":{},"entryPoint":"confirmPayment"},"netopiaWebhook":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"netopiaWebhook"},"checkExpiredSubscriptions":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"scheduleTrigger":{"schedule":"0 9 * * *","retryConfig":{"retryCount":null,"maxDoublings":null,"maxRetryDuration":null,"maxBackoffDuration":null,"minBackoffDuration":null},"timeZone":"Europe/Bucharest"},"labels":{},"entryPoint":"checkExpiredSubscriptions"},"testConfig":{"platform":"gcfv1","labels":{},"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"callableTrigger":{},"entryPoint":"testConfig"},"helloWorld":{"platform":"gcfv1","availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"serviceAccountEmail":null,"vpc":null,"httpsTrigger":{},"entryPoint":"helloWorld"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}],"extensions":{}}
+[debug] [2025-08-27T16:48:32.207Z] [functions] Loaded functions definitions from source: createPayment, confirmPayment, netopiaWebhook, checkExpiredSubscriptions, testConfig, helloWorld.
+[debug] [2025-08-27T16:48:32.209Z] [functions[us-central1-createPayment]] http function initialized (http://127.0.0.1:5001/infinity-math-53be3/us-central1/createPayment).
+[debug] [2025-08-27T16:48:32.209Z] [functions[us-central1-confirmPayment]] http function initialized (http://127.0.0.1:5001/infinity-math-53be3/us-central1/confirmPayment).
+[debug] [2025-08-27T16:48:32.209Z] [functions[us-central1-netopiaWebhook]] http function initialized (http://127.0.0.1:5001/infinity-math-53be3/us-central1/netopiaWebhook).
+[debug] [2025-08-27T16:48:32.210Z] [functions[us-central1-checkExpiredSubscriptions]] function ignored because the pubsub emulator does not exist or is not running.
+[debug] [2025-08-27T16:48:32.210Z] [functions[us-central1-testConfig]] http function initialized (http://127.0.0.1:5001/infinity-math-53be3/us-central1/testConfig).
+[debug] [2025-08-27T16:48:32.210Z] [functions[us-central1-helloWorld]] http function initialized (http://127.0.0.1:5001/infinity-math-53be3/us-central1/helloWorld).
+[info] i  functions: Loaded functions: createPayment, confirmPayment, netopiaWebhook, checkExpiredSubscriptions, testConfig, helloWorld 
+[warn] !  functions: The following emulators are not running, calls to these services will affect production: firestore, database, pubsub, storage, eventarc, tasks 

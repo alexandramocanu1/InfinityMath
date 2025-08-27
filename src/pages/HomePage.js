@@ -207,11 +207,11 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
         {/* Hero Section */}
         <section style={homePageStyles.heroSection}>
           <h1 style={homePageStyles.heroTitle}>
-            Pregătire pentru Bac și Evaluare Națională
+            Cursuri de matematică pentru gimnaziu
           </h1>
           
           <p style={homePageStyles.heroSubtitle}>
-            Construim impreuna drumul spre succes! 
+            Smart. Simplu. Succes. 
           </p>
 
           <button
@@ -342,14 +342,18 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
                 <p style={homePageStyles.aboutText}>
                   Sunt <strong>cadru didactic asociat</strong> la Universitatea din București și la 
                   Universitatea Politehnică din București, unde susțin seminare pentru studenți. 
-                  În prezent, sunt <strong>doctorand în matematică</strong>.
+                  În prezent, urmez studiile doctorale în matematică. În paralel, îmi dedic timpul
+                   și pregătirii elevilor de gimnaziu, ajutându-i să înțeleagă matematica într-un mod
+                    clar și accesibil.
                 </p>
                 
                 <div style={homePageStyles.aboutDivider} />
                 
                 <p style={homePageStyles.aboutText}>
-                  Am lucrat cu <strong>peste o sută de elevi</strong>, având o experiență de 
-                  <strong> peste 7 ani</strong> în pregătirea elevilor pentru <strong>Evaluarea Națională și Bacalaureat</strong>.
+                  Am lucrat față în față cu <strong>peste o sută de elevi</strong>, acumulând o experiență de <strong>peste 8 ani</strong> 
+                  în pregătirea copiilor pentru <strong>Evaluarea Națională și Bacalaureat</strong>. 
+                  Acum îmi doresc să duc această experiență mai departe și să ofer sprijin unui număr cât mai mare 
+                  de elevi prin intermediul platformei mele Infinity Math.
                 </p>
               </div>
             </div>

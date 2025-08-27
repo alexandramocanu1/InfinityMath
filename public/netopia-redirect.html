@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecționare către Netopia</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .redirect-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            max-width: 400px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+        
+        #netopia-form {
+            display: none;
+        }
+        
+        .manual-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .manual-button:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <div class="redirect-container">
+        <div class="spinner"></div>
+        <h2>Redirecționare către Netopia</h2>
+        <p>Te redirecționăm către platforma de plăți securizată...</p>
+        
+        <!-- Form pentru Netopia - va fi completat prin JavaScript -->
+        <form id="netopia-form" method="POST" action="">
+            <input type="hidden" name="signature" value="">
+            <input type="hidden" name="orderId" value="">
+            <input type="hidden" name="amount" value="">
+            <input type="hidden" name="currency" value="">
+            <input type="hidden" name="description" value="">
+            <input type="hidden" name="returnUrl" value="">
+            <input type="hidden" name="cancelUrl" value="">
+            <input type="hidden" name="firstName" value="">
+            <input type="hidden" name="lastName" value="">
+            <input type="hidden" name="email" value="">
+            <input type="hidden" name="phone" value="">
+        </form>
+        
+        <button class="manual-button" onclick="submitManually()">
+            Continuă cu plata
+        </button>
+    </div>
+
+    <script>
+        // Extrage parametrii din URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        const amount = urlParams.get('amount');
+        const currency = urlParams.get('currency') || 'RON';
+        const description = urlParams.get('description');
+        const signature = urlParams.get('signature');
+        const isSandbox = urlParams.get('sandbox') === 'true';
+        const returnUrl = urlParams.get('returnUrl');
+        const cancelUrl = urlParams.get('cancelUrl');
+        const firstName = urlParams.get('firstName') || '';
+        const lastName = urlParams.get('lastName') || '';
+        const email = urlParams.get('email') || '';
+        const phone = urlParams.get('phone') || '';
+        
+        // Determină URL-ul Netopia
+        const netopiaUrl = isSandbox ? 
+            'https://sandbox.netopia-payments.com/payment/card' :
+            'https://www.netopia-payments.com/payment/card';
+        
+        // Completează form-ul
+        const form = document.getElementById('netopia-form');
+        form.action = netopiaUrl;
+        form.elements['signature'].value = signature;
+        form.elements['orderId'].value = orderId;
+        form.elements['amount'].value = amount;
+        form.elements['currency'].value = currency;
+        form.elements['description'].value = decodeURIComponent(description);
+        form.elements['returnUrl'].value = returnUrl;
+        form.elements['cancelUrl'].value = cancelUrl;
+        form.elements['firstName'].value = firstName;
+        form.elements['lastName'].value = lastName;
+        form.elements['email'].value = email;
+        form.elements['phone'].value = phone;
+        
+        // Funcție pentru submit manual
+        function submitManually() {
+            form.submit();
+        }
+        
+        // Auto-submit după 2 secunde
+        setTimeout(() => {
+            if (orderId && amount && signature) {
+                console.log('Submitting to Netopia with data:', {
+                    signature, orderId, amount, currency, 
+                    firstName, lastName, email, phone
+                });
+                form.submit();
+            } else {
+                // Dacă lipsesc parametri, arată butonul manual
+                document.querySelector('.spinner').style.display = 'none';
+                document.querySelector('.manual-button').style.display = 'inline-block';
+                document.querySelector('h2').textContent = 'Date incomplete';
+                document.querySelector('p').textContent = 'Te rugăm să încerci din nou procesul de plată.';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
