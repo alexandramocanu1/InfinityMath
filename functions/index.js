@@ -127,39 +127,40 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
  */
 async function createNetopiaPaymentUrl(order, isSandbox) {
   try {
+    console.log("Creating Netopia payment URL for order:", order.orderId);
+
+    // Folosește endpoint-urile corecte mobilPay pentru plăți directe cu cardul
     const baseUrl = isSandbox ?
-        "https://sandbox.netopia-payments.com" :
-        "https://www.netopia-payments.com";
+        "https://secure-sandbox.mobilpay.ro/public/card/new" :
+        "https://secure.mobilpay.ro/public/card/new";
 
-    // Pentru Netopia, trebuie să faci un POST request pentru a obține URL-ul
-    const fetch = require("node-fetch");
+    // Parametrii corecți pentru Netopia/mobilPay
+    const queryParams = new URLSearchParams({
+      account: NETOPIA_CONFIG.SIGNATURE,
+      amount: order.amount.toString(),
+      curr: order.currency,
+      invoice_id: order.orderId,
+      details: order.description,
+      lang: "ro",
 
-    const response = await fetch(`${baseUrl}/payment/card`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${NETOPIA_CONFIG.SIGNATURE}`,
-      },
-      body: JSON.stringify(order),
+      // Date client
+      fname: order.firstName || "",
+      lname: order.lastName || "",
+      email: order.email || "",
+      phone: order.phone || "",
+
+      confirm_url: NETOPIA_CONFIG.WEBHOOK_URL,
+      return_url: order.returnUrl,
+      cancel_return_url: order.cancelUrl,
     });
 
-    if (!response.ok) {
-      console.log(`Netopia API error: ${response.status}, fall bk redir URL`);
-      // Fallback la redirect URL dacă API-ul nu funcționează
-      return createRedirectUrl(order, isSandbox);
-    }
+    const directUrl = `${baseUrl}?${queryParams.toString()}`;
+    console.log("Direct Netopia URL created:", directUrl);
 
-    const result = await response.json();
-
-    if (result.paymentURL) {
-      return result.paymentURL;
-    } else {
-      // Fallback pentru testare dacă API-ul nu returnează URL-ul așteptat
-      return createRedirectUrl(order, isSandbox);
-    }
+    return directUrl;
   } catch (error) {
     console.error("Eroare la crearea URL-ului Netopia:", error);
-    // Fallback pentru cazul în care API-ul nu funcționează
+    // Fallback la pagina ta de redirect
     return createRedirectUrl(order, isSandbox);
   }
 }
@@ -171,25 +172,28 @@ async function createNetopiaPaymentUrl(order, isSandbox) {
  * @return {string} URL-ul de redirecționare către Netopia
  */
 function createRedirectUrl(order, isSandbox) {
+  // Folosește endpoint-urile corecte mobilPay în loc de netopia-payments.com
   const baseUrl = isSandbox ?
-      "https://sandbox.netopia-payments.com" :
-      "https://www.netopia-payments.com";
+      "https://secure-sandbox.mobilpay.ro/public/card/new" :
+      "https://secure.mobilpay.ro/public/card/new";
 
   const queryParams = new URLSearchParams({
-    signature: NETOPIA_CONFIG.SIGNATURE,
-    orderId: order.orderId,
+    account: NETOPIA_CONFIG.SIGNATURE,
     amount: order.amount.toString(),
-    currency: order.currency,
-    description: encodeURIComponent(order.description),
-    returnUrl: encodeURIComponent(order.returnUrl),
-    cancelUrl: encodeURIComponent(order.cancelUrl),
-    firstName: encodeURIComponent(order.firstName || ""),
-    lastName: encodeURIComponent(order.lastName || ""),
+    curr: order.currency,
+    invoice_id: order.orderId,
+    details: encodeURIComponent(order.description),
+    lang: "ro",
+    fname: encodeURIComponent(order.firstName || ""),
+    lname: encodeURIComponent(order.lastName || ""),
     email: encodeURIComponent(order.email || ""),
     phone: encodeURIComponent(order.phone || ""),
+    confirm_url: encodeURIComponent(NETOPIA_CONFIG.WEBHOOK_URL),
+    return_url: encodeURIComponent(order.returnUrl),
+    cancel_return_url: encodeURIComponent(order.cancelUrl),
   });
 
-  return `${baseUrl}/payment/card?${queryParams.toString()}`;
+  return `${baseUrl}?${queryParams.toString()}`;
 }
 
 // Endpoint pentru confirmarea plăților (simulare pentru testare)
