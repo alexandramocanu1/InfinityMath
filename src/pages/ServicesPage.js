@@ -340,6 +340,8 @@ const handleFinalSubmit = async () => {
   
   try {
     if (currentUser && userData) {
+      const currentService = services[selectedService];
+      
       const enrollmentData = {
         userId: currentUser.uid,
         scheduleId: selectedSchedule.id,
@@ -378,35 +380,28 @@ const handleFinalSubmit = async () => {
         }
       };
       
-      // Folosește funcția de test pentru dezvoltare
+      console.log('Calling createPayment with data:', paymentInfo);
+      
+      // Apelează funcția Firebase
       const functions = getFunctions();
       const createPayment = httpsCallable(functions, "createPayment");
-
-      
-      console.log('Calling createTestPayment with data:', paymentInfo);
-
       const result = await createPayment(paymentInfo);
 
-if (result.data.success) {
-  console.log('Redirecting to Netopia payment:', result.data.paymentUrl);
-  // Redirect către integratorul real Netopia
-  window.location.href = result.data.paymentUrl;
-} else {
-  throw new Error(result.data.message || "Eroare la generarea plății");
-}
+      console.log('createPayment result:', result);
 
-      console.log('createTestPayment result:', result);
-
-      if (result.data.success) {
-        console.log('Redirecting to test payment:', result.data.paymentUrl);
-        // Redirect către pagina de test
+      // Verifică rezultatul și redirecționează
+      if (result.data && result.data.success && result.data.paymentUrl) {
+        console.log('Redirecting to Netopia payment:', result.data.paymentUrl);
+        // Redirect direct către URL-ul returnat de Netopia
         window.location.href = result.data.paymentUrl;
       } else {
-        throw new Error(result.data.message || "Eroare la generarea plății de test");
+        throw new Error(result.data?.message || "Eroare la generarea plății - răspuns invalid de la server");
       }
       
     } else {
       // Pentru utilizatori neautentificați - doar salvează programarea
+      const currentService = services[selectedService];
+      
       const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
@@ -428,14 +423,24 @@ if (result.data.success) {
     }
     
   } catch (error) {
-    console.error('Eroare la salvarea programării:', error);
+    console.error('Eroare detaliată la salvarea programării:', error);
     
-    // Afișează mai multe detalii despre eroare
+    // Afișează detalii mai clare despre eroare
+    let errorMessage = "Eroare la salvarea programării.";
+    
     if (error.code) {
-      alert(`Eroare: ${error.code} - ${error.message}`);
-    } else {
-      alert("Eroare la salvarea programării. Verifică consola pentru detalii.");
+      errorMessage = `Eroare Firebase: ${error.code} - ${error.message}`;
+    } else if (error.message) {
+      errorMessage = `Eroare: ${error.message}`;
     }
+    
+    // Afișează și detalii din răspunsul serverului dacă există
+    if (error.details) {
+      errorMessage += `\nDetalii: ${error.details}`;
+    }
+    
+    alert(errorMessage);
+    console.error('Error object:', error);
   }
   
   setIsLoading(false);
