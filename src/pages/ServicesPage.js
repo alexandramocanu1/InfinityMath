@@ -334,7 +334,6 @@ const handlePaymentCancel = () => {
 };
 
 
-// Add this function to your ServicesPage component to replace the current payment logic
 
 const handleFinalSubmit = async () => {
   setIsLoading(true);
@@ -381,12 +380,21 @@ const handleFinalSubmit = async () => {
       
       // Folosește funcția de test pentru dezvoltare
       const functions = getFunctions();
-      const createTestPayment = httpsCallable(functions, "createTestPayment");
+      const createPayment = httpsCallable(functions, "createPayment");
+
       
       console.log('Calling createTestPayment with data:', paymentInfo);
 
-      const result = await createTestPayment(paymentInfo);
-      
+      const result = await createPayment(paymentInfo);
+
+if (result.data.success) {
+  console.log('Redirecting to Netopia payment:', result.data.paymentUrl);
+  // Redirect către integratorul real Netopia
+  window.location.href = result.data.paymentUrl;
+} else {
+  throw new Error(result.data.message || "Eroare la generarea plății");
+}
+
       console.log('createTestPayment result:', result);
 
       if (result.data.success) {
@@ -1465,84 +1473,141 @@ const handleFinalSubmit = async () => {
         )}
 
 
-        {/* Modal de plata */}
-        {showPayment && paymentData && (
+{/* Modal de plata */}
+{showPayment && paymentData && (
   <div style={servicesPageStyles.modal.overlay}>
-    <div style={{
-      ...servicesPageStyles.modal.content,
-      maxWidth: '600px',
-      padding: '2rem'
-    }}>
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '1rem',
-          marginBottom: '1rem'
-        }}>
-          <CreditCard style={{ 
-            width: '2.5rem', 
-            height: '2.5rem', 
-            color: currentService?.color || '#ea580c'
-          }} />
-          <NTPLogo 
-            color={currentService?.color || '#ea580c'} 
-            version="orizontal" 
+    <div
+      style={{
+        ...servicesPageStyles.modal.content,
+        maxWidth: "600px",
+        padding: "2rem",
+      }}
+    >
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "1rem",
+            marginBottom: "1rem",
+          }}
+        >
+          <CreditCard
+            style={{
+              width: "2.5rem",
+              height: "2.5rem",
+              color: currentService?.color || "#ea580c",
+            }}
+          />
+          <NTPLogo
+            color={currentService?.color || "#ea580c"}
+            version="orizontal"
             secret="154714"
-            style={{ height: '40px' }}
+            style={{ height: "40px" }}
           />
         </div>
-        <h2 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          marginBottom: '0.5rem' 
-        }}>
+        <h2
+          style={{
+            fontSize: "1.5rem",
+            fontWeight: "600",
+            color: "#1f2937",
+            marginBottom: "0.5rem",
+          }}
+        >
           Finalizează plata
         </h2>
-        <p style={{ color: '#6b7280' }}>
-          Vei fi redirecționat către platforma securizată Netopia pentru a finaliza plata.
+        <p style={{ color: "#6b7280" }}>
+          Vei fi redirecționat către platforma securizată Netopia pentru a
+          finaliza plata.
         </p>
       </div>
 
-      <div style={{
-        backgroundColor: '#f8fafc',
-        padding: '1.5rem',
-        borderRadius: '8px',
-        marginBottom: '2rem',
-        border: '1px solid #e2e8f0'
-      }}>
-        <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', fontWeight: '600' }}>
+      {/* Sumar comanda */}
+      <div
+        style={{
+          backgroundColor: "#f8fafc",
+          padding: "1.5rem",
+          borderRadius: "8px",
+          marginBottom: "2rem",
+          border: "1px solid #e2e8f0",
+        }}
+      >
+        <h3
+          style={{
+            margin: "0 0 1rem 0",
+            fontSize: "1.1rem",
+            fontWeight: "600",
+          }}
+        >
           Sumar comandă
         </h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "0.5rem",
+          }}
+        >
           <span>{currentService?.name}</span>
           <span>{currentService?.priceValue} RON</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <span>Program: {selectedSchedule?.zi} {selectedSchedule?.ora}</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <span>
+            Program: {selectedSchedule?.zi} {selectedSchedule?.ora}
+          </span>
         </div>
-        <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e2e8f0' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '600' }}>
+        <hr
+          style={{
+            margin: "1rem 0",
+            border: "none",
+            borderTop: "1px solid #e2e8f0",
+          }}
+        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontWeight: "600",
+          }}
+        >
           <span>Total de plată:</span>
-          <span style={{ color: currentService?.color }}>{currentService?.priceValue} RON</span>
+          <span style={{ color: currentService?.color }}>
+            {currentService?.priceValue} RON
+          </span>
         </div>
       </div>
 
-      <div style={{
-        backgroundColor: '#f0f9ff',
-        padding: '1rem',
-        borderRadius: '8px',
-        marginBottom: '2rem',
-        fontSize: '0.875rem',
-        color: '#0369a1'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <Shield style={{ width: '1rem', height: '1rem' }} />
+      {/* Info securitate */}
+      <div
+        style={{
+          backgroundColor: "#f0f9ff",
+          padding: "1rem",
+          borderRadius: "8px",
+          marginBottom: "2rem",
+          fontSize: "0.875rem",
+          color: "#0369a1",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <Shield style={{ width: "1rem", height: "1rem" }} />
           <strong>Plată 100% securizată</strong>
         </div>
-        <ul style={{ margin: '0', paddingLeft: '1.5rem' }}>
+        <ul style={{ margin: "0", paddingLeft: "1.5rem" }}>
           <li>Toate tranzacțiile sunt protejate SSL</li>
           <li>Datele cardului nu sunt stocate pe serverele noastre</li>
           <li>Poți plăti cu card Visa, MasterCard sau PayPal</li>
@@ -1550,86 +1615,86 @@ const handleFinalSubmit = async () => {
         </ul>
       </div>
 
-      <div style={{ display: 'flex', gap: '1rem' }}>
+      {/* Butoane */}
+      <div style={{ display: "flex", gap: "1rem" }}>
         <button
           onClick={handlePaymentCancel}
           style={{
             flex: 1,
-            padding: '0.75rem',
-            backgroundColor: '#f3f4f6',
-            color: '#374151',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '500',
-            cursor: 'pointer'
+            padding: "0.75rem",
+            backgroundColor: "#f3f4f6",
+            color: "#374151",
+            border: "1px solid #d1d5db",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            fontWeight: "500",
+            cursor: "pointer",
           }}
         >
           Anulează
         </button>
         <button
-  onClick={async () => {
-    setPaymentLoading(true);
-    try {
-      // Import getFunctions and httpsCallable at the top of your file
-      const functions = getFunctions();
-      const createPayment = httpsCallable(functions, "createPayment");
+          onClick={async () => {
+            setPaymentLoading(true);
+            try {
+              // Folosește funcția reală Netopia
+              const functions = getFunctions();
+              const createPayment = httpsCallable(functions, "createPayment");
 
-      console.log('Calling createPayment with data:', paymentData);
+              console.log("Calling createPayment with data:", paymentData);
 
-      const result = await createPayment(paymentData);
-      
-      console.log('createPayment result:', result);
+              const result = await createPayment(paymentData);
 
-      if (result.data.success) {
-        console.log('Redirecting to:', result.data.paymentUrl);
-        // Redirect către Netopia
-        window.location.href = result.data.paymentUrl;
-      } else {
-        throw new Error(result.data.message || "Eroare la generarea plății");
-      }
-    } catch (error) {
-      console.error("Eroare detaliată la inițierea plății:", error);
-      
-      // Afișează mai multe detalii despre eroare
-      if (error.code) {
-        alert(`Eroare: ${error.code} - ${error.message}`);
-      } else {
-        alert("Eroare la inițierea plății. Verifică consola pentru detalii.");
-      }
-      
-      setPaymentLoading(false);
-    }
-  }}
-  disabled={paymentLoading}
-  style={{
-    flex: 2,
-    padding: "0.75rem",
-    backgroundColor: currentService?.color || "#ea580c",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "1rem",
-    fontWeight: "600",
-    cursor: paymentLoading ? "not-allowed" : "pointer",
-    opacity: paymentLoading ? 0.7 : 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "0.5rem",
-  }}
->
-  {paymentLoading ? (
-    <>Procesăm plata...</>
-  ) : (
-    <>Plătește {currentService?.priceValue} RON</>
-  )}
-</button>
+              if (result.data.success) {
+                console.log(
+                  "Redirecting to Netopia payment:",
+                  result.data.paymentUrl
+                );
+                window.location.href = result.data.paymentUrl;
+              } else {
+                throw new Error(
+                  result.data.message || "Eroare la generarea plății"
+                );
+              }
+            } catch (error) {
+              console.error(
+                "Eroare detaliată la inițierea plății:",
+                error
+              );
+              if (error.code) {
+                alert(`Eroare: ${error.code} - ${error.message}`);
+              } else {
+                alert(
+                  "Eroare la inițierea plății. Verifică consola pentru detalii."
+                );
+              }
+              setPaymentLoading(false);
+            }
+          }}
+          disabled={paymentLoading}
+          style={{
+            flex: 2,
+            padding: "0.75rem",
+            backgroundColor: currentService?.color || "#ea580c",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            fontWeight: "600",
+            cursor: paymentLoading ? "not-allowed" : "pointer",
+            opacity: paymentLoading ? 0.7 : 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+          }}
+        >
+          {paymentLoading ? <>Procesăm plata...</> : <>Plătește {currentService?.priceValue} RON</>}
+        </button>
       </div>
     </div>
   </div>
 )}
-
 
         {/* Success Modal */}
         {isComplete && (
