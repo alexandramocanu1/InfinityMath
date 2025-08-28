@@ -1,53 +1,20 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const axios = require("axios");
+const crypto = require("crypto");
 
-admin.initializeApp();
-
-// Configurația Netopia API v2 cu chei reale
 const DEFAULT_WEBHOOK_URL =
     "https://us-central1-infinity-math-53be3.cloudfunctions.net/netopiaWebhook";
 
-let NETOPIA_CONFIG;
-try {
-  NETOPIA_CONFIG = {
-    // Aceste vor fi setate prin Firebase Config din secretele tale
-    SIGNATURE: functions.config()
-        .netopia?.signature || "31DH-KZHF-ONEY-OCYK-ZKHS",
-    API_KEY: functions.config().netopia?.api_key,
-    IS_SANDBOX: functions.config().netopia?.is_sandbox !== "false",
-    WEBHOOK_URL: functions.config().netopia?.webhook_url || DEFAULT_WEBHOOK_URL,
-
-    // URL-uri API v2 Netopia
-    SANDBOX_API_URL: "https://secure-sandbox.netopia-payments.com/payment/card",
-    LIVE_API_URL: "https://secure.netopia-payments.com/payment/card",
-  };
-} catch (error) {
-  console.error("Error loading Netopia config:", error);
-  NETOPIA_CONFIG = {
-    SIGNATURE: "31DH-KZHF-ONEY-OCYK-ZKHS",
-    API_KEY: null,
-    IS_SANDBOX: true,
-    WEBHOOK_URL: DEFAULT_WEBHOOK_URL,
-    SANDBOX_API_URL: "https://secure-sandbox.netopia-payments.com/payment/card",
-    LIVE_API_URL: "https://secure.netopia-payments.com/payment/card",
-  };
-}
-
 /**
- * Creează payload-ul pentru API v2 Netopia conform documentației
+ * Creează payload-ul pentru API v2 Netopia
  * @param {Object} paymentData - Datele pentru plată
- * @return {Object} Payload-ul formatat pentru API
+ * @return {Object} Payload-ul formatat
  */
 function createNetopiaPayload(paymentData) {
   const {
-    orderId,
-    amount,
-    currency,
-    description,
-    customerInfo,
-    returnUrl,
-    notifyUrl,
+    orderId, amount, currency, description,
+    customerInfo, returnUrl, notifyUrl,
   } = paymentData;
 
   return {
@@ -58,10 +25,7 @@ function createNetopiaPayload(paymentData) {
       language: "RO",
     },
     payment: {
-      options: {
-        installments: 1,
-        bonus: 0,
-      },
+      options: {installments: 1, bonus: 0},
       instrument: {
         type: "card",
         account: null,
@@ -71,7 +35,6 @@ function createNetopiaPayload(paymentData) {
         token: null,
       },
       data: {
-        // Browser fingerprinting pentru 3D Secure
         BROWSER_USER_AGENT: "Mozilla/5.0 (compatible; InfinityMath/1.0)",
         OS: "Web",
         OS_VERSION: "1.0",
@@ -82,14 +45,10 @@ function createNetopiaPayload(paymentData) {
         amount: parseFloat(amount),
         currency: currency,
         details: description,
-
-        // Date client
         firstName: customerInfo.firstName || "Client",
         lastName: customerInfo.lastName || "InfinityMath",
         email: customerInfo.email,
         phone: customerInfo.phone || "",
-
-        // Adrese billing/shipping (obligatorii pentru Netopia)
         billingAddress: "Bucuresti, Romania",
         shippingAddress: "Bucuresti, Romania",
       },
@@ -97,16 +56,11 @@ function createNetopiaPayload(paymentData) {
   };
 }
 
-const crypto = require("crypto");
-
 /**
- * Signs a payload using a given RSA
- * private key and returns the signature in base64 format.
- *
- * @param {Object} payload - The payload to be signed.
- * @param {string|Buffer|KeyObject} privateKey - The RSA private key
- *        to sign the payload with.
- * @return {string} The base64-encoded signature.
+ * Semnează payload-ul cu cheia privată
+ * @param {Object} payload - Payload-ul de semnat
+ * @param {string} privateKey - Cheia privată
+ * @return {string} Semnătura în base64
  */
 function signPayload(payload, privateKey) {
   const signer = crypto.createSign("RSA-SHA256");
@@ -115,6 +69,39 @@ function signPayload(payload, privateKey) {
   return signer.sign(privateKey, "base64");
 }
 
+/**
+ * Obține configurația Netopia în siguranță
+ * @return {Object} Configurația Netopia
+ */
+function getNetopiaConfig() {
+  try {
+    return {
+      SIGNATURE: functions.config().netopia?.signature ||
+          "31DH-KZHF-ONEY-OCYK-ZKHS",
+      // Pentru Netopia, signature-ul ESTE API key-ul de multe ori
+      API_KEY: functions.config().netopia?.signature ||
+          functions.config().netopia?.api_key ||
+          "31DH-KZHF-ONEY-OCYK-ZKHS",
+      IS_SANDBOX: functions.config().netopia?.is_sandbox !== "false",
+      WEBHOOK_URL: functions.config().netopia?.webhook_url ||
+          DEFAULT_WEBHOOK_URL,
+      SANDBOX_API_URL:
+          "https://secure-sandbox.netopia-payments.com/payment/card",
+      LIVE_API_URL: "https://secure.netopia-payments.com/payment/card",
+    };
+  } catch (error) {
+    console.log("Using default config due to:", error.message);
+    return {
+      SIGNATURE: "31DH-KZHF-ONEY-OCYK-ZKHS",
+      API_KEY: "31DH-KZHF-ONEY-OCYK-ZKHS",
+      IS_SANDBOX: true,
+      WEBHOOK_URL: DEFAULT_WEBHOOK_URL,
+      SANDBOX_API_URL:
+          "https://secure-sandbox.netopia-payments.com/payment/card",
+      LIVE_API_URL: "https://secure.netopia-payments.com/payment/card",
+    };
+  }
+}
 
 exports.createPayment = functions.https.onCall(async (data, context) => {
   try {
@@ -131,6 +118,7 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
       currency,
       description,
       customerInfo,
+      metadata,
     } = data;
 
     if (!orderId || !amount || !customerInfo) {
@@ -140,6 +128,7 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
       );
     }
 
+    const config = getNetopiaConfig();
 
     const paymentData = {
       orderId,
@@ -147,276 +136,79 @@ exports.createPayment = functions.https.onCall(async (data, context) => {
       currency: currency || "RON",
       description: description || "Plată Infinity Math",
       returnUrl: `https://infinity-math-53be3.web.app/payment-success?orderId=${orderId}`,
-      notifyUrl: NETOPIA_CONFIG.WEBHOOK_URL,
+      notifyUrl: config.WEBHOOK_URL,
       customerInfo,
     };
 
+    await admin.firestore().collection("transactions").doc(orderId).set({
+      orderId: orderId,
+      userId: context.auth.uid,
+      amount: amount,
+      currency: currency,
+      status: "pending",
+      paymentData: paymentData,
+      metadata: metadata,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
     const netopiaPayload = createNetopiaPayload(paymentData);
-    const apiUrl = NETOPIA_CONFIG.IS_SANDBOX?
-       NETOPIA_CONFIG.SANDBOX_API_URL:
-       NETOPIA_CONFIG.LIVE_API_URL;
+    const apiUrl = config.IS_SANDBOX ?
+        config.SANDBOX_API_URL :
+        config.LIVE_API_URL;
 
-    // ia cheia privată corectă
-    const privateKey = NETOPIA_CONFIG.IS_SANDBOX?
-       process.env.NETOPIA_PRIVATE_KEY_SANDBOX:
-       process.env.NETOPIA_PRIVATE_KEY;
+    const privateKey = config.IS_SANDBOX ?
+        functions.config().netopia?.private_key_sandbox :
+        functions.config().netopia?.private_key;
 
-    // semnează payload-ul
+    if (!privateKey) {
+      const environment = config.IS_SANDBOX ? "sandbox" : "live";
+      throw new functions.https.HttpsError(
+          "failed-precondition",
+          `Private key not configured for ${environment}`,
+      );
+    }
+
     const signature = signPayload(netopiaPayload, privateKey);
 
-    // trimite request către Netopia
+    console.log("Making API call to Netopia:", apiUrl);
+    console.log("Using signature:", config.SIGNATURE);
+    console.log("Payload:", JSON.stringify(netopiaPayload, null, 2));
+
     const response = await axios.post(apiUrl, netopiaPayload, {
       headers: {
         "Content-Type": "application/json",
         "Signature": signature,
+        "X-EC-Signature": signature,
       },
       timeout: 30000,
     });
 
     console.log("Netopia Response:", response.data);
 
-    // aici verifici răspunsul și updatezi tranzacția în Firestore...
     return {
       success: true,
-      paymentUrl:
-  response.data?.data?.customerAction?.url ||
-  paymentData.returnUrl,
-
+      paymentUrl: response.data?.data?.customerAction?.url ||
+          paymentData.returnUrl,
       orderId,
-      environment: NETOPIA_CONFIG.IS_SANDBOX ? "sandbox" : "live",
+      environment: config.IS_SANDBOX ? "sandbox" : "live",
+      ntpID: response.data?.data?.ntpID,
     };
   } catch (error) {
     console.error("Eroare la createPayment:", error);
-    throw new functions.https.HttpsError("internal", error.message);
-  }
-});
 
-
-/**
- * Webhook pentru procesarea notificărilor de la Netopia
- */
-exports.netopiaWebhook = functions.https.onRequest(async (req, res) => {
-  try {
-    console.log("=== NETOPIA WEBHOOK ===");
-    console.log("Method:", req.method);
-    console.log("Headers:", req.headers);
-    console.log("Body:", req.body);
-    console.log("Query:", req.query);
-
-    // Netopia trimite POST cu datele în body
-    let notificationData = null;
-
-    if (req.method === "POST") {
-      notificationData = req.body;
-    } else if (req.method === "GET") {
-      // Uneori Netopia poate trimite GET cu parametri
-      notificationData = req.query;
+    if (error.response) {
+      console.error("Netopia API Error:", {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers,
+      });
     }
 
-    if (!notificationData) {
-      console.error("No notification data received");
-      return res.status(400).send("No data received");
-    }
-
-    // Extrage informațiile importante
-    const orderId = notificationData.orderId || notificationData.order_id;
-    const ntpID = notificationData.ntpID || notificationData.ntp_id;
-    const status = notificationData.status;
-    const errorCode = notificationData.error?.code ||notificationData.errorCode;
-    const errorMessage = notificationData.error?.message ||
-    notificationData.errorMessage;
-    console.log("Parsed notification:", {
-      orderId, ntpID, status, errorCode, errorMessage,
-    });
-
-    if (!orderId && !ntpID) {
-      console.error("No order ID found in notification");
-      return res.status(400).send("Order ID missing");
-    }
-
-    // Caută tranzacția (întâi după orderId, apoi după ntpID)
-    let transactionDoc;
-    const searchId = orderId || ntpID;
-
-    transactionDoc = await admin.firestore()
-        .collection("transactions")
-        .doc(searchId)
-        .get();
-
-    if (!transactionDoc.exists() && orderId !== ntpID) {
-      // Încearcă să caute după ntpID dacă prima căutare a eșuat
-      transactionDoc = await admin.firestore()
-          .collection("transactions")
-          .doc(ntpID)
-          .get();
-    }
-
-    if (!transactionDoc.exists()) {
-      console.log("Transaction not found:", searchId);
-      return res.status(404).send("Transaction not found");
-    }
-
-    const transaction = transactionDoc.data();
-    const userId = transaction.userId;
-    const metadata = transaction.metadata;
-
-    // Procesează rezultatul plății
-    if (status === 3 || status === "3" ||
-        (errorCode === "0" || errorCode === 0) ||
-        notificationData.action === "confirmed") {
-      console.log("Payment confirmed for transaction:", searchId);
-
-      // Actualizează tranzacția ca fiind confirmată
-      await admin.firestore()
-          .collection("transactions").doc(transactionDoc.id).update({
-            status: "confirmed",
-            ntpID: ntpID || searchId,
-            confirmedAt: admin.firestore.FieldValue.serverTimestamp(),
-            netopiaNotification: notificationData,
-          });
-
-      // Actualizează enrollment-ul dacă există
-      if (metadata?.enrollmentId) {
-        await admin.firestore().collection("enrollments")
-            .doc(metadata.enrollmentId).update({
-              status: "confirmed",
-              paymentStatus: "paid",
-              paymentId: ntpID || searchId,
-              paymentDate: admin.firestore.FieldValue.serverTimestamp(),
-            });
-
-        if (metadata.scheduleId) {
-          await admin.firestore().collection("schedules")
-              .doc(metadata.scheduleId).update({
-                enrolledCount: admin.firestore.FieldValue.increment(1),
-              });
-        }
-      }
-
-      // Activează abonamentul utilizatorului
-      if (userId) {
-        const now = new Date();
-        const expirationDate = new Date(now);
-        expirationDate.setMonth(now.getMonth() + 1);
-
-        await admin.firestore().collection("users").doc(userId).update({
-          "abonament.activ": true,
-          "abonament.tip": metadata?.serviceTip || "evaluare",
-          "abonament.dataInceperii":
-          admin.firestore.FieldValue.serverTimestamp(),
-          "abonament.dataExpirare":
-          admin.firestore.Timestamp.fromDate(expirationDate),
-          "abonament.ziuaSaptamanii": metadata?.scheduleDay,
-          "abonament.oraCurs": metadata?.scheduleTime,
-          "abonament.paymentId": ntpID || searchId,
-        });
-
-        console.log(`Subscription activated for user ${userId}`);
-      }
-    } else {
-      console.log("Payment failed for transaction:", searchId);
-
-      // Marchează tranzacția ca eșuată
-      await admin.firestore()
-          .collection("transactions").doc(transactionDoc.id).update({
-            status: "failed",
-            errorCode: errorCode,
-            errorMessage: errorMessage,
-            failedAt: admin.firestore.FieldValue.serverTimestamp(),
-            netopiaNotification: notificationData,
-          });
-    }
-
-    // Răspunde cu confirmare către Netopia
-    res.status(200).send("OK");
-  } catch (error) {
-    console.error("Error processing Netopia webhook:", error);
-    res.status(500).send("Webhook processing failed");
-  }
-});
-
-
-/**
- * Funcție pentru verificarea status-ului unei plăți
- */
-exports.checkPaymentStatus = functions.https.onCall(async (data, context) => {
-  try {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-          "unauthenticated",
-          "Utilizatorul trebuie să fie autentificat",
-      );
-    }
-
-    const {orderId} = data;
-
-    const transactionDoc = await admin.firestore()
-        .collection("transactions")
-        .doc(orderId)
-        .get();
-
-    if (!transactionDoc.exists()) {
-      throw new functions.https.HttpsError(
-          "not-found",
-          "Tranzacția nu a fost găsită",
-      );
-    }
-
-    const transaction = transactionDoc.data();
-
-    return {
-      success: true,
-      orderId: orderId,
-      status: transaction.status,
-      amount: transaction.amount,
-      currency: transaction.currency,
-      createdAt: transaction.createdAt,
-      confirmedAt: transaction.confirmedAt || null,
-      ntpID: transaction.ntpID || null,
-      environment: NETOPIA_CONFIG.IS_SANDBOX ? "sandbox" : "live",
-    };
-  } catch (error) {
-    console.error("Error checking payment status:", error);
+    const statusCode = error.response?.status || "unknown";
     throw new functions.https.HttpsError(
         "internal",
-        `Status check error: ${error.message}`,
-    );
-  }
-});
-
-// Păstrează funcția de test pentru dezvoltare
-exports.createTestPayment = functions.https.onCall(async (data, context) => {
-  try {
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-          "unauthenticated",
-          "Utilizatorul trebuie să fie autentificat",
-      );
-    }
-
-    const {orderId, amount, customerInfo} = data;
-
-    const testUrl =
-  `https://infinity-math-53be3.web.app/test-payment?` +
-  `orderId=${orderId}&` +
-  `amount=${amount}&` +
-  `email=${encodeURIComponent(customerInfo.email)}&` +
-  `name=${encodeURIComponent(
-      `${customerInfo.firstName} ${customerInfo.lastName}`,
-  )}`;
-
-
-    return {
-      success: true,
-      paymentUrl: testUrl,
-      orderId: orderId,
-      environment: "test",
-    };
-  } catch (error) {
-    console.error("Error creating test payment:", error);
-    throw new functions.https.HttpsError(
-        "internal",
-        `Test payment error: ${error.message}`,
+        `Payment failed: ${error.message}. Status: ${statusCode}`,
     );
   }
 });
