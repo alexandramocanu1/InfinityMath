@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plată Anulată - Infinity Math</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .cancel-container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      overflow: hidden;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .cancel-header {
+      background: #f59e0b;
+      color: white;
+      padding: 3rem 2rem 2rem;
+      position: relative;
+    }
+
+    .cancel-icon {
+      width: 80px;
+      height: 80px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+      color: #f59e0b;
+    }
+
+    .cancel-header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .cancel-header p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      line-height: 1.4;
+    }
+
+    .cancel-body {
+      padding: 2.5rem 2rem;
+    }
+
+    .cancel-reason {
+      background: #fffaf0;
+      border: 1px solid #fed7aa;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .cancel-reason h3 {
+      color: #9a3412;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .cancel-reason p {
+      color: #c2410c;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .cancel-reason p:last-child {
+      margin-bottom: 0;
+    }
+
+    .next-options {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .next-options h3 {
+      color: #0369a1;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .next-options ul {
+      text-align: left;
+      color: #0c4a6e;
+      line-height: 1.6;
+    }
+
+    .next-options li {
+      margin-bottom: 0.5rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #f7fafc;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+    }
+
+    .contact-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-info h4 {
+      color: #2d3748;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: #4a5568;
+    }
+
+    .contact-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .contact-item strong {
+      color: #2d3748;
+    }
+
+    @media (max-width: 640px) {
+      .cancel-header {
+        padding: 2rem 1rem 1.5rem;
+      }
+
+      .cancel-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .cancel-body {
+        padding: 2rem 1rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cancel-container">
+    <div class="cancel-header">
+      <div class="cancel-icon">
+        ⚠️
+      </div>
+      <h1>Plată Anulată</h1>
+      <p>Procesul de plată a fost întrerupt și înscrierea nu a fost finalizată.</p>
+    </div>
+
+    <div class="cancel-body">
+      <div class="cancel-reason">
+        <h3>Ce s-a întâmplat?</h3>
+        <p>
+          Plata pentru cursul Infinity Math a fost anulată înainte de finalizare. 
+          Aceasta poate fi din diverse motive:
+        </p>
+        <p>
+          • Ai ales să anulezi tranzacția<br>
+          • A apărut o problemă tehnică<br>
+          • Datele cardului nu au fost acceptate<br>
+          • Timpul de procesare a expirat
+        </p>
+      </div>
+
+      <div class="next-options">
+        <h3>Ce poți face acum?</h3>
+        <ul>
+          <li><strong>Încearcă din nou:</strong> Poți relua procesul de plată oricând</li>
+          <li><strong>Verifică datele:</strong> Asigură-te că informațiile cardului sunt corecte</li>
+          <li><strong>Contactează-ne:</strong> Dacă problema persistă, suntem aici să te ajutăm</li>
+          <li><strong>Alte metode:</strong> Putem discuta alternative de plată prin telefon</li>
+        </ul>
+      </div>
+
+      <div class="contact-info">
+        <h4>Ai nevoie de ajutor?</h4>
+        <div class="contact-item">
+          <span>📧</span>
+          <span>Email: <strong>contact@infinitymath.ro</strong></span>
+        </div>
+        <div class="contact-item">
+          <span>📱</span>
+          <span>Telefon: <strong>+40 XXX XXX XXX</strong></span>
+        </div>
+        <div class="contact-item">
+          <span>💬</span>
+          <span>WhatsApp: <strong>Disponibil 9:00 - 18:00</strong></span>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="/services" class="btn btn-primary">
+          🔄 Încearcă Din Nou
+        </a>
+        <a href="/" class="btn btn-secondary">
+          🏠 Înapoi la Pagina Principală
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Extrage parametrii din URL pentru debugging
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    const reason = urlParams.get('reason') || 'user_cancel';
+
+    // Log pentru debugging
+    console.log('Payment cancelled:', {
+      orderId: orderId,
+      reason: reason,
+      timestamp: new Date().toISOString(),
+      url: window.location.href
+    });
+
+    // Salvează în localStorage pentru analytics
+    try {
+      const cancelData = {
+        orderId: orderId || 'unknown',
+        reason: reason,
+        cancelledAt: new Date().toISOString(),
+        referrer: document.referrer
+      };
+      
+      localStorage.setItem('lastPaymentCancel', JSON.stringify(cancelData));
+    } catch (error) {
+      console.error('Error saving cancel data:', error);
+    }
+
+    // Auto-redirect la servicii după 60 de secunde
+    let countdown = 60;
+    const updateCountdown = () => {
+      const retryBtn = document.querySelector('a[href="/services"]');
+      if (retryBtn && countdown > 0) {
+        retryBtn.innerHTML = `🔄 Încearcă Din Nou (${countdown}s)`;
+        countdown--;
+        setTimeout(updateCountdown, 1000);
+      } else if (retryBtn) {
+        retryBtn.innerHTML = '🔄 Încearcă Din Nou';
+        // window.location.href = '/services'; // Uncomment pentru auto-redirect
+      }
+    };
+
+    // Începe countdown-ul după 10 secunde
+    setTimeout(updateCountdown, 10000);
+
+    // Afișează mesaje personalizate în funcție de motiv
+    if (reason === 'timeout') {
+      const reasonElement = document.querySelector('.cancel-reason p:last-child');
+      reasonElement.innerHTML = '• Timpul pentru completarea plății a expirat<br>• Încearcă din nou cu mai puțin timp între pași';
+    } else if (reason === 'card_error') {
+      const reasonElement = document.querySelector('.cancel-reason p:last-child');
+      reasonElement.innerHTML = '• Datele cardului nu au fost acceptate<br>• Verifică numărul cardului, data expirării și CVV-ul';
+    } else if (reason === 'insufficient_funds') {
+      const reasonElement = document.querySelector('.cancel-reason p:last-child');
+      reasonElement.innerHTML = '• Fonduri insuficiente pe card<br>• Contactează banca pentru verificări suplimentare';
+    }
+  </script>
+</body>
+</html>

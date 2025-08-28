@@ -334,7 +334,9 @@ const handlePaymentCancel = () => {
 };
 
 
-  const handleFinalSubmit = async () => {
+// Add this function to your ServicesPage component to replace the current payment logic
+
+const handleFinalSubmit = async () => {
   setIsLoading(true);
   
   try {
@@ -351,20 +353,52 @@ const handlePaymentCancel = () => {
         serviceName: currentService.name,
         servicePrice: currentService.price,
         createdAt: serverTimestamp(),
-        status: 'pending_payment' // Status nou pentru plată în așteptare
+        status: 'pending_payment'
       };
       
       const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
       
-      const paymentInfo = generatePaymentData();
-      paymentInfo.enrollmentId = enrollmentRef.id;
+      // Creează datele pentru plată
+      const paymentInfo = {
+        orderId: `INF_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        amount: currentService.priceValue,
+        currency: 'RON',
+        description: `${currentService.name} - ${selectedSchedule.zi} ${selectedSchedule.ora}`,
+        customerInfo: {
+          email: userData.email,
+          phone: userData.telefon,
+          firstName: userData.prenumeElev,
+          lastName: userData.numeElev
+        },
+        metadata: {
+          scheduleId: selectedSchedule.id,
+          serviceTip: selectedService,
+          enrollmentId: enrollmentRef.id,
+          scheduleDay: selectedSchedule.zi,
+          scheduleTime: selectedSchedule.ora
+        }
+      };
       
-      setPaymentData(paymentInfo);
-      setShowPayment(true);
+      // Folosește funcția de test pentru dezvoltare
+      const functions = getFunctions();
+      const createTestPayment = httpsCallable(functions, "createTestPayment");
       
-      console.log('Enrollment saved with payment pending:', enrollmentData);
+      console.log('Calling createTestPayment with data:', paymentInfo);
+
+      const result = await createTestPayment(paymentInfo);
+      
+      console.log('createTestPayment result:', result);
+
+      if (result.data.success) {
+        console.log('Redirecting to test payment:', result.data.paymentUrl);
+        // Redirect către pagina de test
+        window.location.href = result.data.paymentUrl;
+      } else {
+        throw new Error(result.data.message || "Eroare la generarea plății de test");
+      }
       
     } else {
+      // Pentru utilizatori neautentificați - doar salvează programarea
       const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
@@ -387,12 +421,17 @@ const handlePaymentCancel = () => {
     
   } catch (error) {
     console.error('Eroare la salvarea programării:', error);
-    alert('Eroare la salvarea programării. Te rog să încerci din nou.');
+    
+    // Afișează mai multe detalii despre eroare
+    if (error.code) {
+      alert(`Eroare: ${error.code} - ${error.message}`);
+    } else {
+      alert("Eroare la salvarea programării. Verifică consola pentru detalii.");
+    }
   }
   
   setIsLoading(false);
 };
-
 
 
   const resetBooking = () => {

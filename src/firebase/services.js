@@ -388,25 +388,15 @@ export const formatDateTime = (timestamp) => {
 
 export const createPayment = async (orderData) => {
   try {
-const functions = getFunctions(app);
-const createPaymentFn = httpsCallable(functions, 'createPayment');
+    const functions = getFunctions(app);
+    const createPaymentFn = httpsCallable(functions, 'createPayment');
     const result = await createPaymentFn(orderData);
 
-    const { encryptedData, netopiaUrl } = result.data;
-
-    // Creează formular POST și trimite către Netopia
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = netopiaUrl;
-
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "data";
-    input.value = encryptedData;
-
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
+    if (result.data.success) {
+      window.location.href = result.data.paymentUrl;
+    } else {
+      throw new Error(result.data.message || "Eroare la generarea plății");
+    }
   } catch (error) {
     console.error("Eroare la crearea plății:", error);
     throw error;
