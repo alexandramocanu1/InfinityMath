@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBJ-V5XqbcFXRn7wdO_iTbLxsbXZpp0zOM", 
-  authDomain: "infinity-math-53be3.firebaseapp.com",
+  authDomain: "infinitymath.ro",
   projectId: "infinity-math-53be3",
   storageBucket: "infinity-math-53be3.firebasestorage.app",
   messagingSenderId: "298237929876",
