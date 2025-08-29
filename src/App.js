@@ -362,7 +362,7 @@ function App() {
           
           {currentPage === 'faq' && <FAQPage />}
           {currentPage === 'contact' && <ContactPage />}
-          {currentPage === 'profile' && <ProfilePage />}
+          {currentPage === 'profile' && <ProfilePage setCurrentPage={setCurrentPage} />}
         </main>
 
         {/* Footer */}
