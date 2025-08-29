@@ -3,6 +3,8 @@ import { BookOpen, ArrowRight, X, ChevronLeft, ChevronRight, Send } from 'lucide
 import emailjs from '@emailjs/browser';
 import { homePageStyles } from './HomePageStyles';
 
+
+
 const HomePage = ({ setCurrentPage, setSelectedService }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -418,6 +420,138 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
             </div>
           </div>
         </section>
+
+
+
+
+              {/* Steps Section */}
+<section style={{
+ padding: '4rem 2rem',
+ backgroundColor: '#ffffff',
+ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+}}>
+ <div style={{
+   maxWidth: '1200px',
+   margin: '0 auto'
+ }}>
+   <div style={{
+     textAlign: 'center',
+     marginBottom: '3rem'
+   }}>
+     <h2 style={{
+       fontSize: '2rem',
+       fontWeight: '600',
+       color: '#2d3748',
+       marginBottom: '0.5rem',
+       fontFamily: 'Georgia, serif'
+     }}>
+       Doar 4 pași simpli 
+     </h2>
+   </div>
+
+   <div style={{
+     display: 'grid',
+     gridTemplateColumns: 'repeat(4, 1fr)',
+     gap: '2rem',
+     alignItems: 'start'
+   }}>
+     {[
+       {
+         number: 1,
+         title: "Creează-ți un cont",
+         subtitle: "Înregistrează-te pe platformă și adaugă datele necesare.",
+         image: "/images/pas_1.png"
+       },
+       {
+         number: 2,
+         title: "Alege cursurile preferate",
+         subtitle: "Selectează pachetul dorit și adaugă-l în coș.",
+         image: "/images/pas_2.png"
+       },
+       {
+         number: 3,
+         title: "Plătește rapid și sigur",
+         subtitle: "Finalizează comanda direct pe site printr-o plată securizată cu cardul.",
+         image: "/images/pas_3.png"
+       },
+       {
+         number: 4,
+         title: "Primește linkul și conectează-te",
+         subtitle: "După confirmarea plății, acceseaza linkul de Google Meet din pagina ,,Profilul meu’’ pentru a te conecta la curs.",
+         image: "/images/pas_4.png"
+       }
+     ].map((step, index) => (
+       <div key={step.number} style={{
+         textAlign: 'center',
+         position: 'relative'
+       }}>
+         <div style={{
+           width: '100px',
+           height: '100px',
+           margin: '0 auto 1rem',
+           borderRadius: '50%',
+           backgroundColor: '#ff9035',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center',
+           position: 'relative',
+           marginBottom: '1.5rem'
+         }}>
+           <img 
+             src={step.image}
+             alt={`Pasul ${step.number}`}
+             style={{
+               width: '60px',
+               height: '60px',
+               objectFit: 'contain'
+             }}
+             onError={(e) => {
+               e.target.style.display = 'none';
+               e.target.parentNode.innerHTML = `<div style="
+                 width: 50px;
+                 height: 50px;
+                 backgroundColor: #2d3748;
+                 color: white;
+                 borderRadius: 50%;
+                 display: flex;
+                 alignItems: center;
+                 justifyContent: center;
+                 fontSize: 1.5rem;
+                 fontWeight: bold;
+               ">${step.number}</div>`;
+             }}
+           />
+         </div>
+
+         <div style={{
+           fontSize: '2rem',
+           fontWeight: 'bold',
+           color: '#2d3748',
+           marginBottom: '0.5rem'
+         }}>
+           {step.number}.
+         </div>
+
+         <div>
+           <p style={{
+             fontSize: '0.9rem',
+             color: '#4a5568',
+             lineHeight: '1.4',
+             margin: 0,
+             maxWidth: '200px',
+             margin: '0 auto'
+           }}>
+             <strong>{step.title}</strong><br/>
+             {step.subtitle}
+           </p>
+         </div>
+       </div>
+     ))}
+   </div>
+ </div>
+</section>
+
+
 
         {/* Contact Form Section */}
         <section style={{
