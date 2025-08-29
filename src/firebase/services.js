@@ -383,22 +383,3 @@ export const formatDateTime = (timestamp) => {
   if (!timestamp) return '';
   return timestamp.toDate().toLocaleString('ro-RO');
 };
-
-
-
-export const createPayment = async (orderData) => {
-  try {
-    const functions = getFunctions(app);
-    const createPaymentFn = httpsCallable(functions, 'createPayment');
-    const result = await createPaymentFn(orderData);
-
-    if (result.data.success) {
-      window.location.href = result.data.paymentUrl;
-    } else {
-      throw new Error(result.data.message || "Eroare la generarea plății");
-    }
-  } catch (error) {
-    console.error("Eroare la crearea plății:", error);
-    throw error;
-  }
-};
