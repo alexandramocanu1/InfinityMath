@@ -16,7 +16,7 @@ import { db, auth } from '../firebase/config';
 import { profilePageStyles } from './ProfilePageStyles';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
-const ProfilePage = () => {
+const ProfilePage = ({ setCurrentPage }) => {
   const { currentUser, userData, updateUserData } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -1081,17 +1081,16 @@ const ProfilePage = () => {
                   </p>
                   
                   <button 
-                    onClick={() => {
-                      // Aici vei adăuga navigația către pagina de cursuri
-                      alert('Redirecționez către pagina de cursuri...');
-                    }}
-                    style={profilePageStyles.startLearningButton}
-                    onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
-                    onMouseOut={(e) => e.target.style.backgroundColor = '#eab308'}
-                  >
-                    <PlayCircle style={{ width: '1.2rem', height: '1.2rem' }} />
-                    Începe acum
-                  </button>
+ onClick={() => {
+   setCurrentPage('services');
+ }}
+ style={profilePageStyles.startLearningButton}
+ onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
+ onMouseOut={(e) => e.target.style.backgroundColor = '#eab308'}
+>
+ <PlayCircle style={{ width: '1.2rem', height: '1.2rem' }} />
+ Începe acum
+</button>
                 </div>
               )}
             </div>
