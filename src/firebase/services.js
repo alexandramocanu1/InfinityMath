@@ -24,7 +24,6 @@ import app, { auth, db } from './config';
 
 // ===== AUTHENTICATION SERVICES =====
 
-// În firebase/services.js - înlocuiește funcția registerUser cu aceasta:
 
 export const registerUser = async (userData) => {
   try {

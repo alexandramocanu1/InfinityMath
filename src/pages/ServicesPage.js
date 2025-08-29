@@ -8,6 +8,7 @@ import { servicesPageStyles } from './ServicesPageStyles';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../firebase/config';
 
+
 const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) => {
   const { currentUser, userData } = useAuth();
   const [step, setStep] = useState(selectedService ? 1 : 0);
@@ -633,6 +634,8 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     </div>
                   </div>
                 </div>
+
+                
 
                 {/* Contact Form */}
                 <div style={servicesPageStyles.form}>
