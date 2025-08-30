@@ -204,15 +204,6 @@ const Footer = () => {
                 onMouseOut={(e) => e.target.style.opacity = '0.8'}
               />
             </a>
-            
-            {/* Logo NTP */}
-            <div style={footerStyles.ntpContainer}>
-              <NTPLogo 
-                color="#ffffff" 
-                version="orizontal" 
-                secret="154714" 
-              />
-            </div>
           </div>
         </div>
       </div>

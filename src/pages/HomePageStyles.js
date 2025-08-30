@@ -35,32 +35,53 @@ export const homePageStyles = {
     margin: '0 auto'
   },
 
-  // Hero Section
-  heroSection: {
-    backgroundColor: '#ffffff',
-    padding: '8rem 1rem 6rem',
-    textAlign: 'center',
-    maxWidth: '1200px',
-    margin: '0 auto'
-  },
+// În HomePageStyles.js, actualizează heroSection:
+heroSection: {
+  padding: '8rem 2rem',
+  textAlign: 'center',
+  backgroundImage: 'url(/images/bk_04.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  position: 'relative',
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center'
+},
 
-  heroTitle: {
-    fontSize: '4rem',
-    fontWeight: '700',
-    marginBottom: '2rem',
-    color: '#1f2937',
-    letterSpacing: '-0.02em',
-    lineHeight: '1.1'
-  },
+// Adaugă un nou stil pentru overlay:
+heroOverlay: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  zIndex: 1
+},
 
-  heroSubtitle: {
-    fontSize: '1.3rem',
-    maxWidth: '800px',
-    margin: '0 auto 4rem',
-    lineHeight: '1.6',
-    color: '#6b7280',
-    fontWeight: '400'
-  },
+// Actualizează stilurile pentru titlu și subtitlu:
+heroTitle: {
+  fontSize: '4rem',
+  fontWeight: 'bold',
+  marginBottom: '1rem',
+  color: 'white',
+  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+  fontFamily: 'Poppins, serif',
+  position: 'relative',
+  zIndex: 2
+},
+
+heroSubtitle: {
+  fontSize: '1.5rem',
+  color: 'white',
+  textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)',
+  marginBottom: '2rem',
+  position: 'relative',
+  zIndex: 2
+},
 
   heroButton: {
     base: {

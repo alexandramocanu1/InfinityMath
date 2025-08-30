@@ -207,109 +207,197 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
       
       <div style={homePageStyles.container}>
         {/* Hero Section */}
-        <section style={homePageStyles.heroSection}>
-          <h1 style={homePageStyles.heroTitle}>
-            Cursuri de matematică pentru gimnaziu
-          </h1>
-          
-          <p style={homePageStyles.heroSubtitle}>
-            Smart. Simplu. Succes. 
-          </p>
+<section style={homePageStyles.heroSection}>
+  {/* Overlay pentru contrast */}
+  <div style={homePageStyles.heroOverlay}></div>
+  
+  <h1 style={homePageStyles.heroTitle}>
+    Cursuri de matematică pentru gimnaziu
+  </h1>
+  
+  <p style={homePageStyles.heroSubtitle}>
+    Construim împreună drumul spre succes!
+  </p>
 
-          <button
-            onClick={() => setCurrentPage('services')}
-            style={homePageStyles.heroButton.base}
-            onMouseOver={(e) => Object.assign(e.target.style, homePageStyles.heroButton.hover)}
-            onMouseOut={(e) => Object.assign(e.target.style, homePageStyles.heroButton.base)}
-          >
-            Înscrie-te acum
-          </button>
-        </section>
+  <button
+    onClick={() => setCurrentPage('services')}
+    style={{
+      ...homePageStyles.heroButton.base,
+      position: 'relative',
+      zIndex: 2
+    }}
+    onMouseOver={(e) => Object.assign(e.target.style, homePageStyles.heroButton.hover)}
+    onMouseOut={(e) => Object.assign(e.target.style, homePageStyles.heroButton.base)}
+  >
+    Înscrie-te acum
+  </button>
+</section>
 
         {/* Cursuri Online Section */}
-<section style={homePageStyles.servicesSection}>
-  <div style={homePageStyles.maxWidth}>
-    <div style={homePageStyles.sectionHeader}>
-      <h2 style={homePageStyles.sectionTitle}>Cursuri Online</h2>
-      <p style={homePageStyles.sectionSubtitle}>
+<section style={{
+  padding: '3rem 1rem', 
+  backgroundColor: '#ffffff'
+}}>
+  <div style={{
+    maxWidth: '1200px', 
+    margin: '0 auto'
+  }}>
+    <div style={{
+      textAlign: 'center',
+      marginBottom: '2.5rem' 
+    }}>
+      <h2 style={{
+        fontSize: '2.25rem',
+        fontWeight: '600',
+        color: '#2d3748',
+        marginBottom: '0.5rem',
+        fontFamily: 'Georgia, serif'
+      }}>
+        Cursuri Online
+      </h2>
+      <p style={{
+        fontSize: '1rem',
+        color: '#718096',
+        marginBottom: '0'
+      }}>
         Alege programul potrivit pentru tine
       </p>
     </div>
 
-    <div style={homePageStyles.servicesGrid}>
+    {/* Grid cu 2 coloane egale */}
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr', 
+      gap: '2rem',
+      maxWidth: '900px', 
+      margin: '0 auto'
+    }}>
       {services.map((service) => (
         <div 
           key={service.id} 
           style={{
-            ...homePageStyles.serviceCard.base,
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            padding: '2rem', 
+            textAlign: 'center',
+            transition: 'all 0.3s ease',
+            cursor: service.available !== false ? 'pointer' : 'not-allowed',
             opacity: service.available !== false ? 1 : 0.6,
-            cursor: service.available !== false ? 'pointer' : 'not-allowed'
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            minHeight: '320px' 
           }}
           onClick={() => handleServiceSelect(service.id)}
           onMouseOver={(e) => {
             if (service.available !== false) {
-              Object.assign(e.currentTarget.style, homePageStyles.serviceCard.hover);
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.12)';
+              e.currentTarget.style.borderColor = service.color;
             }
           }}
           onMouseOut={(e) => {
             if (service.available !== false) {
-              Object.assign(e.currentTarget.style, homePageStyles.serviceCard.base);
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08)';
+              e.currentTarget.style.borderColor = '#e2e8f0';
             }
           }}
         >
+          {/* Icon section */}
           <div style={{
-            ...homePageStyles.serviceIcon,
-            backgroundColor: 'transparent',
-            boxShadow: 'none'
+            marginBottom: '1.5rem'
           }}>
-            <img 
-              src={service.id === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
-              alt={service.name}
-              style={{
-                width: '4rem',
-                height: '4rem',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }}
-            />
-          </div>
-          
-          <h3 style={homePageStyles.serviceTitle}>{service.name}</h3>
-          
-          <p style={homePageStyles.serviceDescription}>
-            {service.description}
-          </p>
-          
-          <div style={homePageStyles.servicePricing}>
             <div style={{
-              ...homePageStyles.servicePrice,
-              color: service.available !== false ? service.color : '#9ca3af'
+              width: '80px', 
+              height: '80px',
+              margin: '0 auto',
+              marginBottom: '1rem'
             }}>
-              {service.price}
+              <img 
+                src={service.id === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
+                alt={service.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  objectFit: 'cover'
+                }}
+              />
             </div>
-            <div style={homePageStyles.serviceDuration}>
-              {service.duration} / sesiune
-            </div>
+            
+            <h3 style={{
+              fontSize: '1.5rem', 
+              fontWeight: '600',
+              color: '#2d3748',
+              marginBottom: '0.5rem'
+            }}>
+              {service.name}
+            </h3>
+            
           </div>
           
+          {/* Pricing section */}
+<div style={{ marginBottom: '1.5rem' }}>
+  {/* Prețul pe ședință */}
+  <div style={{
+    fontSize: '1.8rem',
+    fontWeight: '700',
+    color: service.available !== false ? service.color : '#9ca3af',
+    marginBottom: '0.5rem'
+  }}>
+    60 RON / ședință
+  </div>
+  
+  {/* Abonamentul lunar cu detalii */}
+  <div style={{
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    color: '#718096',
+    marginBottom: '0.2rem'
+  }}>
+    Abonament lunar la 240 RON
+  </div>
+  
+  {/* Durata */}
+  <div style={{
+    fontSize: '0.9rem',
+    color: '#718096'
+  }}>
+    {service.duration} / ședință
+  </div>
+</div>
+          
+          {/* Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleServiceSelect(service.id);
             }}
             style={{
-              ...homePageStyles.serviceButton.base,
               backgroundColor: service.available !== false ? service.color : '#d1d5db',
-              cursor: service.available !== false ? 'pointer' : 'not-allowed'
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: service.available !== false ? 'pointer' : 'not-allowed',
+              transition: 'all 0.3s ease',
+              width: '100%'
             }}
             onMouseOver={(e) => {
               if (service.available !== false) {
                 e.target.style.opacity = '0.9';
+                e.target.style.transform = 'translateY(-1px)';
               }
             }}
             onMouseOut={(e) => {
               if (service.available !== false) {
                 e.target.style.opacity = '1';
+                e.target.style.transform = 'translateY(0)';
               }
             }}
           >
@@ -320,7 +408,6 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
     </div>
   </div>
 </section>
-
         {/* Cine sunt Section */}
         <section style={homePageStyles.aboutSection}>
           <div style={homePageStyles.maxWidth}>
@@ -352,7 +439,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
                 <div style={homePageStyles.aboutDivider} />
                 
                 <p style={homePageStyles.aboutText}>
-                  Am lucrat față în față cu <strong>peste o sută de elevi</strong>, acumulând o experiență de <strong>peste 8 ani</strong> 
+                  Am lucrat față în față cu <strong>peste o sută de elevi</strong>, acumulând o experiență de <strong>peste 8 ani </strong> 
                   în pregătirea copiilor pentru <strong>Evaluarea Națională și Bacalaureat</strong>. 
                   Acum îmi doresc să duc această experiență mai departe și să ofer sprijin unui număr cât mai mare 
                   de elevi prin intermediul platformei mele Infinity Math.
@@ -386,42 +473,62 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
         </section>
 
         {/* Reviews Section */}
-        <section style={homePageStyles.reviewsSection}>
-          <div style={homePageStyles.reviewsBackground.decoration1}></div>
-          <div style={homePageStyles.reviewsBackground.decoration2}></div>
+<section style={{
+  ...homePageStyles.reviewsSection,
+  padding: '3rem 1rem' 
+}}>
+  <div style={homePageStyles.reviewsBackground.decoration1}></div>
+  <div style={homePageStyles.reviewsBackground.decoration2}></div>
 
-          <div style={homePageStyles.reviewsContainer}>
-            <h2 style={homePageStyles.reviewsTitle}>
-              Ce spun elevii și părinții?
-            </h2>
-            
-            <div style={homePageStyles.reviewsGrid}>
-              {reviews.map((review, index) => (
-                <div 
-                  key={review.id} 
-                  style={{
-                    ...homePageStyles.reviewItem.base,
-                    // Înălțimi variate pentru un aspect masonry
-                    height: index % 4 === 0 ? '280px' : 
-                          index % 3 === 0 ? '220px' : 
-                          index % 2 === 0 ? '240px' : '200px'
-                  }}
-                >
-                  <img 
-                    src={`/images/${review.image}`}
-                    alt={review.alt}
-                    style={homePageStyles.reviewImage}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-
+  <div style={{
+    ...homePageStyles.reviewsContainer,
+    maxWidth: '1200px' 
+  }}>
+    <h2 style={homePageStyles.reviewsTitle}>
+      Ce spun elevii și părinții?
+    </h2>
+    
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+      gap: '1rem', 
+      maxWidth: '1100px',
+      margin: '0 auto'
+    }}>
+      {reviews.map((review, index) => (
+        <div 
+          key={review.id} 
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            height: index % 4 === 0 ? '140px' : 
+                   index % 3 === 0 ? '120px' : 
+                   index % 2 === 0 ? '130px' : '110px'
+          }}
+        >
+          <img 
+            src={`/images/${review.image}`}
+            alt={review.alt}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain', 
+              objectPosition: 'center',
+              backgroundColor: 'white'
+            }}
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
 
               {/* Steps Section */}
@@ -445,7 +552,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
        marginBottom: '0.5rem',
        fontFamily: 'Georgia, serif'
      }}>
-       Doar 4 pași simpli 
+       Alătură-te în doar 4 pași simpli 
      </h2>
    </div>
 
@@ -554,389 +661,356 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
 
 
         {/* Contact Form Section */}
-        <section style={{
-          background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
-          color: 'white',
-          padding: '6rem 1rem',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Background decorations */}
-          <div style={{
-            position: 'absolute',
-            top: '20%',
-            right: '10%',
-            width: '150px',
-            height: '150px',
-            background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
-            borderRadius: '50%',
-            opacity: '0.1',
-            filter: 'blur(50px)'
-          }}></div>
-          <div style={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '10%',
-            width: '200px',
-            height: '200px',
-            background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
-            borderRadius: '50%',
-            opacity: '0.1',
-            filter: 'blur(60px)'
-          }}></div>
+<section style={{
+  background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
+  color: 'white',
+  padding: '2.5rem 1rem', 
+  position: 'relative',
+  overflow: 'hidden'
+}}>
+  <div style={{
+    position: 'absolute',
+    top: '20%',
+    right: '10%',
+    width: '100px', 
+    height: '100px',
+    background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(33px)' 
+  }}></div>
+  <div style={{
+    position: 'absolute',
+    bottom: '20%',
+    left: '10%',
+    width: '134px', 
+    height: '134px',
+    background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(40px)' 
+  }}></div>
 
-          <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
-            <h2 style={{
-              fontSize: '3.5rem',
-              fontWeight: '800',
-              marginBottom: '3rem',
-              textAlign: 'center',
-              background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              letterSpacing: '-0.02em'
-            }}>
-              Când începem?
-            </h2>
-            
-            {/* Success Message */}
-            {showSuccess && (
-              <div style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                border: '2px solid #10b981',
-                color: '#10b981',
-                padding: '1rem',
-                borderRadius: '12px',
-                marginBottom: '2rem',
-                fontSize: '0.95rem',
-                fontWeight: '500',
-                textAlign: 'center',
-                backdropFilter: 'blur(5px)'
-              }}>
-                ✅ Mesajul a fost trimis cu succes!
-              </div>
-            )}
+  <div style={{ 
+    maxWidth: '536px', 
+    margin: '0 auto', 
+    position: 'relative', 
+    zIndex: 10 
+  }}>
+    <h2 style={{
+      fontSize: '2.35rem', 
+      fontWeight: '800',
+      marginBottom: '2rem', 
+      textAlign: 'center',
+      background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      backgroundClip: 'text',
+      letterSpacing: '-0.02em'
+    }}>
+      Când începem?
+    </h2>
+    
+    {/* Success Message */}
+    {showSuccess && (
+      <div style={{
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        border: '2px solid #10b981',
+        color: '#10b981',
+        padding: '0.67rem', 
+        borderRadius: '8px', 
+        marginBottom: '1.34rem', 
+        fontSize: '0.64rem', 
+        fontWeight: '500',
+        textAlign: 'center',
+        backdropFilter: 'blur(5px)'
+      }}>
+        ✅ Mesajul a fost trimis cu succes!
+      </div>
+    )}
 
-            {/* Error Message */}
-            {error && (
-              <div style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '2px solid #ef4444',
-                color: '#ef4444',
-                padding: '1rem',
-                borderRadius: '12px',
-                marginBottom: '2rem',
-                fontSize: '0.95rem',
-                fontWeight: '500',
-                textAlign: 'center',
-                backdropFilter: 'blur(5px)'
-              }}>
-                ❌ {error}
-              </div>
-            )}
-            
-            <div style={{
-              display: 'grid',
-              gap: '1.5rem',
+    {/* Error Message */}
+    {error && (
+      <div style={{
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        border: '2px solid #ef4444',
+        color: '#ef4444',
+        padding: '0.67rem',
+        borderRadius: '8px',
+        marginBottom: '1.34rem',
+        fontSize: '0.64rem',
+        fontWeight: '500',
+        textAlign: 'center',
+        backdropFilter: 'blur(5px)'
+      }}>
+        ❌ {error}
+      </div>
+    )}
+    
+    <div style={{
+      display: 'grid',
+      gap: '1rem', 
+      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      padding: '2rem', 
+      borderRadius: '13px', 
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '0.67rem' 
+      }}>
+        <div>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '0.34rem', 
+            fontWeight: '600',
+            fontSize: '0.75rem', 
+            color: '#f7931e' 
+          }}>
+            Nume *
+          </label>
+          <input
+            type="text"
+            value={contactForm.nume}
+            onChange={(e) => setContactForm({...contactForm, nume: e.target.value})}
+            required
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '0.67rem', 
+              borderRadius: '8px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              fontSize: '0.75rem', 
               backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              padding: '3rem',
-              borderRadius: '20px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '1rem'
-              }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '600',
-                    color: '#f7931e' 
-                  }}>
-                    Nume *
-                  </label>
-                  <input
-                    type="text"
-                    value={contactForm.nume}
-                    onChange={(e) => setContactForm({...contactForm, nume: e.target.value})}
-                    required
-                    disabled={isLoading}
-                    style={{
-                      width: '100%',
-                      padding: '1rem',
-                      borderRadius: '12px',
-                      border: '2px solid rgba(255, 255, 255, 0.1)',
-                      fontSize: '1rem',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: '#ffffff',
-                      boxSizing: 'border-box',
-                      transition: 'all 0.3s ease',
-                      fontFamily: "'Poppins', sans-serif",
-                      opacity: isLoading ? 0.7 : 1
-                    }}
-                    placeholder="Numele tău"
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#ff6b35';
-                      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                    }}
-                  />
-                </div>
-                
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '600',
-                    color: '#f7931e' 
-                  }}>
-                    Prenume *
-                  </label>
-                  <input
-                    type="text"
-                    value={contactForm.prenume}
-                    onChange={(e) => setContactForm({...contactForm, prenume: e.target.value})}
-                    required
-                    disabled={isLoading}
-                    style={{
-                      width: '100%',
-                      padding: '1rem',
-                      borderRadius: '12px',
-                      border: '2px solid rgba(255, 255, 255, 0.1)',
-                      fontSize: '1rem',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      color: '#ffffff',
-                      boxSizing: 'border-box',
-                      transition: 'all 0.3s ease',
-                      fontFamily: "'Poppins', sans-serif",
-                      opacity: isLoading ? 0.7 : 1
-                    }}
-                    placeholder="Prenumele tău"
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#ff6b35';
-                      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                    }}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: '0.5rem', 
-                  fontWeight: '600',
-                  color: '#f7931e' 
-                }}>
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  value={contactForm.email}
-                  onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                  required
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: '1rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    color: '#ffffff',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.3s ease',
-                    fontFamily: "'Poppins', sans-serif",
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  placeholder="email@exemplu.ro"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#ff6b35';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                />
-              </div>
-              
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: '0.5rem', 
-                  fontWeight: '600',
-                  color: '#f7931e' 
-                }}>
-                  Selectează clasa *
-                </label>
-                <select
-                  value={contactForm.optiune}
-                  onChange={(e) => setContactForm({...contactForm, optiune: e.target.value})}
-                  required
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: '1rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    color: '#ffffff',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.3s ease',
-                    fontFamily: "'Poppins', sans-serif",
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#ff6b35';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                >
-                  <option value="" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Alege clasa</option>
-                  <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 7-a</option>
-                  <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 8-a</option>
-                </select>
-              </div>
-              
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: '0.5rem', 
-                  fontWeight: '600',
-                  color: '#f7931e' 
-                }}>
-                  Mesaj
-                </label>
-                <textarea
-                  value={contactForm.mesaj}
-                  onChange={(e) => setContactForm({...contactForm, mesaj: e.target.value})}
-                  disabled={isLoading}
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: '1rem',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    color: '#ffffff',
-                    resize: 'vertical',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.3s ease',
-                    fontFamily: "'Poppins', sans-serif",
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  placeholder="Întrebări despre lecții? Trimiteți un mesaj..."
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#ff6b35';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                  }}
-                />
-              </div>
-              
-              <button
-                onClick={handleContactSubmit}
-                disabled={isLoading}
-                style={{
-                  background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '1.2rem 2rem',
-                  borderRadius: '12px',
-                  fontSize: '1.1rem',
-                  fontWeight: '600',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem',
-                  marginTop: '1rem',
-                  boxShadow: isLoading ? 'none' : '0 8px 32px rgba(255, 107, 53, 0.3)',
-                  fontFamily: "'Poppins', sans-serif",
-                  opacity: isLoading ? 0.7 : 1
-                }}
-                onMouseOver={(e) => {
-                  if (!isLoading) {
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 12px 40px rgba(255, 107, 53, 0.4)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!isLoading) {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 8px 32px rgba(255, 107, 53, 0.3)';
-                  }
-                }}
-              >
-                <Send style={{ width: '1rem', height: '1rem' }} />
-                {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
-              </button>
-            </div>
-          </div>
-        </section>
+              color: '#ffffff',
+              boxSizing: 'border-box',
+              transition: 'all 0.3s ease',
+              fontFamily: "'Poppins', sans-serif",
+              opacity: isLoading ? 0.7 : 1
+            }}
+            placeholder="Numele tău"
+            onFocus={(e) => {
+              e.target.style.borderColor = '#ff6b35';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            }}
+          />
+        </div>
+        
+        <div>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '0.34rem',
+            fontWeight: '600',
+            fontSize: '0.75rem',
+            color: '#f7931e' 
+          }}>
+            Prenume *
+          </label>
+          <input
+            type="text"
+            value={contactForm.prenume}
+            onChange={(e) => setContactForm({...contactForm, prenume: e.target.value})}
+            required
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '0.67rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              fontSize: '0.75rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              color: '#ffffff',
+              boxSizing: 'border-box',
+              transition: 'all 0.3s ease',
+              fontFamily: "'Poppins', sans-serif",
+              opacity: isLoading ? 0.7 : 1
+            }}
+            placeholder="Prenumele tău"
+            onFocus={(e) => {
+              e.target.style.borderColor = '#ff6b35';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            }}
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f7931e' 
+        }}>
+          Email *
+        </label>
+        <input
+          type="email"
+          value={contactForm.email}
+          onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+          required
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: '#ffffff',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          placeholder="email@exemplu.ro"
+          onFocus={(e) => {
+            e.target.style.borderColor = '#ff6b35';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          }}
+        />
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f7931e' 
+        }}>
+          Selectează clasa *
+        </label>
+        <select
+          value={contactForm.optiune}
+          onChange={(e) => setContactForm({...contactForm, optiune: e.target.value})}
+          required
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: '#ffffff',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#ff6b35';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          }}
+        >
+          <option value="" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Alege clasa</option>
+          <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 7-a</option>
+          <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 8-a</option>
+        </select>
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f7931e' 
+        }}>
+          Mesaj
+        </label>
+        <textarea
+          value={contactForm.mesaj}
+          onChange={(e) => setContactForm({...contactForm, mesaj: e.target.value})}
+          disabled={isLoading}
+          rows={3} 
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: '#ffffff',
+            resize: 'vertical',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          placeholder="Întrebări despre lecții? Trimiteți un mesaj..."
+          onFocus={(e) => {
+            e.target.style.borderColor = '#ff6b35';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          }}
+        />
+      </div>
+      
+      <button
+        onClick={handleContactSubmit}
+        disabled={isLoading}
+        style={{
+          background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
+          color: 'white',
+          border: 'none',
+          padding: '0.8rem 1.34rem', 
+          borderRadius: '8px',
+          fontSize: '0.74rem', 
+          fontWeight: '600',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.34rem',
+          marginTop: '0.67rem',
+          boxShadow: isLoading ? 'none' : '0 5px 21px rgba(255, 107, 53, 0.3)', // ~67% din 0 8px 32px
+          fontFamily: "'Poppins', sans-serif",
+          opacity: isLoading ? 0.7 : 1
+        }}
+        onMouseOver={(e) => {
+          if (!isLoading) {
+            e.target.style.transform = 'translateY(-1px)';
+            e.target.style.boxShadow = '0 8px 27px rgba(255, 107, 53, 0.4)'; // ~67% din 0 12px 40px
+          }
+        }}
+        onMouseOut={(e) => {
+          if (!isLoading) {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 5px 21px rgba(255, 107, 53, 0.3)';
+          }
+        }}
+      >
+        <Send style={{ width: '0.67rem', height: '0.67rem' }} />
+        {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
+      </button>
+    </div>
+  </div>
+</section>
 
-        {/* Modal pentru imagini */}
-        {isModalOpen && (
-          <div style={homePageStyles.modal.overlay}>
-            <button
-              onClick={closeModal}
-              style={homePageStyles.modal.closeButton}
-            >
-              <X style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
-            </button>
-
-            <button
-              onClick={goToPrevious}
-              style={homePageStyles.modal.prevButton}
-            >
-              <ChevronLeft style={{ width: '2rem', height: '2rem', color: 'white' }} />
-            </button>
-
-            <button
-              onClick={goToNext}
-              style={homePageStyles.modal.nextButton}
-            >
-              <ChevronRight style={{ width: '2rem', height: '2rem', color: 'white' }} />
-            </button>
-
-            <div style={homePageStyles.modal.imageContainer}>
-              <img
-                src={`/images/${reviews[currentImageIndex]?.image}`}
-                alt={reviews[currentImageIndex]?.alt}
-                style={homePageStyles.modal.image}
-              />
-            </div>
-
-            <div style={homePageStyles.modal.counter}>
-              {currentImageIndex + 1} / {reviews.length}
-            </div>
-
-            <div 
-              style={homePageStyles.modal.backdrop}
-              onClick={closeModal}
-            />
-          </div>
-        )}
       </div>
     </>
   );

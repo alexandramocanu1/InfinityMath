@@ -5,6 +5,7 @@ import ServicesPage from './pages/ServicesPage';
 import FAQPage from './pages/FAQPage';
 import ContactPage from './pages/ContactPage';
 import ProfilePage from './pages/ProfilePage';
+import CulegerePage from './pages/CulegerePage'; // Pagina nouă
 import { AuthProvider } from './contexts/AuthContext';
 import Footer from './components/Footer';
 import './App.css';
@@ -41,16 +42,16 @@ function App() {
 
   const menuStyle = {
     display: 'flex',
-    gap: '0.5rem',
+    gap: '0.25rem', // Redus de la 0.5rem pentru a strânge butoanele
     alignItems: 'center'
   };
 
   const buttonStyle = {
     background: 'transparent',
     border: 'none',
-    padding: '0.75rem 1.5rem',
+    padding: '0.75rem 1rem', // Redus padding lateral de la 1.5rem la 1rem
     borderRadius: '8px',
-    fontSize: '1rem',
+    fontSize: '0.95rem', // Redus fontul puțin
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease'
@@ -210,6 +211,24 @@ function App() {
                 Cursuri
               </button>
               
+              {/* Tab nou Culegere */}
+              <button 
+                onClick={() => setCurrentPage('culegere')}
+                style={getButtonStyle('culegere')}
+                onMouseOver={(e) => {
+                  if (currentPage !== 'culegere') {
+                    e.target.style.backgroundColor = '#f3f4f6';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (currentPage !== 'culegere') {
+                    e.target.style.backgroundColor = 'transparent';
+                  }
+                }}
+              >
+                Culegere
+              </button>
+              
               <button 
                 onClick={() => setCurrentPage('faq')}
                 style={getButtonStyle('faq')}
@@ -317,6 +336,15 @@ function App() {
                Cursuri
             </div>
             
+            {/* Tab Culegere în mobile menu */}
+            <div onClick={() => handleMobileMenuItemClick('culegere')} style={{
+              ...mobileMenuItemStyle,
+              backgroundColor: currentPage === 'culegere' ? '#f0f9ff' : 'transparent',
+              color: currentPage === 'culegere' ? '#2563eb' : '#374151'
+            }}>
+               Culegere
+            </div>
+            
             <div onClick={() => handleMobileMenuItemClick('faq')} style={{
               ...mobileMenuItemStyle,
               backgroundColor: currentPage === 'faq' ? '#f0f9ff' : 'transparent',
@@ -359,6 +387,9 @@ function App() {
               setCurrentPage={setCurrentPage}
             />
           )}
+          
+          {/* Pagina Culegere nouă */}
+          {currentPage === 'culegere' && <CulegerePage />}
           
           {currentPage === 'faq' && <FAQPage />}
           {currentPage === 'contact' && <ContactPage />}
