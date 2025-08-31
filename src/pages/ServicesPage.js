@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Mail, Phone, Check, ArrowLeft, ArrowRight, BookOpen, AlertCircle, Lock } from 'lucide-react';
-import { collection, getDocs, addDoc, serverTimestamp, updateDoc, doc, increment, getDoc, setDoc } from 'firebase/firestore';
-import { useAuth } from '../contexts/AuthContext';
 import { registerUser, loginUser } from '../firebase/services';
 import { db } from '../firebase/config';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { Calendar, Clock, User, Mail, Phone, Check, ArrowLeft, ArrowRight, BookOpen, AlertCircle, Lock, ExternalLink, Copy, PlayCircle } from 'lucide-react';
+import { collection, getDocs, addDoc, serverTimestamp, updateDoc, doc, increment, getDoc, setDoc, query, where } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 
 const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) => {
   const { currentUser, userData, refreshUserData } = useAuth();
@@ -62,20 +62,61 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
     evaluare: [],
     clasa7: []
   });
+    const [activeCourse, setActiveCourse] = useState(null);
 
+    // cursul activ pt user u cu abonament
+  const loadActiveCourse = async () => {
+    if (!userData?.abonament?.activ) return;
 
-  
-  
+    try {
+      // programul
+      const schedulesRef = collection(db, 'schedules');
+      const q = query(
+        schedulesRef,
+        where('zi', '==', userData.abonament.ziuaSaptamanii.toLowerCase()),
+        where('ora', '==', userData.abonament.oraCurs),
+        where('tip', '==', userData.abonament.tip)
+      );
+      
+      const scheduleSnapshot = await getDocs(q);
+      
+      if (!scheduleSnapshot.empty) {
+        const schedule = { 
+          id: scheduleSnapshot.docs[0].id, 
+          ...scheduleSnapshot.docs[0].data() 
+        };
+        
+        setActiveCourse({
+          schedule: schedule,
+          serviceTip: userData.abonament.tip,
+          clientName: `${userData.prenumeElev} ${userData.numeElev}`,
+          status: 'active',
+          isActiveSubscription: true
+        });
+      }
+    } catch (error) {
+      console.error('Eroare la încărcarea cursului activ:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (userData?.abonament?.activ) {
+      loadActiveCourse();
+    }
+  }, [userData, adminSchedules]);
+
 useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const paymentSuccess = urlParams.get('payment_success');
+    const service = urlParams.get('service');
+    // const paymentSuccess = urlParams.get('payment_success');
     const sessionId = urlParams.get('session_id');
     
-    if (paymentSuccess === 'true' && sessionId && currentUser) {
-      handlePaymentSuccess(sessionId);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [currentUser]);
+      if (service && sessionId && currentUser) {
+      setSelectedService(service);
+    handlePaymentSuccess(sessionId);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}, [currentUser]);
 
   useEffect(() => {
     loadSchedulesFromFirebase();
@@ -95,125 +136,28 @@ useEffect(() => {
   }, [userData, adminSchedules]);
 
 
-  if (hasActiveSubscription && !selectedService) {
-    return (
-      <div style={{
-        fontFamily: "'Poppins', sans-serif",
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-        padding: '2rem 1rem'
-      }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <button
-            onClick={() => setCurrentPage('home')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              color: '#000000',
-              border: 'none',
-              cursor: 'pointer',
-              marginBottom: '2rem',
-              fontSize: '0.9rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px'
-            }}
-          >
-            <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
-            Înapoi la Pagina Principală
-          </button>
-
-          <div style={{
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: '2px solid #10b981',
-            borderRadius: '16px',
-            padding: '2rem',
-            textAlign: 'center',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
-          }}>
-            <Check style={{
-              width: '4rem',
-              height: '4rem',
-              color: '#10b981',
-              marginBottom: '1.5rem'
-            }} />
-            
-            <h1 style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: '#10b981',
-              marginBottom: '1rem'
-            }}>
-              Ai deja un abonament activ!
-            </h1>
-            
-            <p style={{
-              fontSize: '1.1rem',
-              color: '#059669',
-              marginBottom: '1rem'
-            }}>
-              Abonamentul tău pentru <strong>{services[userData.abonament.tip]?.name}</strong> este activ.
-            </p>
-            
-            <p style={{
-              fontSize: '1rem',
-              color: '#6b7280',
-              marginBottom: '2rem'
-            }}>
-              Program: <strong>{userData.abonament.ziuaSaptamanii} la {userData.abonament.oraCurs}</strong>
-            </p>
-
-            <div style={{
-              display: 'flex',
-              gap: '1rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setCurrentPage('profile')}
-                style={{
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  padding: '1rem 2rem',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Vezi Cursul Tău
-              </button>
-              
-              <button
-                onClick={() => setCurrentPage('home')}
-                style={{
-                  backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                  color: '#374151',
-                  border: '2px solid #e5e7eb',
-                  padding: '1rem 2rem',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}
-              >
-                Înapoi Acasă
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
 const handlePaymentSuccess = async (sessionId) => {
   try {
     setIsLoading(true);
     
     if (!currentUser) {
       console.error('Utilizator neautentificat');
+      return;
+    }
+
+    // Get the pending enrollment data
+    const pendingEnrollment = JSON.parse(sessionStorage.getItem('pendingEnrollment') || '{}');
+    
+    // If no pending enrollment, try to get service from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const serviceFromUrl = urlParams.get('service');
+    
+    const serviceType = pendingEnrollment.selectedService || serviceFromUrl || selectedService;
+    const scheduleData = pendingEnrollment.selectedSchedule || selectedSchedule;
+    
+    if (!serviceType) {
+      console.error('Nu s-a găsit tipul de serviciu');
+      alert('Eroare: Nu s-a putut identifica serviciul. Te rog contactează suportul.');
       return;
     }
     
@@ -224,21 +168,22 @@ const handlePaymentSuccess = async (sessionId) => {
     
     const updateData = {
       'abonament.activ': true,
-      'abonament.tip': selectedService,
-      'abonament.tipAbonament': selectedSubscription,
+      'abonament.tip': serviceType,
+      'abonament.tipAbonament': selectedSubscription || 'monthly', // default fallback
       'abonament.dataInceperii': serverTimestamp(),
-      'abonament.ziuaSaptamanii': selectedSchedule?.zi,
-      'abonament.oraCurs': selectedSchedule?.ora,
+      'abonament.ziuaSaptamanii': scheduleData?.zi || pendingEnrollment.selectedSchedule?.zi,
+      'abonament.oraCurs': scheduleData?.ora || pendingEnrollment.selectedSchedule?.ora,
       'abonament.linkCurs': null, 
       'abonament.sessionId': sessionId,
       'abonament.dataUrmatoareiSedinte': nextSessionDate,
       'abonament.status': 'activ'
     };
     
+    console.log('Updating user with data:', updateData); // Add for debugging
+    
     await updateDoc(userRef, updateData);
     
-    // Actualizează enrollment-ul dacă există
-    const pendingEnrollment = JSON.parse(sessionStorage.getItem('pendingEnrollment') || '{}');
+    // Update enrollment if exists
     if (pendingEnrollment.enrollmentId) {
       const enrollmentRef = doc(db, 'enrollments', pendingEnrollment.enrollmentId);
       await updateDoc(enrollmentRef, {
@@ -253,10 +198,6 @@ const handlePaymentSuccess = async (sessionId) => {
     await refreshUserData();
     
     setIsComplete(true);
-    
-    setTimeout(() => {
-      setCurrentPage('profile');
-    }, 3000);
     
   } catch (error) {
     console.error('Eroare la activarea abonamentului:', error);
@@ -310,6 +251,8 @@ const handlePaymentSuccess = async (sessionId) => {
     setAuthLoading(false);
   };
 
+  
+
 
 
   const loadSchedulesFromFirebase = async () => {
@@ -340,6 +283,55 @@ const handlePaymentSuccess = async (sessionId) => {
     } catch (error) {
       console.error('Eroare la încărcarea programelor:', error);
     }
+  };
+
+  const copyLink = (link) => {
+    navigator.clipboard.writeText(link);
+    alert('Link copiat în clipboard!');
+  };
+
+  const getTipText = (tip) => {
+    switch(tip) {
+      case 'evaluare': return 'Clasa a 7-a';
+      case 'clasa7': return 'Clasa a 8-a';
+      default: return tip;
+    }
+  };
+
+  const getTipColor = (tip) => {
+    switch(tip) {
+      case 'evaluare': return '#f59e0b';
+      case 'clasa7': return '#ea580c';
+      default: return '#6b7280';
+    }
+  };
+
+  const getNextSessionDate = (ziuaSaptamanii, oraCurs) => {
+    if (!ziuaSaptamanii || !oraCurs) return null;
+    
+    const zile = {
+      'luni': 1, 'marti': 2, 'miercuri': 3, 'joi': 4, 
+      'vineri': 5, 'sambata': 6, 'duminica': 0
+    };
+    
+    const today = new Date();
+    const targetDay = zile[ziuaSaptamanii.toLowerCase()];
+    const todayDay = today.getDay();
+    
+    let daysUntilNext = targetDay - todayDay;
+    if (daysUntilNext <= 0) {
+      daysUntilNext += 7;
+    }
+    
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + daysUntilNext);
+    
+    return nextDate.toLocaleDateString('ro-RO', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }) + ` la ${oraCurs}`;
   };
 
   const getZiTextRo = (zi) => {
@@ -448,80 +440,81 @@ const handlePaymentSuccess = async (sessionId) => {
     });
   };
 
-  const handleFinalSubmit = async () => {
-    setIsLoading(true);
-    
-    try {
-      if (currentUser && userData) {
-        const currentService = services[selectedService];
-        
-        // Salvează informațiile despre programare ÎNAINTE de plată
-        const enrollmentData = {
-  scheduleId: selectedSchedule.id,
-  serviceTip: selectedService,
-  subscriptionType: selectedSubscription, 
-  clientName: clientData.name,
-  clientEmail: clientData.email,
-  clientPhone: clientData.phone,
-  clientMessage: clientData.message,
-  scheduleDay: selectedSchedule.zi,
-  scheduleTime: selectedSchedule.ora,
-  serviceName: currentService.name,
-  servicePrice: currentService.subscriptions[selectedSubscription].price, 
-  createdAt: serverTimestamp(),
-  status: 'pending'
-};
-        
-        // Salvează înscrierea în baza de date
-        const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
-        
-        // Salvează ID-ul înscrierii în sessionStorage pentru recuperare după plată
-        sessionStorage.setItem('pendingEnrollment', JSON.stringify({
-          enrollmentId: enrollmentRef.id,
-          selectedService,
-          selectedSchedule,
-          userId: currentUser.uid
-        }));
-        
-        // În handleFinalSubmit, înlocuiește construirea URL-ului Stripe:
-const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
-const successUrl = `${window.location.origin}${window.location.pathname}?payment_success=true&service=${selectedService}&session_id={CHECKOUT_SESSION_ID}`;
-const cancelUrl = `${window.location.origin}${window.location.pathname}`;
-
-const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
-        
-        window.location.href = stripeUrl;
-        
-      } else {
-        // Pt cei neauth
-        const currentService = services[selectedService];
-        
-        const enrollmentData = {
-          scheduleId: selectedSchedule.id,
-          serviceTip: selectedService,
-          clientName: clientData.name,
-          clientEmail: clientData.email,
-          clientPhone: clientData.phone,
-          clientMessage: clientData.message,
-          scheduleDay: selectedSchedule.zi,
-          scheduleTime: selectedSchedule.ora,
-          serviceName: currentService.name,
-          servicePrice: currentService.priceValue,
-          createdAt: serverTimestamp(),
-          status: 'pending'
-        };
-        
-        await addDoc(collection(db, 'enrollments'), enrollmentData);
-        setIsComplete(true);
-      }
+const handleFinalSubmit = async () => {
+  setIsLoading(true);
+  
+  try {
+    if (currentUser && userData) {
+      const currentService = services[selectedService];
       
-    } catch (error) {
-      console.error('Eroare la salvarea programării:', error);
-      alert('A apărut o eroare la salvarea programării. Te rog să încerci din nou.');
+      // Save enrollment data BEFORE payment
+      const enrollmentData = {
+        scheduleId: selectedSchedule.id,
+        serviceTip: selectedService,
+        subscriptionType: selectedSubscription, 
+        clientName: clientData.name,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone,
+        clientMessage: clientData.message,
+        scheduleDay: selectedSchedule.zi,
+        scheduleTime: selectedSchedule.ora,
+        serviceName: currentService.name,
+        servicePrice: currentService.subscriptions[selectedSubscription].price, 
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      };
+      
+      const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
+      
+      // Save enrollment info for after payment
+      sessionStorage.setItem('pendingEnrollment', JSON.stringify({
+        enrollmentId: enrollmentRef.id,
+        selectedService,
+        selectedSchedule,
+        selectedSubscription, // Add this line
+        userId: currentUser.uid
+      }));
+      
+      // Fix the Stripe URL construction
+      const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
+      const baseUrl = window.location.origin;
+      const successUrl = `${baseUrl}/services?payment_success=true&service=${selectedService}&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${baseUrl}/services`;
+
+      const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+      
+      window.location.href = stripeUrl;
+      
+    } else {
+      // For non-authenticated users
+      const currentService = services[selectedService];
+      
+      const enrollmentData = {
+        scheduleId: selectedSchedule.id,
+        serviceTip: selectedService,
+        clientName: clientData.name,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone,
+        clientMessage: clientData.message,
+        scheduleDay: selectedSchedule.zi,
+        scheduleTime: selectedSchedule.ora,
+        serviceName: currentService.name,
+        servicePrice: currentService.subscriptions[selectedSubscription].price,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      };
+      
+      await addDoc(collection(db, 'enrollments'), enrollmentData);
+      setIsComplete(true);
     }
     
-    setIsLoading(false);
-  };
+  } catch (error) {
+    console.error('Eroare la salvarea programării:', error);
+    alert('A apărut o eroare la salvarea programării. Te rog să încerci din nou.');
+  }
+  
+  setIsLoading(false);
+};
 
   const resetBooking = () => {
     setStep(0);
@@ -532,8 +525,379 @@ const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURI
     setCurrentPage('home');
   };
 
+  const getZiText = (zi) => {
+  const zileMap = {
+    'luni': 'Luni',
+    'marti': 'Marți', 
+    'miercuri': 'Miercuri',
+    'joi': 'Joi',
+    'vineri': 'Vineri',
+    'sambata': 'Sâmbătă',
+    'duminica': 'Duminică'
+  };
+  return zileMap[zi] || zi;
+};
+
   const currentService = selectedService ? services[selectedService] : null;
   const availableSchedules = selectedService ? adminSchedules[selectedService] || [] : [];
+
+    if (hasActiveSubscription && activeCourse) {
+    return (
+      <div style={{
+        fontFamily: "'Poppins', sans-serif",
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+        padding: '2rem 1rem'
+      }}>
+        {/* Background decorations */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: 'clamp(150px, 20vw, 200px)',
+          height: 'clamp(150px, 20vw, 200px)',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          filter: 'blur(40px)',
+          zIndex: 1
+        }}></div>
+
+        <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          <button
+            onClick={() => setCurrentPage('home')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: '#000000',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '2rem',
+              fontSize: '0.9rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              backdropFilter: 'blur(5px)'
+            }}
+          >
+            <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+            Înapoi la Pagina Principală
+          </button>
+
+          {/* Header pentru cursul activ */}
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <h1 style={{
+              fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
+              fontWeight: '800',
+              color: '#000000',
+              marginBottom: '1rem',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+            }}>
+              Cursul Tău
+            </h1>
+            <p style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+              color: '#000000',
+              opacity: '0.8',
+              marginBottom: '0'
+            }}>
+              Ai acces la cursul pentru {getTipText(activeCourse.serviceTip)}
+            </p>
+          </div>
+
+          {/* Card pentru cursul activ */}
+          <div style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '16px',
+            padding: 'clamp(2rem, 5vw, 3rem)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            {/* Status activ */}
+            <div style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              border: '2px solid #10b981',
+              borderRadius: '12px',
+              padding: '1rem',
+              marginBottom: '2rem',
+              textAlign: 'center'
+            }}>
+              <Check style={{
+                width: '2rem',
+                height: '2rem',
+                color: '#10b981',
+                marginBottom: '0.5rem'
+              }} />
+              <h3 style={{
+                fontSize: 'clamp(1.2rem, 3vw, 1.4rem)',
+                fontWeight: '700',
+                color: '#10b981',
+                margin: '0 0 0.5rem 0'
+              }}>
+                Abonament Activ
+              </h3>
+              <p style={{
+                fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                color: '#059669',
+                margin: '0'
+              }}>
+                Ai acces complet la toate funcționalitățile cursului
+              </p>
+            </div>
+
+            {/* Informații despre curs */}
+            <div style={{
+              borderLeft: `4px solid ${getTipColor(activeCourse.serviceTip)}`,
+              marginBottom: '2rem'
+            }}>
+              <div style={{ padding: '0 0 0 1.5rem' }}>
+                <h2 style={{
+                  fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+                  fontWeight: '700',
+                  color: getTipColor(activeCourse.serviceTip),
+                  marginBottom: '1rem'
+                }}>
+                  {getTipText(activeCourse.serviceTip)}
+                </h2>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '1rem',
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <Calendar style={{ width: '1.2rem', height: '1.2rem', color: '#6b7280' }} />
+                    <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', color: '#374151' }}>
+                      <strong>{getZiText(activeCourse.schedule.zi)}</strong> la <strong>{activeCourse.schedule.ora}</strong>
+                    </span>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <Clock style={{ width: '1.2rem', height: '1.2rem', color: '#6b7280' }} />
+                    <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', color: '#374151' }}>
+                      Următoarea sesiune: <strong>{getNextSessionDate(activeCourse.schedule.zi, activeCourse.schedule.ora)}</strong>
+                    </span>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <User style={{ width: '1.2rem', height: '1.2rem', color: '#6b7280' }} />
+                    <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', color: '#374151' }}>
+                      Elev: <strong>{activeCourse.clientName}</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Link pentru curs */}
+            {activeCourse.schedule?.link ? (
+              <div style={{
+                backgroundColor: 'rgba(34, 197, 94, 0.05)',
+                border: '2px solid #22c55e',
+                borderRadius: '12px',
+                padding: '1.5rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: '1rem'
+                }}>
+                  <ExternalLink style={{ width: '2rem', height: '2rem', color: '#22c55e' }} />
+                  <div>
+                    <h4 style={{
+                      fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+                      fontWeight: '600',
+                      color: '#16a34a',
+                      margin: '0 0 0.25rem 0'
+                    }}>
+                      Link-ul cursului este disponibil
+                    </h4>
+                    <p style={{
+                      fontSize: 'clamp(0.85rem, 1.8vw, 0.9rem)',
+                      color: '#15803d',
+                      margin: '0'
+                    }}>
+                      Poți accesa cursul folosind link-ul de mai jos
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem',
+                  marginBottom: '1rem',
+                  flexWrap: 'wrap'
+                }}>
+                  <input
+                    type="text"
+                    value={activeCourse.schedule.link}
+                    readOnly
+                    style={{
+                      flex: '1',
+                      minWidth: '250px',
+                      padding: '0.75rem',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                      backgroundColor: '#f9fafb',
+                      color: '#374151'
+                    }}
+                  />
+                  <button
+                    onClick={() => copyLink(activeCourse.schedule.link)}
+                    style={{
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#f3f4f6',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                    title="Copiază link"
+                  >
+                    <Copy style={{ width: '1rem', height: '1rem' }} />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => window.open(activeCourse.schedule.link, '_blank')}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.75rem',
+                    padding: '1rem 1.5rem',
+                    backgroundColor: '#22c55e',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.backgroundColor = '#16a34a';
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.backgroundColor = '#22c55e';
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.3)';
+                  }}
+                >
+                  <PlayCircle style={{ width: '1.5rem', height: '1.5rem' }} />
+                  Intră la curs
+                </button>
+              </div>
+            ) : (
+              <div style={{
+                backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                border: '2px solid #f59e0b',
+                borderRadius: '12px',
+                padding: '2rem',
+                textAlign: 'center'
+              }}>
+                <Clock style={{
+                  width: '3rem',
+                  height: '3rem',
+                  color: '#f59e0b',
+                  margin: '0 auto 1rem'
+                }} />
+                <h4 style={{
+                  fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+                  fontWeight: '600',
+                  color: '#d97706',
+                  margin: '0 0 0.5rem 0'
+                }}>
+                  Link-ul cursului va fi încărcat în curând
+                </h4>
+                <p style={{
+                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                  color: '#92400e',
+                  margin: '0',
+                  lineHeight: '1.5'
+                }}>
+                  Profesorul va adăuga link-ul pentru cursul tău în curând. 
+                </p>
+              </div>
+            )}
+
+
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              marginTop: '2rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => setCurrentPage('profile')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: getTipColor(activeCourse.serviceTip),
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <User style={{ width: '1rem', height: '1rem' }} />
+                Vezi Profilul
+              </button>
+
+              <button
+                onClick={() => setCurrentPage('home')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                  color: '#374151',
+                  border: '2px solid #e5e7eb',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+                Înapoi Acasă
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
