@@ -380,8 +380,8 @@ const ProfilePage = ({ setCurrentPage }) => {
 
   const getTipText = (tip) => {
     switch(tip) {
-      case 'evaluare': return 'Clasa a 7-a (Evaluare Națională)';
-      case 'bac': return 'Clasa a 8-a (Bacalaureat)';
+      case 'evaluare': return 'Clasa a 7-a';
+      case 'bac': return 'Clasa a 8-a (Evaluare Națională)';
       case 'admitere': return 'Admitere Universitate';
       default: return tip;
     }
@@ -852,8 +852,8 @@ const ProfilePage = ({ setCurrentPage }) => {
                       disabled={loading}
                       style={profilePageStyles.select}
                     >
-                      <option value="evaluare">Clasa a 7-a (Evaluare)</option>
-                      <option value="bac">Clasa a 8-a (Bacalaureat)</option>
+                      <option value="evaluare">Clasa a 7-a</option>
+                      <option value="bac">Clasa a 8-a (Evaluare)</option>
                     </select>
                   </div>
                 </div>
@@ -1058,9 +1058,6 @@ const ProfilePage = ({ setCurrentPage }) => {
                               <h4 style={profilePageStyles.courseLinkTitle}>
                                 Link-ul cursului este disponibil
                               </h4>
-                              <p style={profilePageStyles.courseLinkSubtitle}>
-                                Poți accesa cursul oricând
-                              </p>
                             </div>
                           </div>
                           

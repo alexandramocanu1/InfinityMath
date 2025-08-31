@@ -9,8 +9,33 @@ import { auth } from '../firebase/config';
 
 const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) => {
   const { currentUser, userData, refreshUserData } = useAuth();
-  const [step, setStep] = useState(selectedService ? 1 : 0);
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+const services = {
+  evaluare: { 
+    name: 'Clasa a 7-a', 
+    duration: '1h 30 minute', 
+    color: '#f59e0b',
+    subscriptions: {
+      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02' },
+      quarterly: { name: '3 Luni', price: 700, stripeUrl: 'https://buy.stripe.com/9B6fZhems6RvaiJf6V5AQ03' }
+    }
+  },
+  clasa7: { 
+    name: 'Clasa a 8-a', 
+    duration: '1h 30 minute', 
+    color: '#ea580c',
+    subscriptions: {
+      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02' },
+      quarterly: { name: '3 Luni', price: 700, stripeUrl: 'https://buy.stripe.com/9B6fZhems6RvaiJf6V5AQ03' }
+    }
+  }
+};
+
+  const hasActiveSubscription = userData?.abonament?.activ;
+
+
+const [step, setStep] = useState(selectedService ? 1 : 0);
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [clientData, setClientData] = useState({
     name: '',
     email: '',
@@ -19,11 +44,10 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  
-  // Pentru popup-ul de autentificare
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [registerForm, setRegisterForm] = useState({
     numeElev: '',
     prenumeElev: '',
@@ -34,50 +58,178 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
-  
   const [adminSchedules, setAdminSchedules] = useState({
     evaluare: [],
-    bac: []
+    clasa7: []
   });
 
-  // Verifică dacă s-a întors de la plată cu succes
-  // Modifică useEffect-ul pentru a verifica parametrii URL
-useEffect(() => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const paymentSuccess = urlParams.get('payment_success');
-  const sessionId = urlParams.get('session_id');
-  
-  if (paymentSuccess === 'true' && sessionId && currentUser) {
-    handlePaymentSuccess(sessionId);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-}, [currentUser]); 
 
-  // Modifică funcția handlePaymentSuccess pentru a fi mai robustă
+  
+  
+useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentSuccess = urlParams.get('payment_success');
+    const sessionId = urlParams.get('session_id');
+    
+    if (paymentSuccess === 'true' && sessionId && currentUser) {
+      handlePaymentSuccess(sessionId);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    loadSchedulesFromFirebase();
+  }, []);
+
+  useEffect(() => {
+    if (userData?.abonament?.activ) {
+      setSelectedService(userData.abonament.tip);
+      const activeSchedule = adminSchedules[userData.abonament.tip]?.find(
+        schedule => schedule.zi === userData.abonament.ziuaSaptamanii && 
+                   schedule.ora === userData.abonament.oraCurs
+      );
+      if (activeSchedule) {
+        setSelectedSchedule(activeSchedule);
+      }
+    }
+  }, [userData, adminSchedules]);
+
+
+  if (hasActiveSubscription && !selectedService) {
+    return (
+      <div style={{
+        fontFamily: "'Poppins', sans-serif",
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+        padding: '2rem 1rem'
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <button
+            onClick={() => setCurrentPage('home')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: '#000000',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '2rem',
+              fontSize: '0.9rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px'
+            }}
+          >
+            <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+            Înapoi la Pagina Principală
+          </button>
+
+          <div style={{
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            border: '2px solid #10b981',
+            borderRadius: '16px',
+            padding: '2rem',
+            textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+          }}>
+            <Check style={{
+              width: '4rem',
+              height: '4rem',
+              color: '#10b981',
+              marginBottom: '1.5rem'
+            }} />
+            
+            <h1 style={{
+              fontSize: '2rem',
+              fontWeight: '700',
+              color: '#10b981',
+              marginBottom: '1rem'
+            }}>
+              Ai deja un abonament activ!
+            </h1>
+            
+            <p style={{
+              fontSize: '1.1rem',
+              color: '#059669',
+              marginBottom: '1rem'
+            }}>
+              Abonamentul tău pentru <strong>{services[userData.abonament.tip]?.name}</strong> este activ.
+            </p>
+            
+            <p style={{
+              fontSize: '1rem',
+              color: '#6b7280',
+              marginBottom: '2rem'
+            }}>
+              Program: <strong>{userData.abonament.ziuaSaptamanii} la {userData.abonament.oraCurs}</strong>
+            </p>
+
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => setCurrentPage('profile')}
+                style={{
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 2rem',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Vezi Cursul Tău
+              </button>
+              
+              <button
+                onClick={() => setCurrentPage('home')}
+                style={{
+                  backgroundColor: 'rgba(107, 114, 128, 0.1)',
+                  color: '#374151',
+                  border: '2px solid #e5e7eb',
+                  padding: '1rem 2rem',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Înapoi Acasă
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 const handlePaymentSuccess = async (sessionId) => {
   try {
     setIsLoading(true);
     
-    // Verifică din nou dacă utilizatorul este autentificat
     if (!currentUser) {
       console.error('Utilizator neautentificat');
       return;
     }
     
-    // Actualizează abonamentul utilizatorului în Firestore
     const userRef = doc(db, 'users', currentUser.uid);
     
-    // Calculează data următoarei ședințe (de exemplu, următoarea săptămână)
     const nextSessionDate = new Date();
-    nextSessionDate.setDate(nextSessionDate.getDate() + 7); // Următoarea săptămână
+    nextSessionDate.setDate(nextSessionDate.getDate() + 7); 
     
     const updateData = {
       'abonament.activ': true,
       'abonament.tip': selectedService,
+      'abonament.tipAbonament': selectedSubscription,
       'abonament.dataInceperii': serverTimestamp(),
       'abonament.ziuaSaptamanii': selectedSchedule?.zi,
       'abonament.oraCurs': selectedSchedule?.ora,
-      'abonament.linkCurs': null, // Va fi adăugat de admin
+      'abonament.linkCurs': null, 
       'abonament.sessionId': sessionId,
       'abonament.dataUrmatoareiSedinte': nextSessionDate,
       'abonament.status': 'activ'
@@ -95,17 +247,13 @@ const handlePaymentSuccess = async (sessionId) => {
         completedAt: serverTimestamp()
       });
       
-      // Șterge din sessionStorage
       sessionStorage.removeItem('pendingEnrollment');
     }
     
-    // Refresh user data pentru a reflecta schimbările
     await refreshUserData();
     
-    // Arată mesajul de succes
     setIsComplete(true);
     
-    // După 3 secunde, redirecționează către profil
     setTimeout(() => {
       setCurrentPage('profile');
     }, 3000);
@@ -162,26 +310,7 @@ const handlePaymentSuccess = async (sessionId) => {
     setAuthLoading(false);
   };
 
-  const services = {
-    evaluare: { 
-      name: 'Clasa a 7-a', 
-      price: '60 RON / Sesiune',
-      priceValue: 240, 
-      duration: '1h 30 minute', 
-      color: '#f59e0b'
-    },
-    bac: { 
-      name: 'Clasa a 8-a', 
-      price: '60 RON / Sesiune',
-      priceValue: 240, 
-      duration: '1h 30 minute', 
-      color: '#ea580c'
-    }
-  };
 
-  useEffect(() => {
-    loadSchedulesFromFirebase();
-  }, []);
 
   const loadSchedulesFromFirebase = async () => {
     try {
@@ -190,7 +319,7 @@ const handlePaymentSuccess = async (sessionId) => {
       
       const schedulesByType = {
         evaluare: [],
-        bac: []
+        clasa7: []
       };
       
       querySnapshot.forEach((doc) => {
@@ -227,13 +356,12 @@ const handlePaymentSuccess = async (sessionId) => {
   };
 
   const handleServiceSelect = (serviceId) => {
-    if (services[serviceId].price === "-") return;
-    setSelectedService(serviceId);
-    setStep(1);
-    setSelectedSchedule(null);
-    setClientData({ name: '', email: '', phone: '', message: '' });
-  };
-
+  setSelectedService(serviceId);
+  setStep(1);
+  setSelectedSchedule(null);
+  setSelectedSubscription(null); 
+  setClientData({ name: '', email: '', phone: '', message: '' });
+};
   const goBackStep = () => {
     if (step === 1) {
       setStep(0);
@@ -244,16 +372,18 @@ const handlePaymentSuccess = async (sessionId) => {
   };
 
   const handleContinue = () => {
-    if (step === 1 && selectedSchedule) {
-      if (currentUser && userData) {
-        setStep(3);
-      } else {
-        setShowAuthModal(true);
-      }
-    } else if (step === 2 && clientData.name && clientData.email && clientData.phone) {
-      setStep(3);
+  if (step === 1 && selectedSchedule) {
+    setStep(2); 
+  } else if (step === 2 && selectedSubscription) {
+    if (currentUser && userData) {
+      setStep(4); 
+    } else {
+      setStep(3); 
     }
-  };
+  } else if (step === 3 && clientData.name && clientData.email && clientData.phone) {
+    setStep(4);
+  }
+};
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -327,19 +457,20 @@ const handlePaymentSuccess = async (sessionId) => {
         
         // Salvează informațiile despre programare ÎNAINTE de plată
         const enrollmentData = {
-          userId: currentUser.uid,
-          scheduleId: selectedSchedule.id,
-          serviceTip: selectedService,
-          clientName: `${userData.prenumeElev} ${userData.numeElev}`,
-          clientEmail: userData.email,
-          clientPhone: userData.telefon,
-          scheduleDay: selectedSchedule.zi,
-          scheduleTime: selectedSchedule.ora,
-          serviceName: currentService.name,
-          servicePrice: currentService.priceValue,
-          createdAt: serverTimestamp(),
-          status: 'pending_payment'
-        };
+  scheduleId: selectedSchedule.id,
+  serviceTip: selectedService,
+  subscriptionType: selectedSubscription, 
+  clientName: clientData.name,
+  clientEmail: clientData.email,
+  clientPhone: clientData.phone,
+  clientMessage: clientData.message,
+  scheduleDay: selectedSchedule.zi,
+  scheduleTime: selectedSchedule.ora,
+  serviceName: currentService.name,
+  servicePrice: currentService.subscriptions[selectedSubscription].price, 
+  createdAt: serverTimestamp(),
+  status: 'pending'
+};
         
         // Salvează înscrierea în baza de date
         const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
@@ -352,17 +483,17 @@ const handlePaymentSuccess = async (sessionId) => {
           userId: currentUser.uid
         }));
         
-        // Redirect către Stripe cu parametri pentru success URL
-        const successUrl = `${window.location.origin}${window.location.pathname}?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+        // În handleFinalSubmit, înlocuiește construirea URL-ului Stripe:
+const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
+const successUrl = `${window.location.origin}${window.location.pathname}?payment_success=true&service=${selectedService}&session_id={CHECKOUT_SESSION_ID}`;
 const cancelUrl = `${window.location.origin}${window.location.pathname}`;
-        
-        // Construiește URL-ul Stripe cu parametrii
-const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+
+const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
         
         window.location.href = stripeUrl;
         
       } else {
-        // Pentru utilizatori neautentificați
+        // Pt cei neauth
         const currentService = services[selectedService];
         
         const enrollmentData = {
@@ -500,7 +631,7 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
               marginBottom: '2rem',
               flexWrap: 'wrap'
             }}>
-              {[1, 2, 3].map((stepNum) => (
+              {[1, 2, 3, 4].map((stepNum) => (
                 <React.Fragment key={stepNum}>
                   <div style={{
                     width: 'clamp(30px, 6vw, 40px)',
@@ -537,10 +668,62 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
             opacity: '0.8'
           }}>
             {step === 1 && 'Selectează programul săptămânal'}
-            {step === 2 && 'Completează datele de contact'}
-            {step === 3 && 'Confirmă programarea'}
+            {step === 2 && 'Alege tipul de abonament'}
+            {step === 3 && 'Completează datele de contact'}
+            {step === 4 && 'Confirmă programarea'}
           </div>
         </div>
+
+        {/* Abonament Activ */}
+        {userData?.abonament?.activ && (
+          <div style={{
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            border: '2px solid #10b981',
+            borderRadius: '16px',
+            padding: 'clamp(1.5rem, 4vw, 2rem)',
+            margin: '0 auto 2rem',
+            maxWidth: '1000px',
+            textAlign: 'center'
+          }}>
+            <h2 style={{
+              fontSize: 'clamp(1.3rem, 3vw, 1.6rem)',
+              fontWeight: '700',
+              color: '#10b981',
+              marginBottom: '1rem'
+            }}>
+              🎯 Abonament Activ
+            </h2>
+            <p style={{
+              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+              color: '#059669',
+              marginBottom: '1rem'
+            }}>
+              Ai deja un abonament activ pentru <strong>{services[userData.abonament.tip]?.name}</strong>
+            </p>
+            <p style={{
+              fontSize: 'clamp(0.85rem, 1.8vw, 0.9rem)',
+              color: '#6b7280'
+            }}>
+              Program: <strong>{userData.abonament.ziuaSaptamanii} la {userData.abonament.oraCurs}</strong>
+            </p>
+            <button
+              onClick={() => setCurrentPage('profile')}
+              style={{
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginTop: '1rem'
+              }}
+            >
+              Vezi Cursul Tău
+            </button>
+          </div>
+        )}
 
         {/* Content Card */}
         <div style={{
@@ -828,8 +1011,104 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
             </div>
           )}
 
-          {/* Step 2: Contact Details */}
-          {step === 2 && (
+          {/* Step 2: Subscription Selection */}
+{step === 2 && (
+  <div>
+    <h3 style={{
+      fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
+      marginBottom: '1.5rem',
+      color: '#1f2937',
+      textAlign: 'center',
+      fontWeight: '600'
+    }}>
+      Alege Tipul de Abonament - {currentService?.name}
+    </h3>
+    
+    <div style={{
+      backgroundColor: 'rgba(240, 249, 255, 0.9)',
+      border: `1px solid ${currentService?.color}60`,
+      borderRadius: '12px',
+      padding: 'clamp(1rem, 2.5vw, 1.2rem)',
+      marginBottom: '2rem',
+      textAlign: 'center'
+    }}>
+      <p style={{
+        margin: '0',
+        fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
+        color: '#475569'
+      }}>
+        Program selectat: <strong style={{ color: currentService?.color }}>
+          {selectedSchedule?.zi} la {selectedSchedule?.ora}
+        </strong>
+      </p>
+    </div>
+
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: 'clamp(1rem, 3vw, 2rem)',
+      marginBottom: '2rem'
+    }}>
+      {Object.entries(currentService?.subscriptions || {}).map(([key, subscription]) => (
+        <div 
+          key={key}
+          onClick={() => setSelectedSubscription(key)}
+          style={{
+            borderRadius: '12px',
+            padding: 'clamp(1.5rem, 4vw, 2rem)',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            backgroundColor: selectedSubscription === key ? '#f0f9ff' : '#f8fafc',
+            border: selectedSubscription === key ? 
+                   `3px solid ${currentService?.color}` : '1px solid rgba(255, 255, 255, 0.3)',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{
+            fontSize: 'clamp(1.3rem, 3.2vw, 1.6rem)',
+            fontWeight: '700',
+            color: currentService?.color,
+            marginBottom: '0.5rem'
+          }}>
+            {subscription.name}
+          </div>
+          
+          <div style={{
+            fontSize: 'clamp(1.8rem, 4vw, 2.2rem)',
+            fontWeight: '800',
+            color: '#1f2937',
+            marginBottom: '1rem'
+          }}>
+            {subscription.price} RON
+          </div>
+          
+          <div style={{
+            fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+            color: '#6b7280',
+            marginBottom: '1rem'
+          }}>
+            {key === 'monthly' ? '4 ședințe' : '12 ședințe'}
+          </div>
+        
+          
+          <div style={{
+            padding: '0.5rem',
+            borderRadius: '6px',
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+            fontWeight: '600',
+            backgroundColor: selectedSubscription === key ? currentService?.color : '#e5e7eb',
+            color: selectedSubscription === key ? 'white' : '#6b7280'
+          }}>
+            {selectedSubscription === key ? 'SELECTAT' : 'SELECTEAZĂ'}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+          {/* Step 3: Contact Details */}
+          {step === 3 && (
             <div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
@@ -1017,8 +1296,8 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
             </div>
           )}
 
-          {/* Step 3: Final Confirmation */}
-          {step === 3 && (
+          {/* Step 4: Final Confirmation */}
+          {step === 4 && (
             <div>
               <h3 style={{
                 fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
@@ -1228,9 +1507,10 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
                         fontWeight: '700',
                         color: currentService?.color
                       }}>
-                        {currentService?.priceValue} RON
+                        {currentService?.subscriptions?.[selectedSubscription]?.price} RON
                       </span>
                     </div>
+
                     
                     <div style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -1339,7 +1619,7 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
             )}
 
             {/* Navigation Buttons */}
-            {step > 0 && step < 3 && (
+            {step > 0 && step < 4 && (
               <div style={{
                 display: 'flex',
                 gap: '1rem',
@@ -1382,12 +1662,13 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
                 </button>
                 
                 <button
-                  onClick={handleContinue}
-                  disabled={
-                    (step === 1 && !selectedSchedule) ||
-                    (step === 2 && (!clientData.name || !clientData.email || !clientData.phone))
-                  }
-                  style={{
+  onClick={handleContinue}
+  disabled={
+    (step === 1 && !selectedSchedule) ||
+    (step === 2 && !selectedSubscription) || 
+    (step === 3 && (!clientData.name || !clientData.email || !clientData.phone))
+  }
+  style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
@@ -1402,8 +1683,9 @@ const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${
                     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
                     backgroundColor: currentService?.color || '#ea580c',
                     opacity: (step === 1 && !selectedSchedule) || 
-                             (step === 2 && (!clientData.name || !clientData.email || !clientData.phone)) ? 0.5 : 1
-                  }}
+             (step === 2 && !selectedSubscription) || 
+             (step === 3 && (!clientData.name || !clientData.email || !clientData.phone)) ? 0.5 : 1
+  }}
                 >
                   Continuă
                   <ArrowRight style={{ width: '1rem', height: '1rem' }} />
