@@ -1,5 +1,4 @@
 export const homePageStyles = {
-  // Global styles
   globalStyles: `
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
@@ -21,37 +20,71 @@ export const homePageStyles = {
       color: #9ca3af;
       opacity: 1;
     }
+
+    /* Mobile Media Queries */
+    @media (max-width: 768px) {
+      .mobile-stack {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+      
+      .mobile-text-sm {
+        font-size: 1.8rem !important;
+      }
+      
+      .mobile-text-lg {
+        font-size: 2.5rem !important;
+      }
+      
+      .mobile-padding {
+        padding: 2rem 1rem !important;
+      }
+      
+      .mobile-padding-sm {
+        padding: 1.5rem 1rem !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mobile-text-xs {
+        font-size: 1.5rem !important;
+      }
+      
+      .mobile-text-md {
+        font-size: 2rem !important;
+      }
+    }
   `,
-
-  // Container principal
-  container: {
+ heroSection: {
+    padding: '8rem 2rem',
+    textAlign: 'center',
+    backgroundImage: 'url(/images/bk_04.png)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    position: 'relative',
     minHeight: '100vh',
-    backgroundColor: '#ffffff'
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '@media (max-width: 768px)': {
+      padding: '4rem 1rem',
+      minHeight: '80vh'
+    }
   },
 
-  // Utility styles
-  maxWidth: {
-    maxWidth: '1200px',
-    margin: '0 auto'
+    heroTitle: {
+    fontSize: '4rem',
+    fontWeight: 'bold',
+    marginBottom: '1rem',
+    color: 'white',
+    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+    fontFamily: 'Poppins, serif',
+    position: 'relative',
+    zIndex: 2
   },
 
-// În HomePageStyles.js, actualizează heroSection:
-heroSection: {
-  padding: '8rem 2rem',
-  textAlign: 'center',
-  backgroundImage: 'url(/images/bk_04.png)',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
-  position: 'relative',
-  minHeight: '100vh',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center'
-},
-
-// Adaugă un nou stil pentru overlay:
 heroOverlay: {
   position: 'absolute',
   top: 0,
@@ -62,17 +95,6 @@ heroOverlay: {
   zIndex: 1
 },
 
-// Actualizează stilurile pentru titlu și subtitlu:
-heroTitle: {
-  fontSize: '4rem',
-  fontWeight: 'bold',
-  marginBottom: '1rem',
-  color: 'white',
-  textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
-  fontFamily: 'Poppins, serif',
-  position: 'relative',
-  zIndex: 2
-},
 
 heroSubtitle: {
   fontSize: '1.5rem',

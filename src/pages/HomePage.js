@@ -21,6 +21,9 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+
   // Configurează EmailJS din variabilele de mediu
   const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
   const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
@@ -187,6 +190,14 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
     }
   }, [isModalOpen, currentImageIndex]);
 
+  React.useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
   // Grid positions pentru review images - 7 poze în layout dreptunghiular
   const getGridPosition = (index) => {
     const gridPositions = [
@@ -207,15 +218,28 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
       
       <div style={homePageStyles.container}>
         {/* Hero Section */}
-<section style={homePageStyles.heroSection}>
-  {/* Overlay pentru contrast */}
+<section style={{
+  ...homePageStyles.heroSection,
+  '@media (max-width: 768px)': {
+    padding: '4rem 1rem',
+    minHeight: '80vh'
+  }
+}}>
   <div style={homePageStyles.heroOverlay}></div>
   
-  <h1 style={homePageStyles.heroTitle}>
+  <h1 style={{
+    ...homePageStyles.heroTitle,
+    fontSize: isMobile ? '2.5rem' : '4rem',
+lineHeight: isMobile ? '1.2' : '1.1'
+  }}>
     Cursuri de matematică pentru gimnaziu
   </h1>
   
-  <p style={homePageStyles.heroSubtitle}>
+  <p style={{
+    ...homePageStyles.heroSubtitle,
+    fontSize: isMobile ? '1.2rem' : '1.5rem',
+padding: isMobile ? '0 1rem' : '0'
+  }}>
     Construim împreună drumul spre succes!
   </p>
 
@@ -224,10 +248,10 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
     style={{
       ...homePageStyles.heroButton.base,
       position: 'relative',
-      zIndex: 2
+      zIndex: 2,
+      padding: isMobile ? '1rem 2rem' : '1.2rem 3rem',
+fontSize: isMobile ? '1rem' : '1.1rem'
     }}
-    onMouseOver={(e) => Object.assign(e.target.style, homePageStyles.heroButton.hover)}
-    onMouseOut={(e) => Object.assign(e.target.style, homePageStyles.heroButton.base)}
   >
     Înscrie-te acum
   </button>
@@ -235,7 +259,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
 
         {/* Cursuri Online Section */}
 <section style={{
-  padding: '3rem 1rem', 
+  padding: isMobile ? '2rem 1rem' : '3rem 1rem', 
   backgroundColor: '#ffffff'
 }}>
   <div style={{
@@ -266,12 +290,11 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
 
     {/* Grid cu 2 coloane egale */}
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr', 
-      gap: '2rem',
-      maxWidth: '900px', 
-      margin: '0 auto'
-    }}>
+  display: 'grid',
+gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
+  maxWidth: '900px', 
+  margin: '0 auto'
+}}>
       {services.map((service) => (
         <div 
           key={service.id} 
@@ -413,7 +436,13 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
           <div style={homePageStyles.maxWidth}>
             <h2 style={homePageStyles.aboutTitle}>Cine sunt?</h2>
             
-            <div style={homePageStyles.aboutGrid}>
+            <div style={{
+  display: 'grid',
+  gridTemplateColumns: isMobile ? '1fr' : '1fr 2fr',
+  gap: isMobile ? '2rem' : '4rem',
+  alignItems: 'center',
+  textAlign: isMobile ? 'center' : 'left'
+}}>
               <div style={homePageStyles.aboutImageContainer}>
                 <img 
                   src="/images/profil.png" 
@@ -475,7 +504,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
         {/* Reviews Section */}
 <section style={{
   ...homePageStyles.reviewsSection,
-  padding: '3rem 1rem' 
+  padding: isMobile ? '2rem 1rem' : '3rem 1rem'
 }}>
   <div style={homePageStyles.reviewsBackground.decoration1}></div>
   <div style={homePageStyles.reviewsBackground.decoration2}></div>
@@ -489,12 +518,14 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
     </h2>
     
     <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-      gap: '1rem', 
-      maxWidth: '1100px',
-      margin: '0 auto'
-    }}>
+  display: 'grid',
+  gridTemplateColumns: isMobile ? 
+    'repeat(auto-fit, minmax(150px, 1fr))' : 
+    'repeat(auto-fit, minmax(200px, 1fr))', 
+  gap: '1rem', 
+  maxWidth: '1100px',
+  margin: '0 auto'
+}}>
       {reviews.map((review, index) => (
         <div 
           key={review.id} 
@@ -546,7 +577,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
      marginBottom: '3rem'
    }}>
      <h2 style={{
-       fontSize: '2rem',
+       fontSize: isMobile ? '2rem' : '2.25rem',
        fontWeight: '600',
        color: '#2d3748',
        marginBottom: '0.5rem',
@@ -631,7 +662,7 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
          </div>
 
          <div style={{
-           fontSize: '2rem',
+           fontSize: isMobile ? '2rem' : '2.25rem',
            fontWeight: 'bold',
            color: '#2d3748',
            marginBottom: '0.5rem'
@@ -757,10 +788,10 @@ const HomePage = ({ setCurrentPage, setSelectedService }) => {
       backdropFilter: 'blur(10px)'
     }}>
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '0.67rem' 
-      }}>
+  display: 'grid',
+  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+  gap: isMobile ? '1rem' : '0.67rem'
+}}>
         <div>
           <label style={{ 
             display: 'block', 
