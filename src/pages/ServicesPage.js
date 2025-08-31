@@ -41,53 +41,82 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
   });
 
   // Verifică dacă s-a întors de la plată cu succes
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentSuccess = urlParams.get('payment_success');
-    const sessionId = urlParams.get('session_id');
-    
-    if (paymentSuccess === 'true' && sessionId && currentUser) {
-      handlePaymentSuccess(sessionId);
-    }
-  }, [currentUser]);
+  // Modifică useEffect-ul pentru a verifica parametrii URL
+useEffect(() => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const paymentSuccess = urlParams.get('payment_success');
+  const sessionId = urlParams.get('session_id');
+  
+  if (paymentSuccess === 'true' && sessionId && currentUser) {
+    handlePaymentSuccess(sessionId);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}, [currentUser]); 
 
-  const handlePaymentSuccess = async (sessionId) => {
-    try {
-      setIsLoading(true);
-      
-      // Actualizează abonamentul utilizatorului în Firestore
-      const userRef = doc(db, 'users', currentUser.uid);
-      const updateData = {
-        'abonament.activ': true,
-        'abonament.tip': selectedService,
-        'abonament.dataInceperii': serverTimestamp(),
-        'abonament.ziuaSaptamanii': selectedSchedule?.zi,
-        'abonament.oraCurs': selectedSchedule?.ora,
-        'abonament.linkCurs': null, // Va fi adăugat de admin
-        'abonament.sessionId': sessionId,
-        'abonament.dataUrmatoareiSedinte': null // Va fi calculată
-      };
-      
-      await updateDoc(userRef, updateData);
-      
-      // Refresh user data pentru a reflecta schimbările
-      await refreshUserData();
-      
-      // Arată mesajul de succes și redirecționează către profil
-      setIsComplete(true);
-      
-      // După 3 secunde, redirecționează către profil
-      setTimeout(() => {
-        setCurrentPage('profile');
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Eroare la activarea abonamentului:', error);
-      alert('A apărut o eroare la activarea abonamentului. Te rog contactează suportul.');
-    } finally {
-      setIsLoading(false);
+  // Modifică funcția handlePaymentSuccess pentru a fi mai robustă
+const handlePaymentSuccess = async (sessionId) => {
+  try {
+    setIsLoading(true);
+    
+    // Verifică din nou dacă utilizatorul este autentificat
+    if (!currentUser) {
+      console.error('Utilizator neautentificat');
+      return;
     }
-  };
+    
+    // Actualizează abonamentul utilizatorului în Firestore
+    const userRef = doc(db, 'users', currentUser.uid);
+    
+    // Calculează data următoarei ședințe (de exemplu, următoarea săptămână)
+    const nextSessionDate = new Date();
+    nextSessionDate.setDate(nextSessionDate.getDate() + 7); // Următoarea săptămână
+    
+    const updateData = {
+      'abonament.activ': true,
+      'abonament.tip': selectedService,
+      'abonament.dataInceperii': serverTimestamp(),
+      'abonament.ziuaSaptamanii': selectedSchedule?.zi,
+      'abonament.oraCurs': selectedSchedule?.ora,
+      'abonament.linkCurs': null, // Va fi adăugat de admin
+      'abonament.sessionId': sessionId,
+      'abonament.dataUrmatoareiSedinte': nextSessionDate,
+      'abonament.status': 'activ'
+    };
+    
+    await updateDoc(userRef, updateData);
+    
+    // Actualizează enrollment-ul dacă există
+    const pendingEnrollment = JSON.parse(sessionStorage.getItem('pendingEnrollment') || '{}');
+    if (pendingEnrollment.enrollmentId) {
+      const enrollmentRef = doc(db, 'enrollments', pendingEnrollment.enrollmentId);
+      await updateDoc(enrollmentRef, {
+        status: 'completed',
+        paymentSessionId: sessionId,
+        completedAt: serverTimestamp()
+      });
+      
+      // Șterge din sessionStorage
+      sessionStorage.removeItem('pendingEnrollment');
+    }
+    
+    // Refresh user data pentru a reflecta schimbările
+    await refreshUserData();
+    
+    // Arată mesajul de succes
+    setIsComplete(true);
+    
+    // După 3 secunde, redirecționează către profil
+    setTimeout(() => {
+      setCurrentPage('profile');
+    }, 3000);
+    
+  } catch (error) {
+    console.error('Eroare la activarea abonamentului:', error);
+    alert('A apărut o eroare la activarea abonamentului. Te rog contactează suportul.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleGoogleLogin = async () => {
     setAuthLoading(true);
@@ -324,11 +353,11 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
         }));
         
         // Redirect către Stripe cu parametri pentru success URL
-        const successUrl = `${window.location.origin}/services?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
-        const cancelUrl = `${window.location.origin}/services`;
+        const successUrl = `${window.location.origin}${window.location.pathname}?payment_success=true&session_id={CHECKOUT_SESSION_ID}`;
+const cancelUrl = `${window.location.origin}${window.location.pathname}`;
         
         // Construiește URL-ul Stripe cu parametrii
-        const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
         
         window.location.href = stripeUrl;
         

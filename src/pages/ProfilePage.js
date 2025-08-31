@@ -159,7 +159,38 @@ const ProfilePage = ({ setCurrentPage }) => {
   };
 
   const loadStudentEnrollments = async () => {
-    try {
+  try {
+    // Pentru elevi cu abonament activ, afișează doar cursul activ
+    if (userData?.abonament?.activ) {
+      // Caută programul pentru abonamentul activ
+      const schedulesRef = collection(db, 'schedules');
+      const q = query(
+        schedulesRef, 
+        where('zi', '==', userData.abonament.ziuaSaptamanii.toLowerCase()),
+        where('ora', '==', userData.abonament.oraCurs),
+        where('tip', '==', userData.abonament.tip)
+      );
+      const scheduleSnapshot = await getDocs(q);
+      
+      if (!scheduleSnapshot.empty) {
+        const schedule = { id: scheduleSnapshot.docs[0].id, ...scheduleSnapshot.docs[0].data() };
+        
+        // Creează un enrollment virtual pentru abonamentul activ
+        const activeEnrollment = {
+          id: 'active-subscription',
+          userId: currentUser.uid,
+          scheduleId: schedule.id,
+          serviceTip: userData.abonament.tip,
+          clientName: `${userData.prenumeElev} ${userData.numeElev}`,
+          status: 'active',
+          schedule: schedule,
+          isActiveSubscription: true
+        };
+        
+        setStudentEnrollments([activeEnrollment]);
+      }
+    } else {
+      // Pentru elevi fără abonament activ, afișează toate înscrieriله
       const enrollmentsRef = collection(db, 'enrollments');
       const q = query(enrollmentsRef, where('userId', '==', currentUser.uid));
       const querySnapshot = await getDocs(q);
@@ -181,10 +212,11 @@ const ProfilePage = ({ setCurrentPage }) => {
       }
       
       setStudentEnrollments(enrollments);
-    } catch (error) {
-      console.error('Eroare la încărcarea înscrieriolor:', error);
     }
-  };
+  } catch (error) {
+    console.error('Eroare la încărcarea înscrieriור:', error);
+  }
+};
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -978,6 +1010,25 @@ const ProfilePage = ({ setCurrentPage }) => {
                       ...profilePageStyles.enrollmentItem,
                       borderLeft: `4px solid ${getTipColor(enrollment.schedule?.tip)}`
                     }}>
+
+                      {/* ... */}
+    {enrollment.isActiveSubscription && (
+      <div style={{
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        border: '1px solid #10b981',
+        borderRadius: '6px',
+        padding: '0.5rem',
+        marginBottom: '1rem',
+        textAlign: 'center',
+        fontSize: '0.9rem',
+        color: '#059669',
+        fontWeight: '600'
+      }}>
+        🎯 Abonament Activ - Acces Complet
+      </div>
+    )}
+
+
                       <div style={profilePageStyles.enrollmentHeader}>
                         <h3 style={{
                           ...profilePageStyles.enrollmentTitle,
