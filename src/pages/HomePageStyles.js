@@ -211,7 +211,7 @@ heroSubtitle: {
   // About Section
   aboutSection: {
     padding: '6rem 1rem',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#f5f5dc'
   },
 
   aboutTitle: {

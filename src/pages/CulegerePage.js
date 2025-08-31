@@ -76,7 +76,7 @@ const CulegerePage = () => {
             marginBottom: '2rem',
             fontWeight: '500'
           }}>
-            Clasa a VIII-a • Ediția 2025
+            Clasa a VIII-a • Ediția 2025 - 2026
           </p>
 
           <div style={{ marginBottom: '2rem' }}>

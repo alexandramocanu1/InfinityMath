@@ -5,7 +5,7 @@ import ServicesPage from './pages/ServicesPage';
 import FAQPage from './pages/FAQPage';
 import ContactPage from './pages/ContactPage';
 import ProfilePage from './pages/ProfilePage';
-import CulegerePage from './pages/CulegerePage'; // Pagina nouă
+import CulegerePage from './pages/CulegerePage'; 
 import { AuthProvider } from './contexts/AuthContext';
 import Footer from './components/Footer';
 import './App.css';
@@ -18,7 +18,7 @@ function App() {
   const headerStyle = {
     backgroundColor: 'white',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    padding: '1rem 0',
+    padding: '0.5rem 0', // Redus de la 1rem la 0.5rem
     position: 'sticky',
     top: 0,
     zIndex: 100
@@ -36,22 +36,22 @@ function App() {
   const logoStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '0.75rem', // redus
     cursor: 'pointer'
   };
 
   const menuStyle = {
     display: 'flex',
-    gap: '0.25rem', // Redus de la 0.5rem pentru a strânge butoanele
+    gap: '0.25rem', 
     alignItems: 'center'
   };
 
   const buttonStyle = {
     background: 'transparent',
     border: 'none',
-    padding: '0.75rem 1rem', // Redus padding lateral de la 1.5rem la 1rem
+    padding: '0.5rem 0.75rem', // redus
     borderRadius: '8px',
-    fontSize: '0.95rem', // Redus fontul puțin
+    fontSize: '0.95rem',
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease'
@@ -150,8 +150,8 @@ function App() {
                 src="/images/logo_VIII_1.png" 
                 alt="Infinity Math" 
                 style={{
-                  width: '48px',
-                  height: '48px',
+                  width: '40px', // Redus de la 48px la 40px
+                  height: '40px', // Redus de la 48px la 40px
                   borderRadius: '12px',
                   objectFit: 'cover'
                 }}
@@ -159,7 +159,7 @@ function App() {
               <div>
                 <h1 style={{ 
                   margin: 0, 
-                  fontSize: '1.5rem', 
+                  fontSize: '1.35rem', // Redus de la 1.5rem la 1.35rem
                   color: '#1f2937',
                   fontWeight: '700' 
                 }}>
@@ -168,7 +168,7 @@ function App() {
                 <p style={{ 
                   margin: 0, 
                   color: '#6b7280', 
-                  fontSize: '0.875rem' 
+                  fontSize: '0.8rem' // Redus de la 0.875rem la 0.8rem
                 }}>
                   Matematică pentru toți
                 </p>
@@ -211,7 +211,6 @@ function App() {
                 Cursuri
               </button>
               
-              {/* Tab nou Culegere */}
               <button 
                 onClick={() => setCurrentPage('culegere')}
                 style={getButtonStyle('culegere')}
@@ -336,7 +335,6 @@ function App() {
                Cursuri
             </div>
             
-            {/* Tab Culegere în mobile menu */}
             <div onClick={() => handleMobileMenuItemClick('culegere')} style={{
               ...mobileMenuItemStyle,
               backgroundColor: currentPage === 'culegere' ? '#f0f9ff' : 'transparent',
@@ -371,7 +369,6 @@ function App() {
           </div>
         </div>
 
-        {/* Content - flex: 1 pentru a ocupa spațiul disponibil */}
         <main style={{ flex: 1 }}>
           {currentPage === 'home' && (
             <HomePage 
@@ -388,7 +385,7 @@ function App() {
             />
           )}
           
-          {/* Pagina Culegere nouă */}
+          {/* Pagina Culegere */}
           {currentPage === 'culegere' && <CulegerePage />}
           
           {currentPage === 'faq' && <FAQPage />}

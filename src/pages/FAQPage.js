@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Send, ChevronDown, ChevronUp } from 'lucide-react';
 import emailjs from '@emailjs/browser';
-import { faqPageStyles } from './FAQPageStyles';
 
 const FAQPage = () => {
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -58,22 +57,13 @@ const FAQPage = () => {
     setIsLoading(true);
     setError('');
     
-    // Debug: verifică dacă variabilele sunt încărcate
-    console.log('🔍 Debug EmailJS:');
-    console.log('Service ID:', EMAILJS_SERVICE_ID);
-    console.log('Template ID:', EMAILJS_TEMPLATE_ID);
-    console.log('Public Key:', EMAILJS_PUBLIC_KEY);
-    
-    // Verifică dacă toate variabilele sunt setate
     if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-      console.log('❌ Variabile lipsă!');
       setError('Configurația EmailJS nu este completă. Verifică variabilele de mediu.');
       setIsLoading(false);
       return;
     }
     
     try {
-      // Pregătește datele pentru email - DOAR variabilele din template
       const templateParams = {
         from_name: `${contactForm.nume} ${contactForm.prenume}`,
         from_email: contactForm.email,
@@ -81,19 +71,13 @@ const FAQPage = () => {
         optiune: contactForm.optiune
       };
 
-      console.log('📧 Template params:', templateParams);
-
-      // Trimite email-ul folosind EmailJS
       const result = await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
         templateParams,
         EMAILJS_PUBLIC_KEY
       );
-
-      console.log('✅ Email trimis cu succes:', result);
       
-      // Resetează formularul și arată mesajul de succes
       setContactForm({
         nume: '',
         prenume: '',
@@ -103,23 +87,10 @@ const FAQPage = () => {
       });
       
       setShowSuccess(true);
-      
-      // Ascunde mesajul de succes după 5 secunde
-      setTimeout(() => {
-        setShowSuccess(false);
-      }, 5000);
+      setTimeout(() => setShowSuccess(false), 5000);
       
     } catch (error) {
-      console.error('❌ Eroare completă:', error);
-      console.error('📝 Detalii eroare:', {
-        status: error.status,
-        text: error.text,
-        message: error.message
-      });
-      
-      // Mesaj de eroare mai detaliat
       let errorMessage = 'A apărut o eroare la trimiterea mesajului.';
-      
       if (error.status === 400) {
         errorMessage = 'Datele formularului sunt incomplete sau invalide.';
       } else if (error.status === 401) {
@@ -129,7 +100,6 @@ const FAQPage = () => {
       } else if (error.text) {
         errorMessage = `Eroare: ${error.text}`;
       }
-      
       setError(errorMessage);
     }
     
@@ -144,7 +114,6 @@ const FAQPage = () => {
     }
   };
 
-  // Handlers pentru interacțiuni
   const handleInputFocus = (e) => {
     e.target.style.borderColor = '#ff6b35';
     e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
@@ -155,60 +124,48 @@ const FAQPage = () => {
     e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
   };
 
-  const handleButtonHover = (e, isHovering) => {
-    if (!isLoading) {
-      if (isHovering) {
-        e.target.style.transform = 'translateY(-2px)';
-        e.target.style.boxShadow = '0 12px 40px rgba(255, 107, 53, 0.4)';
-      } else {
-        e.target.style.transform = 'translateY(0)';
-        e.target.style.boxShadow = '0 8px 32px rgba(255, 107, 53, 0.3)';
-      }
-    }
-  };
-
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: '100vh' }}>
       {/* FAQ Section */}
       <div style={{
         background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-        padding: '5rem 1rem',
+        padding: '3.75rem 0.75rem',
         position: 'relative',
         overflow: 'hidden'
       }}>
         {/* Background decorations */}
         <div style={{
           position: 'absolute',
-          top: '-50px',
-          right: '-50px',
-          width: '200px',
-          height: '200px',
+          top: '-37px',
+          right: '-37px',
+          width: '150px',
+          height: '150px',
           background: 'rgba(255, 255, 255, 0.1)',
           borderRadius: '50%',
-          filter: 'blur(40px)'
+          filter: 'blur(30px)'
         }}></div>
         <div style={{
           position: 'absolute',
-          bottom: '-100px',
-          left: '-100px',
-          width: '300px',
-          height: '300px',
+          bottom: '-75px',
+          left: '-75px',
+          width: '225px',
+          height: '225px',
           background: 'rgba(255, 255, 255, 0.05)',
           borderRadius: '50%',
-          filter: 'blur(60px)'
+          filter: 'blur(45px)'
         }}></div>
 
         <div style={{ 
-          maxWidth: '1200px', 
+          maxWidth: '900px', 
           margin: '0 auto',
           position: 'relative',
           zIndex: 10
         }}>
           <h1 style={{
-            fontSize: '4rem',
+            fontSize: 'clamp(2rem, 5vw, 3rem)',
             fontWeight: '800',
             color: '#000000',
-            marginBottom: '4rem',
+            marginBottom: '3rem',
             textAlign: 'center',
             textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
             letterSpacing: '-0.02em'
@@ -216,7 +173,11 @@ const FAQPage = () => {
             Întrebări frecvente
           </h1>
 
-          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+          <div style={{ 
+            maxWidth: '675px', 
+            margin: '0 auto',
+            padding: '0 1rem'
+          }}>
             {questions.map((q) => {
               const gradients = {
                 1: 'linear-gradient(135deg, #ff6b35, #dc2626)',
@@ -227,11 +188,11 @@ const FAQPage = () => {
 
               return (
                 <div key={q.id} style={{ 
-                  marginBottom: '1.5rem', 
+                  marginBottom: '1.125rem', 
                   backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                  borderRadius: '16px', 
+                  borderRadius: '12px', 
                   overflow: 'hidden',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 6px 24px rgba(0, 0, 0, 0.1)',
                   border: '1px solid rgba(255, 255, 255, 0.2)',
                   backdropFilter: 'blur(10px)'
                 }}>
@@ -240,9 +201,9 @@ const FAQPage = () => {
                     style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
-                      gap: '1.5rem', 
+                      gap: 'clamp(0.75rem, 2vw, 1.125rem)', 
                       cursor: 'pointer',
-                      padding: '1.5rem',
+                      padding: 'clamp(0.875rem, 2.5vw, 1.125rem)',
                       transition: 'all 0.3s ease',
                       background: activeQuestion === q.id ? 'linear-gradient(90deg, #ff6b35, #f7931e)' : 'transparent'
                     }}
@@ -250,43 +211,46 @@ const FAQPage = () => {
                     <div style={{
                       background: activeQuestion === q.id ? '#000000' : gradients[q.id],
                       color: 'white',
-                      padding: '1rem',
-                      fontSize: '1.5rem',
+                      padding: 'clamp(0.5rem, 1.5vw, 0.75rem)',
+                      fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
                       fontWeight: '700',
-                      minWidth: '60px',
-                      height: '60px',
+                      minWidth: 'clamp(35px, 8vw, 45px)',
+                      height: 'clamp(35px, 8vw, 45px)',
                       textAlign: 'center',
-                      borderRadius: '12px',
+                      borderRadius: '9px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       transition: 'all 0.3s ease',
-                      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
+                      boxShadow: '0 3px 12px rgba(0, 0, 0, 0.2)',
+                      flexShrink: 0
                     }}>
                       {q.id.toString().padStart(2, '0')}
                     </div>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <h3 style={{
-                        fontSize: '1.4rem',
+                        fontSize: 'clamp(0.875rem, 2.2vw, 1.05rem)',
                         color: activeQuestion === q.id ? '#ffffff' : '#000000',
                         margin: '0',
                         fontWeight: '600',
-                        transition: 'color 0.3s ease'
+                        transition: 'color 0.3s ease',
+                        lineHeight: '1.3'
                       }}>
                         {q.question}
                       </h3>
                     </div>
                     <div style={{ 
                       color: activeQuestion === q.id ? '#ffffff' : '#666666',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      flexShrink: 0
                     }}>
-                      {activeQuestion === q.id ? <ChevronUp size={24} /> : <ChevronDown size={24} />}
+                      {activeQuestion === q.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </div>
                   </div>
                   {activeQuestion === q.id && (
                     <div style={{
-                      padding: '2rem 1.5rem 2.5rem 1.5rem',
-                      fontSize: '1.1rem',
+                      padding: 'clamp(1rem, 3vw, 1.5rem) clamp(0.875rem, 2.5vw, 1.125rem) clamp(1.25rem, 3.5vw, 1.875rem) clamp(0.875rem, 2.5vw, 1.125rem)',
+                      fontSize: 'clamp(0.75rem, 1.8vw, 0.825rem)',
                       lineHeight: '1.7',
                       color: '#374151',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -308,42 +272,47 @@ const FAQPage = () => {
       </div>
 
       {/* Contact Form Section */}
-      <div style={{
+      <section style={{
         background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
         color: 'white',
-        padding: '6rem 1rem',
+        padding: 'clamp(2rem, 5vw, 2.5rem) 1rem', 
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Background decorations */}
         <div style={{
           position: 'absolute',
           top: '20%',
           right: '10%',
-          width: '150px',
-          height: '150px',
+          width: 'clamp(60px, 15vw, 100px)', 
+          height: 'clamp(60px, 15vw, 100px)',
           background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
           borderRadius: '50%',
           opacity: '0.1',
-          filter: 'blur(50px)'
+          filter: 'blur(33px)' 
         }}></div>
         <div style={{
           position: 'absolute',
           bottom: '20%',
           left: '10%',
-          width: '200px',
-          height: '200px',
+          width: 'clamp(80px, 20vw, 134px)', 
+          height: 'clamp(80px, 20vw, 134px)',
           background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
           borderRadius: '50%',
           opacity: '0.1',
-          filter: 'blur(60px)'
+          filter: 'blur(40px)' 
         }}></div>
 
-        <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+        <div style={{ 
+          maxWidth: '536px', 
+          margin: '0 auto', 
+          position: 'relative', 
+          zIndex: 10,
+          padding: '0 1rem'
+        }}>
           <h2 style={{
-            fontSize: '3.5rem',
+            fontSize: 'clamp(1.75rem, 4vw, 2.35rem)', 
             fontWeight: '800',
-            marginBottom: '3rem',
+            marginBottom: 'clamp(1.5rem, 3vw, 2rem)', 
             textAlign: 'center',
             background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
             WebkitBackgroundClip: 'text',
@@ -360,15 +329,15 @@ const FAQPage = () => {
               backgroundColor: 'rgba(16, 185, 129, 0.1)',
               border: '2px solid #10b981',
               color: '#10b981',
-              padding: '1rem',
-              borderRadius: '12px',
-              marginBottom: '2rem',
-              fontSize: '0.95rem',
+              padding: 'clamp(0.5rem, 1.5vw, 0.67rem)', 
+              borderRadius: '8px', 
+              marginBottom: 'clamp(1rem, 2.5vw, 1.34rem)', 
+              fontSize: 'clamp(0.7rem, 1.4vw, 0.8rem)', 
               fontWeight: '500',
               textAlign: 'center',
               backdropFilter: 'blur(5px)'
             }}>
-              ✅ Mesajul a fost trimis cu succes! Îți voi răspunde în cel mai scurt timp.
+              ✅ Mesajul a fost trimis cu succes!
             </div>
           )}
 
@@ -378,10 +347,10 @@ const FAQPage = () => {
               backgroundColor: 'rgba(239, 68, 68, 0.1)',
               border: '2px solid #ef4444',
               color: '#ef4444',
-              padding: '1rem',
-              borderRadius: '12px',
-              marginBottom: '2rem',
-              fontSize: '0.95rem',
+              padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+              borderRadius: '8px',
+              marginBottom: 'clamp(1rem, 2.5vw, 1.34rem)',
+              fontSize: 'clamp(0.7rem, 1.4vw, 0.8rem)',
               fontWeight: '500',
               textAlign: 'center',
               backdropFilter: 'blur(5px)'
@@ -392,23 +361,24 @@ const FAQPage = () => {
           
           <div style={{
             display: 'grid',
-            gap: '1.5rem',
+            gap: 'clamp(0.75rem, 2vw, 1rem)', 
             backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            padding: '3rem',
-            borderRadius: '20px',
+            padding: 'clamp(1.5rem, 3vw, 2rem)', 
+            borderRadius: '13px', 
             border: '1px solid rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(10px)'
           }}>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem'
+              gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 1fr',
+              gap: 'clamp(0.5rem, 1.5vw, 0.67rem)' 
             }}>
               <div>
                 <label style={{ 
                   display: 'block', 
-                  marginBottom: '0.5rem', 
+                  marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)', 
                   fontWeight: '600',
+                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)', 
                   color: '#f7931e' 
                 }}>
                   Nume *
@@ -421,10 +391,10 @@ const FAQPage = () => {
                   disabled={isLoading}
                   style={{
                     width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
+                    padding: 'clamp(0.5rem, 1.5vw, 0.67rem)', 
+                    borderRadius: '8px',
                     border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: '1rem',
+                    fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)', 
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     color: '#ffffff',
                     boxSizing: 'border-box',
@@ -441,8 +411,9 @@ const FAQPage = () => {
               <div>
                 <label style={{ 
                   display: 'block', 
-                  marginBottom: '0.5rem', 
+                  marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
                   fontWeight: '600',
+                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                   color: '#f7931e' 
                 }}>
                   Prenume *
@@ -455,10 +426,10 @@ const FAQPage = () => {
                   disabled={isLoading}
                   style={{
                     width: '100%',
-                    padding: '1rem',
-                    borderRadius: '12px',
+                    padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+                    borderRadius: '8px',
                     border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: '1rem',
+                    fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     color: '#ffffff',
                     boxSizing: 'border-box',
@@ -476,8 +447,9 @@ const FAQPage = () => {
             <div>
               <label style={{ 
                 display: 'block', 
-                marginBottom: '0.5rem', 
+                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
                 fontWeight: '600',
+                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                 color: '#f7931e' 
               }}>
                 Email *
@@ -490,10 +462,10 @@ const FAQPage = () => {
                 disabled={isLoading}
                 style={{
                   width: '100%',
-                  padding: '1rem',
-                  borderRadius: '12px',
+                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+                  borderRadius: '8px',
                   border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: '1rem',
+                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   color: '#ffffff',
                   boxSizing: 'border-box',
@@ -510,8 +482,9 @@ const FAQPage = () => {
             <div>
               <label style={{ 
                 display: 'block', 
-                marginBottom: '0.5rem', 
+                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
                 fontWeight: '600',
+                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                 color: '#f7931e' 
               }}>
                 Selectează clasa *
@@ -523,10 +496,10 @@ const FAQPage = () => {
                 disabled={isLoading}
                 style={{
                   width: '100%',
-                  padding: '1rem',
-                  borderRadius: '12px',
+                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+                  borderRadius: '8px',
                   border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: '1rem',
+                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   color: '#ffffff',
                   boxSizing: 'border-box',
@@ -546,8 +519,9 @@ const FAQPage = () => {
             <div>
               <label style={{ 
                 display: 'block', 
-                marginBottom: '0.5rem', 
+                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
                 fontWeight: '600',
+                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                 color: '#f7931e' 
               }}>
                 Mesaj *
@@ -557,13 +531,13 @@ const FAQPage = () => {
                 onChange={(e) => setContactForm({...contactForm, mesaj: e.target.value})}
                 required
                 disabled={isLoading}
-                rows={4}
+                rows={3} 
                 style={{
                   width: '100%',
-                  padding: '1rem',
-                  borderRadius: '12px',
+                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+                  borderRadius: '8px',
                   border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: '1rem',
+                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   color: '#ffffff',
                   resize: 'vertical',
@@ -585,35 +559,43 @@ const FAQPage = () => {
                 background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
                 color: 'white',
                 border: 'none',
-                padding: '1.2rem 2rem',
-                borderRadius: '12px',
-                fontSize: '1.1rem',
+                padding: 'clamp(0.6rem, 1.8vw, 0.8rem) clamp(1rem, 2.5vw, 1.34rem)', 
+                borderRadius: '8px',
+                fontSize: 'clamp(0.65rem, 1.5vw, 0.74rem)', 
                 fontWeight: '600',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem',
-                marginTop: '1rem',
-                boxShadow: isLoading ? 'none' : '0 8px 32px rgba(255, 107, 53, 0.3)',
+                gap: 'clamp(0.25rem, 0.7vw, 0.34rem)',
+                marginTop: 'clamp(0.5rem, 1.3vw, 0.67rem)',
+                boxShadow: isLoading ? 'none' : '0 5px 21px rgba(255, 107, 53, 0.3)', 
                 fontFamily: "'Poppins', sans-serif",
                 opacity: isLoading ? 0.7 : 1
               }}
-              onMouseOver={(e) => handleButtonHover(e, true)}
-              onMouseOut={(e) => handleButtonHover(e, false)}
+              onMouseOver={(e) => {
+                if (!isLoading) {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 8px 27px rgba(255, 107, 53, 0.4)';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!isLoading) {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 5px 21px rgba(255, 107, 53, 0.3)';
+                }
+              }}
             >
-              <Send style={{ width: '1rem', height: '1rem' }} />
+              <Send style={{ width: 'clamp(0.5rem, 1.3vw, 0.67rem)', height: 'clamp(0.5rem, 1.3vw, 0.67rem)' }} />
               {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-          
           @keyframes slideDown {
             from { 
               opacity: 0; 
@@ -633,17 +615,9 @@ const FAQPage = () => {
             color: rgba(255, 255, 255, 0.6) !important;
           }
 
-          /* Responsive design */
+          /* Mobile optimizations */
           @media (max-width: 768px) {
-            h1 {
-              fontSize: 2.5rem !important;
-            }
-            
-            h2 {
-              fontSize: 2.5rem !important;
-            }
-            
-            .grid-two-cols {
+            .faq-grid {
               grid-template-columns: 1fr !important;
             }
           }
