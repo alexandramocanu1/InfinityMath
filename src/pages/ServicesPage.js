@@ -64,6 +64,8 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
   });
     const [activeCourse, setActiveCourse] = useState(null);
 
+    
+
     // cursul activ pt user u cu abonament
   const loadActiveCourse = async () => {
     if (!userData?.abonament?.activ) return;
@@ -99,11 +101,24 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
     }
   };
 
+
+// // redirectla profil dc are abonament
+//   useEffect(() => {
+//   if (userData?.abonament?.activ && !selectedService) {
+//     setCurrentPage('profile');
+//   }
+// }, [userData, selectedService, setCurrentPage]);
+
+
+
+
   useEffect(() => {
     if (userData?.abonament?.activ) {
       loadActiveCourse();
     }
   }, [userData, adminSchedules]);
+
+
 
 useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
