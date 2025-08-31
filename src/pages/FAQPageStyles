@@ -5,85 +5,85 @@ export const faqPageStyles = {
     minHeight: '100vh'
   },
 
-  // FAQ Section - UPDATED to 75% scale
+  // FAQ Section
   faqSection: {
     background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-    padding: '3.75rem 0.75rem', // was 5rem 1rem
+    padding: '5rem 1rem',
     position: 'relative',
     overflow: 'hidden'
   },
 
-  // Background decorations - UPDATED
+  // Background decorations
   backgroundDecoration1: {
     position: 'absolute',
-    top: '-37px', // was -50px
-    right: '-37px', // was -50px
-    width: '150px', // was 200px
-    height: '150px', // was 200px
+    top: '-50px',
+    right: '-50px',
+    width: '200px',
+    height: '200px',
     background: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '50%',
-    filter: 'blur(30px)' // was blur(40px)
+    filter: 'blur(40px)'
   },
 
   backgroundDecoration2: {
     position: 'absolute',
-    bottom: '-75px', // was -100px
-    left: '-75px', // was -100px
-    width: '225px', // was 300px
-    height: '225px', // was 300px
+    bottom: '-100px',
+    left: '-100px',
+    width: '300px',
+    height: '300px',
     background: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '50%',
-    filter: 'blur(45px)' // was blur(60px)
+    filter: 'blur(60px)'
   },
 
-  // Content wrapper - UPDATED
+  // Content wrapper
   contentWrapper: {
-    maxWidth: '900px', // was 1200px
+    maxWidth: '1200px',
     margin: '0 auto',
     position: 'relative',
     zIndex: 10
   },
 
-  // Main title - UPDATED
+  // Main title
   mainTitle: {
-    fontSize: '3rem', // was 4rem
+    fontSize: '4rem',
     fontWeight: '800',
     color: '#000000',
-    marginBottom: '3rem', // was 4rem
+    marginBottom: '4rem',
     textAlign: 'center',
     textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
     letterSpacing: '-0.02em'
   },
 
-  // Questions container - UPDATED
+  // Questions container
   questionsContainer: {
-    maxWidth: '675px', // was 900px
+    maxWidth: '900px',
     margin: '0 auto'
   },
 
-  // Question card - UPDATED
+  // Question card
   questionCard: {
-    marginBottom: '1.125rem', // was 1.5rem
+    marginBottom: '1.5rem',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '12px', // was 16px
+    borderRadius: '16px',
     overflow: 'hidden',
-    boxShadow: '0 6px 24px rgba(0, 0, 0, 0.1)', // was 0 8px 32px
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     backdropFilter: 'blur(10px)'
   },
 
-  // Question header - UPDATED
+  // Question header
   questionHeader: (isActive) => ({
     display: 'flex',
     alignItems: 'center',
-    gap: '1.125rem', // was 1.5rem
+    gap: '1.5rem',
     cursor: 'pointer',
-    padding: '1.125rem', // was 1.5rem
+    padding: '1.5rem',
     transition: 'all 0.3s ease',
     background: isActive ? 'linear-gradient(90deg, #ff6b35, #f7931e)' : 'transparent'
   }),
 
-  // Question number badges - UPDATED
+  // Question number badges
   questionNumber: (questionNum, isActive) => {
     const gradients = {
       1: 'linear-gradient(135deg, #ff6b35, #dc2626)',
@@ -95,24 +95,24 @@ export const faqPageStyles = {
     return {
       background: isActive ? '#000000' : gradients[questionNum],
       color: 'white',
-      padding: '0.75rem', // was 1rem
-      fontSize: '1.125rem', // was 1.5rem
+      padding: '1rem',
+      fontSize: '1.5rem',
       fontWeight: '700',
-      minWidth: '45px', // was 60px
-      height: '45px', // was 60px
+      minWidth: '60px',
+      height: '60px',
       textAlign: 'center',
-      borderRadius: '9px', // was 12px
+      borderRadius: '12px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       transition: 'all 0.3s ease',
-      boxShadow: '0 3px 12px rgba(0, 0, 0, 0.2)' // was 0 4px 16px
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
     };
   },
 
-  // Question title - UPDATED
+  // Question title
   questionTitle: (isActive) => ({
-    fontSize: '1.05rem', // was 1.4rem
+    fontSize: '1.4rem',
     color: isActive ? '#ffffff' : '#000000',
     margin: '0',
     fontWeight: '600',
@@ -120,23 +120,23 @@ export const faqPageStyles = {
     flex: 1
   }),
 
-  // Chevron icon - UPDATED (size will be handled in component)
+  // Chevron icon
   chevronIcon: (isActive) => ({
     color: isActive ? '#ffffff' : '#666666',
     transition: 'all 0.3s ease'
   }),
 
-  // Answer content - UPDATED
+  // Answer content
   answerContent: {
-    padding: '1.5rem 1.125rem 1.875rem 1.125rem', // was 2rem 1.5rem 2.5rem 1.5rem
-    fontSize: '0.825rem', // was 1.1rem
+    padding: '0 1.5rem 1.5rem 1.5rem',
+    fontSize: '1.1rem',
     lineHeight: '1.7',
     color: '#374151',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     animation: 'slideDown 0.3s ease-out'
   },
 
-  // Contact Form Section (unchanged)
+  // Contact Form Section
   contactFormSection: {
     background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
     color: 'white',
