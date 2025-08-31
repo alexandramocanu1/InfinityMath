@@ -328,7 +328,7 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
         const cancelUrl = `${window.location.origin}/services`;
         
         // Construiește URL-ul Stripe cu parametrii
-        const stripeUrl = `https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+        const stripeUrl = `https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
         
         window.location.href = stripeUrl;
         
@@ -1006,13 +1006,13 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                 backgroundColor: 'rgba(240, 249, 255, 0.9)',
                 border: `2px solid ${currentService?.color}`,
                 borderRadius: '12px',
-                padding: 'clamp(1.5rem, 4vw, 2rem)',
-                marginBottom: '2rem',
+                padding: 'clamp(1rem, 3vw, 2rem)',
+                marginBottom: 'clamp(1rem, 3vw, 2rem)',
                 backdropFilter: 'blur(5px)'
               }}>
                 <h4 style={{
-                  margin: '0 0 1.5rem 0',
-                  fontSize: 'clamp(1.1rem, 2.6vw, 1.2rem)',
+                  margin: '0 0 clamp(1rem, 2.5vw, 1.5rem) 0',
+                  fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
                   textAlign: 'center',
                   fontWeight: '600',
                   color: currentService?.color
@@ -1022,28 +1022,52 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                 
                 <div style={{
                   display: 'grid',
-                  gap: '1rem'
+                  gap: 'clamp(0.75rem, 2vw, 1rem)'
                 }}>
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '0.5rem'
+                    alignItems: 'flex-start',
+                    gap: '1rem',
+                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                   }}>
-                    <span style={{ color: '#6b7280' }}>Serviciu:</span>
-                    <span style={{ fontWeight: '600', color: '#1f2937' }}>{currentService?.name}</span>
+                    <span style={{ 
+                      color: '#6b7280',
+                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                      minWidth: 'fit-content'
+                    }}>
+                      Serviciu:
+                    </span>
+                    <span style={{ 
+                      fontWeight: '600', 
+                      color: '#1f2937',
+                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                      textAlign: window.innerWidth < 400 ? 'left' : 'right'
+                    }}>
+                      {currentService?.name}
+                    </span>
                   </div>
                   
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '0.5rem'
+                    alignItems: 'flex-start',
+                    gap: '1rem',
+                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                   }}>
-                    <span style={{ color: '#6b7280' }}>Program săptămânal:</span>
-                    <span style={{ fontWeight: '600', color: '#1f2937' }}>
+                    <span style={{ 
+                      color: '#6b7280',
+                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                      minWidth: 'fit-content'
+                    }}>
+                      Program săptămânal:
+                    </span>
+                    <span style={{ 
+                      fontWeight: '600', 
+                      color: '#1f2937',
+                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                      textAlign: window.innerWidth < 400 ? 'left' : 'right'
+                    }}>
                       {selectedSchedule?.zi} la {selectedSchedule?.ora}
                     </span>
                   </div>
@@ -1051,12 +1075,24 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '0.5rem'
+                    alignItems: 'flex-start',
+                    gap: '1rem',
+                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                   }}>
-                    <span style={{ color: '#6b7280' }}>Client:</span>
-                    <span style={{ fontWeight: '600', color: '#1f2937' }}>
+                    <span style={{ 
+                      color: '#6b7280',
+                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                      minWidth: 'fit-content'
+                    }}>
+                      Client:
+                    </span>
+                    <span style={{ 
+                      fontWeight: '600', 
+                      color: '#1f2937',
+                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                      textAlign: window.innerWidth < 400 ? 'left' : 'right',
+                      wordBreak: 'break-word'
+                    }}>
                       {currentUser && userData 
                         ? `${userData.prenumeElev} ${userData.numeElev}`
                         : clientData.name
@@ -1067,12 +1103,24 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '0.5rem'
+                      alignItems: 'flex-start',
+                      gap: '1rem',
+                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                     }}>
-                      <span style={{ color: '#6b7280' }}>Email:</span>
-                      <span style={{ fontWeight: '600', color: '#1f2937' }}>
+                      <span style={{ 
+                        color: '#6b7280',
+                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                        minWidth: 'fit-content'
+                      }}>
+                        Email:
+                      </span>
+                      <span style={{ 
+                        fontWeight: '600', 
+                        color: '#1f2937',
+                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                        textAlign: window.innerWidth < 400 ? 'left' : 'right',
+                        wordBreak: 'break-all'
+                      }}>
                         {currentUser && userData ? userData.email : clientData.email}
                       </span>
                     </div>
@@ -1080,23 +1128,46 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '0.5rem'
+                      alignItems: 'flex-start',
+                      gap: '1rem',
+                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                     }}>
-                      <span style={{ color: '#6b7280' }}>Telefon:</span>
-                      <span style={{ fontWeight: '600', color: '#1f2937' }}>
+                      <span style={{ 
+                        color: '#6b7280',
+                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                        minWidth: 'fit-content'
+                      }}>
+                        Telefon:
+                      </span>
+                      <span style={{ 
+                        fontWeight: '600', 
+                        color: '#1f2937',
+                        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                        textAlign: window.innerWidth < 400 ? 'left' : 'right'
+                      }}>
                         {currentUser && userData ? userData.telefon : clientData.phone}
                       </span>
                     </div>
                     
                     {clientData.message && (
-                      <div>
-                        <span style={{ color: '#6b7280' }}>Mesaj:</span>
+                      <div style={{
+                        display: 'grid',
+                        gap: '0.5rem'
+                      }}>
+                        <span style={{ 
+                          color: '#6b7280',
+                          fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)'
+                        }}>
+                          Mesaj:
+                        </span>
                         <div style={{
                           fontWeight: '600',
                           color: '#1f2937',
-                          marginTop: '0.5rem'
+                          fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                          padding: '0.5rem',
+                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                          borderRadius: '6px',
+                          wordBreak: 'break-word'
                         }}>
                           {clientData.message}
                         </div>
@@ -1106,15 +1177,15 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     <hr style={{
                       border: 'none',
                       borderTop: '1px solid rgba(229, 231, 235, 0.5)',
-                      margin: '0.5rem 0'
+                      margin: 'clamp(0.75rem, 2vw, 1rem) 0'
                     }} />
                     
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '0.5rem'
+                      gap: '1rem',
+                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
                     }}>
                       <span style={{
                         fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
@@ -1134,13 +1205,14 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                     
                     <div style={{
                       backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      padding: 'clamp(0.6rem, 1.5vw, 0.75rem)',
+                      padding: 'clamp(0.75rem, 2vw, 1rem)',
                       borderRadius: '8px',
                       fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
                       textAlign: 'center',
                       border: `1px solid ${currentService?.color}40`,
                       color: currentService?.color,
-                      backdropFilter: 'blur(5px)'
+                      backdropFilter: 'blur(5px)',
+                      lineHeight: '1.4'
                     }}>
                       📚 {currentUser && userData 
                         ? 'Înscrierea va fi confirmată instantaneu!' 
@@ -1153,12 +1225,12 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                 {/* Status pentru utilizatori autentificați vs neautentificați */}
                 <div style={{
                   backgroundColor: 'rgba(249, 250, 251, 0.9)',
-                  padding: 'clamp(0.8rem, 2vw, 1rem)',
+                  padding: 'clamp(0.75rem, 2vw, 1rem)',
                   borderRadius: '8px',
-                  marginBottom: '2rem',
+                  marginBottom: 'clamp(1rem, 3vw, 2rem)',
                   fontSize: 'clamp(0.75rem, 1.6vw, 0.8rem)',
                   color: '#6b7280',
-                  lineHeight: '1.4',
+                  lineHeight: '1.5',
                   border: '1px solid rgba(229, 231, 235, 0.5)',
                   backdropFilter: 'blur(5px)'
                 }}>
@@ -1173,7 +1245,7 @@ const ServicesPage = ({ selectedService, setSelectedService, setCurrentPage }) =
                   ) : (
                     <>
                       📞 <strong style={{ color: '#10b981' }}>Sesiune programată cu succes!</strong><br/>
-                      • Poți vedea programarile tale din pagina de profil<br/>
+                      • Poți vedea programarile tale din pagina de profil
                     </>
                   )}
                 </div>
