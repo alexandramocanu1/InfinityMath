@@ -110,13 +110,14 @@ useEffect(() => {
     const service = urlParams.get('service');
     // const paymentSuccess = urlParams.get('payment_success');
     const sessionId = urlParams.get('session_id');
-    
+        window.history.replaceState({}, document.title, window.location.pathname);
+
       if (service && sessionId && currentUser) {
       setSelectedService(service);
     handlePaymentSuccess(sessionId);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
-}, [currentUser]);
+}, [currentUser, userData]);
 
   useEffect(() => {
     loadSchedulesFromFirebase();
@@ -139,29 +140,47 @@ useEffect(() => {
 const handlePaymentSuccess = async (sessionId) => {
   try {
     setIsLoading(true);
+    console.log('handlePaymentSuccess called with sessionId:', sessionId);
     
     if (!currentUser) {
       console.error('Utilizator neautentificat');
+      alert('Eroare: Utilizator neautentificat');
       return;
     }
 
-    // Get the pending enrollment data
-    const pendingEnrollment = JSON.parse(sessionStorage.getItem('pendingEnrollment') || '{}');
-    
-    // If no pending enrollment, try to get service from URL
+    // Get data from multiple sources
     const urlParams = new URLSearchParams(window.location.search);
     const serviceFromUrl = urlParams.get('service');
+    const pendingEnrollment = JSON.parse(sessionStorage.getItem('pendingEnrollment') || '{}');
     
+    console.log('Payment data:', {
+      serviceFromUrl,
+      pendingEnrollment,
+      selectedService,
+      selectedSchedule,
+      selectedSubscription
+    });
+    
+    // Determine service type and schedule
     const serviceType = pendingEnrollment.selectedService || serviceFromUrl || selectedService;
     const scheduleData = pendingEnrollment.selectedSchedule || selectedSchedule;
+    const subscriptionType = pendingEnrollment.selectedSubscription || selectedSubscription || 'monthly';
     
-    if (!serviceType) {
-      console.error('Nu s-a găsit tipul de serviciu');
-      alert('Eroare: Nu s-a putut identifica serviciul. Te rog contactează suportul.');
+    if (!serviceType || !scheduleData) {
+      console.error('Date incomplete:', { serviceType, scheduleData });
+      alert('Eroare: Date incomplete pentru activarea abonamentului. Te rog contactează suportul.');
       return;
     }
     
     const userRef = doc(db, 'users', currentUser.uid);
+    
+    // Check if user document exists
+    const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      console.error('Documentul utilizatorului nu există');
+      alert('Eroare: Contul utilizatorului nu a fost găsit.');
+      return;
+    }
     
     const nextSessionDate = new Date();
     nextSessionDate.setDate(nextSessionDate.getDate() + 7); 
@@ -169,39 +188,50 @@ const handlePaymentSuccess = async (sessionId) => {
     const updateData = {
       'abonament.activ': true,
       'abonament.tip': serviceType,
-      'abonament.tipAbonament': selectedSubscription || 'monthly', // default fallback
+      'abonament.tipAbonament': subscriptionType,
       'abonament.dataInceperii': serverTimestamp(),
-      'abonament.ziuaSaptamanii': scheduleData?.zi || pendingEnrollment.selectedSchedule?.zi,
-      'abonament.oraCurs': scheduleData?.ora || pendingEnrollment.selectedSchedule?.ora,
+      'abonament.ziuaSaptamanii': scheduleData.zi,
+      'abonament.oraCurs': scheduleData.ora,
       'abonament.linkCurs': null, 
       'abonament.sessionId': sessionId,
       'abonament.dataUrmatoareiSedinte': nextSessionDate,
       'abonament.status': 'activ'
     };
     
-    console.log('Updating user with data:', updateData); // Add for debugging
+    console.log('Updating user document with:', updateData);
     
     await updateDoc(userRef, updateData);
+    console.log('User document updated successfully');
     
     // Update enrollment if exists
     if (pendingEnrollment.enrollmentId) {
+      console.log('Updating enrollment:', pendingEnrollment.enrollmentId);
       const enrollmentRef = doc(db, 'enrollments', pendingEnrollment.enrollmentId);
       await updateDoc(enrollmentRef, {
         status: 'completed',
         paymentSessionId: sessionId,
         completedAt: serverTimestamp()
       });
-      
-      sessionStorage.removeItem('pendingEnrollment');
+      console.log('Enrollment updated successfully');
     }
     
+    // Clear session storage
+    sessionStorage.removeItem('pendingEnrollment');
+    
+    // Force refresh user data
     await refreshUserData();
+    console.log('User data refreshed');
     
     setIsComplete(true);
     
+    // Redirect to profile after success
+    setTimeout(() => {
+      setCurrentPage('profile');
+    }, 3000);
+    
   } catch (error) {
-    console.error('Eroare la activarea abonamentului:', error);
-    alert('A apărut o eroare la activarea abonamentului. Te rog contactează suportul.');
+    console.error('Eroare detaliată la activarea abonamentului:', error);
+    alert(`Eroare la activarea abonamentului: ${error.message}. Te rog contactează suportul.`);
   } finally {
     setIsLoading(false);
   }
@@ -443,39 +473,58 @@ const handlePaymentSuccess = async (sessionId) => {
 const handleFinalSubmit = async () => {
   setIsLoading(true);
   
-  try {
+   try {
     if (currentUser && userData) {
       const currentService = services[selectedService];
       
-      // Save enrollment data BEFORE payment
-      const enrollmentData = {
+      if (!selectedService || !selectedSchedule || !selectedSubscription) {
+        alert('Eroare: Date incomplete. Te rog să selectezi toate opțiunile.');
+        setIsLoading(false);
+        return;
+      }
+      
+       const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
         subscriptionType: selectedSubscription, 
-        clientName: clientData.name,
-        clientEmail: clientData.email,
-        clientPhone: clientData.phone,
+        clientName: currentUser.displayName || `${userData.prenumeElev} ${userData.numeElev}`,
+        clientEmail: userData.email,
+        clientPhone: userData.telefon || clientData.phone,
         clientMessage: clientData.message,
         scheduleDay: selectedSchedule.zi,
         scheduleTime: selectedSchedule.ora,
         serviceName: currentService.name,
         servicePrice: currentService.subscriptions[selectedSubscription].price, 
         createdAt: serverTimestamp(),
-        status: 'pending'
+        status: 'pending',
+        userId: currentUser.uid
       };
-      
+
+       console.log('Saving enrollment data:', enrollmentData);
       const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
+      console.log('Enrollment saved with ID:', enrollmentRef.id);
       
-      // Save enrollment info for after payment
+      const pendingData = {
+        enrollmentId: enrollmentRef.id,
+        selectedService,
+        selectedSchedule,
+        selectedSubscription,
+        userId: currentUser.uid,
+        timestamp: Date.now()
+      };
+
+
+      sessionStorage.setItem('pendingEnrollment', JSON.stringify(pendingData));
+      console.log('Pending enrollment saved to sessionStorage:', pendingData);
+
       sessionStorage.setItem('pendingEnrollment', JSON.stringify({
         enrollmentId: enrollmentRef.id,
         selectedService,
         selectedSchedule,
-        selectedSubscription, // Add this line
+        selectedSubscription, 
         userId: currentUser.uid
       }));
       
-      // Fix the Stripe URL construction
       const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
       const baseUrl = window.location.origin;
       const successUrl = `${baseUrl}/services?payment_success=true&service=${selectedService}&session_id={CHECKOUT_SESSION_ID}`;
@@ -483,10 +532,11 @@ const handleFinalSubmit = async () => {
 
       const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
       
+      console.log('Redirecting to Stripe:', stripeUrl);
       window.location.href = stripeUrl;
       
     } else {
-      // For non-authenticated users
+      // non-authenticated users
       const currentService = services[selectedService];
       
       const enrollmentData = {
@@ -503,12 +553,15 @@ const handleFinalSubmit = async () => {
         createdAt: serverTimestamp(),
         status: 'pending'
       };
+
+            console.log('Non-authenticated user flow...');
+
       
       await addDoc(collection(db, 'enrollments'), enrollmentData);
       setIsComplete(true);
     }
     
-  } catch (error) {
+   } catch (error) {
     console.error('Eroare la salvarea programării:', error);
     alert('A apărut o eroare la salvarea programării. Te rog să încerci din nou.');
   }
