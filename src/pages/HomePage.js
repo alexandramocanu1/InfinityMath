@@ -897,10 +897,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
   </div>
 </section>
 
-{/* Contact Form Section - cu text alb/bej */}
+{/* Contact Form Section */}
 <section style={{
   background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
-  color: '#f5f5dc', // Culoare bej ca iconița
+  color: '#f5f5dc', 
   padding: '2.5rem 1rem', 
   position: 'relative',
   overflow: 'hidden'

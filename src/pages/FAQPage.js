@@ -12,10 +12,22 @@ const FAQPage = () => {
     mesaj: ''
   });
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+
   // State pentru EmailJS
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
+  
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   // Configurează EmailJS din variabilele de mediu
   const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
@@ -128,7 +140,8 @@ const FAQPage = () => {
     <div style={{ fontFamily: "'Poppins', sans-serif", minHeight: '100vh' }}>
       {/* FAQ Section */}
       <div style={{
-        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+        // background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+        backgroundImage: 'url(/images/bk_08.png)',
         padding: '3.75rem 0.75rem',
         position: 'relative',
         overflow: 'hidden'
@@ -271,328 +284,356 @@ const FAQPage = () => {
         </div>
       </div>
 
-      {/* Contact Form Section */}
-      <section style={{
-        background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
-        color: 'white',
-        padding: 'clamp(2rem, 5vw, 2.5rem) 1rem', 
-        position: 'relative',
-        overflow: 'hidden'
+{/* Contact Form Section */}
+<section style={{
+  background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
+  color: '#f5f5dc', 
+  padding: '2.5rem 1rem', 
+  position: 'relative',
+  overflow: 'hidden'
+}}>
+  <div style={{
+    position: 'absolute',
+    top: '20%',
+    right: '10%',
+    width: '100px', 
+    height: '100px',
+    background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(33px)' 
+  }}></div>
+  <div style={{
+    position: 'absolute',
+    bottom: '20%',
+    left: '10%',
+    width: '134px', 
+    height: '134px',
+    background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
+    borderRadius: '50%',
+    opacity: '0.1',
+    filter: 'blur(40px)' 
+  }}></div>
+
+  <div style={{ 
+    maxWidth: '536px', 
+    margin: '0 auto', 
+    position: 'relative', 
+    zIndex: 10 
+  }}>
+    <h2 style={{
+  fontSize: '2.35rem', 
+  fontWeight: '800',
+  marginBottom: '2rem', 
+  textAlign: 'center',
+  color: '#f5f5dc', 
+  textShadow: '2px 2px 4px rgba(0,0,0,0.5)', 
+  letterSpacing: '-0.02em'
+}}>
+  Când începem?
+</h2>
+    
+    {/* Success Message */}
+    {showSuccess && (
+      <div style={{
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        border: '2px solid #10b981',
+        color: '#10b981',
+        padding: '0.67rem', 
+        borderRadius: '8px', 
+        marginBottom: '1.34rem', 
+        fontSize: '0.64rem', 
+        fontWeight: '500',
+        textAlign: 'center',
+        backdropFilter: 'blur(5px)'
       }}>
-        <div style={{
-          position: 'absolute',
-          top: '20%',
-          right: '10%',
-          width: 'clamp(60px, 15vw, 100px)', 
-          height: 'clamp(60px, 15vw, 100px)',
-          background: 'linear-gradient(45deg, #ff6b35, #f7931e)',
-          borderRadius: '50%',
-          opacity: '0.1',
-          filter: 'blur(33px)' 
-        }}></div>
-        <div style={{
-          position: 'absolute',
-          bottom: '20%',
-          left: '10%',
-          width: 'clamp(80px, 20vw, 134px)', 
-          height: 'clamp(80px, 20vw, 134px)',
-          background: 'linear-gradient(45deg, #ffcd3c, #dc2626)',
-          borderRadius: '50%',
-          opacity: '0.1',
-          filter: 'blur(40px)' 
-        }}></div>
+        ✅ Mesajul a fost trimis cu succes!
+      </div>
+    )}
 
-        <div style={{ 
-          maxWidth: '536px', 
-          margin: '0 auto', 
-          position: 'relative', 
-          zIndex: 10,
-          padding: '0 1rem'
-        }}>
-          <h2 style={{
-            fontSize: 'clamp(1.75rem, 4vw, 2.35rem)', 
-            fontWeight: '800',
-            marginBottom: 'clamp(1.5rem, 3vw, 2rem)', 
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            letterSpacing: '-0.02em'
+    {/* Error Message */}
+    {error && (
+      <div style={{
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        border: '2px solid #ef4444',
+        color: '#ef4444',
+        padding: '0.67rem',
+        borderRadius: '8px',
+        marginBottom: '1.34rem',
+        fontSize: '0.64rem',
+        fontWeight: '500',
+        textAlign: 'center',
+        backdropFilter: 'blur(5px)'
+      }}>
+        ❌ {error}
+      </div>
+    )}
+    
+    <div style={{
+      display: 'grid',
+      gap: '1rem', 
+      backgroundColor: 'rgba(245, 245, 220, 0.05)', 
+      padding: '2rem', 
+      borderRadius: '13px', 
+      border: '1px solid rgba(245, 245, 220, 0.1)', 
+      backdropFilter: 'blur(10px)'
+    }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: isMobile ? '1rem' : '0.67rem'
+      }}>
+        <div>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '0.34rem', 
+            fontWeight: '600',
+            fontSize: '0.75rem', 
+            color: '#f5f5dc' 
           }}>
-            Când începem?
-          </h2>
-          
-          {/* Success Message */}
-          {showSuccess && (
-            <div style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              border: '2px solid #10b981',
-              color: '#10b981',
-              padding: 'clamp(0.5rem, 1.5vw, 0.67rem)', 
-              borderRadius: '8px', 
-              marginBottom: 'clamp(1rem, 2.5vw, 1.34rem)', 
-              fontSize: 'clamp(0.7rem, 1.4vw, 0.8rem)', 
-              fontWeight: '500',
-              textAlign: 'center',
-              backdropFilter: 'blur(5px)'
-            }}>
-              ✅ Mesajul a fost trimis cu succes!
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div style={{
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
-              border: '2px solid #ef4444',
-              color: '#ef4444',
-              padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
+            Nume *
+          </label>
+          <input
+            type="text"
+            value={contactForm.nume}
+            onChange={(e) => setContactForm({...contactForm, nume: e.target.value})}
+            required
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '0.67rem', 
               borderRadius: '8px',
-              marginBottom: 'clamp(1rem, 2.5vw, 1.34rem)',
-              fontSize: 'clamp(0.7rem, 1.4vw, 0.8rem)',
-              fontWeight: '500',
-              textAlign: 'center',
-              backdropFilter: 'blur(5px)'
-            }}>
-              ❌ {error}
-            </div>
-          )}
-          
-          <div style={{
-            display: 'grid',
-            gap: 'clamp(0.75rem, 2vw, 1rem)', 
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            padding: 'clamp(1.5rem, 3vw, 2rem)', 
-            borderRadius: '13px', 
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(10px)'
-          }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: window.innerWidth < 768 ? '1fr' : '1fr 1fr',
-              gap: 'clamp(0.5rem, 1.5vw, 0.67rem)' 
-            }}>
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)', 
-                  fontWeight: '600',
-                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)', 
-                  color: '#f7931e' 
-                }}>
-                  Nume *
-                </label>
-                <input
-                  type="text"
-                  value={contactForm.nume}
-                  onChange={(e) => setContactForm({...contactForm, nume: e.target.value})}
-                  required
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(0.5rem, 1.5vw, 0.67rem)', 
-                    borderRadius: '8px',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)', 
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    color: '#ffffff',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.3s ease',
-                    fontFamily: "'Poppins', sans-serif",
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  placeholder="Numele tău"
-                  onFocus={handleInputFocus}
-                  onBlur={handleInputBlur}
-                />
-              </div>
-              
-              <div>
-                <label style={{ 
-                  display: 'block', 
-                  marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
-                  fontWeight: '600',
-                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                  color: '#f7931e' 
-                }}>
-                  Prenume *
-                </label>
-                <input
-                  type="text"
-                  value={contactForm.prenume}
-                  onChange={(e) => setContactForm({...contactForm, prenume: e.target.value})}
-                  required
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
-                    borderRadius: '8px',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    color: '#ffffff',
-                    boxSizing: 'border-box',
-                    transition: 'all 0.3s ease',
-                    fontFamily: "'Poppins', sans-serif",
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  placeholder="Prenumele tău"
-                  onFocus={handleInputFocus}
-                  onBlur={handleInputBlur}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
-                fontWeight: '600',
-                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                color: '#f7931e' 
-              }}>
-                Email *
-              </label>
-              <input
-                type="email"
-                value={contactForm.email}
-                onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                required
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
-                  borderRadius: '8px',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.3s ease',
-                  fontFamily: "'Poppins', sans-serif",
-                  opacity: isLoading ? 0.7 : 1
-                }}
-                placeholder="email@exemplu.ro"
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              />
-            </div>
-            
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
-                fontWeight: '600',
-                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                color: '#f7931e' 
-              }}>
-                Selectează clasa *
-              </label>
-              <select
-                value={contactForm.optiune}
-                onChange={(e) => setContactForm({...contactForm, optiune: e.target.value})}
-                required
-                disabled={isLoading}
-                style={{
-                  width: '100%',
-                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
-                  borderRadius: '8px',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.3s ease',
-                  fontFamily: "'Poppins', sans-serif",
-                  opacity: isLoading ? 0.7 : 1
-                }}
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              >
-                <option value="" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Alege clasa</option>
-                <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 7-a</option>
-                <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 8-a</option>
-              </select>
-            </div>
-            
-            <div>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: 'clamp(0.25rem, 0.7vw, 0.34rem)',
-                fontWeight: '600',
-                fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                color: '#f7931e' 
-              }}>
-                Mesaj *
-              </label>
-              <textarea
-                value={contactForm.mesaj}
-                onChange={(e) => setContactForm({...contactForm, mesaj: e.target.value})}
-                required
-                disabled={isLoading}
-                rows={3} 
-                style={{
-                  width: '100%',
-                  padding: 'clamp(0.5rem, 1.5vw, 0.67rem)',
-                  borderRadius: '8px',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  fontSize: 'clamp(0.7rem, 1.6vw, 0.75rem)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  color: '#ffffff',
-                  resize: 'vertical',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.3s ease',
-                  fontFamily: "'Poppins', sans-serif",
-                  opacity: isLoading ? 0.7 : 1
-                }}
-                placeholder="Descrie-mi pe scurt nevoile tale și cum te pot ajuta..."
-                onFocus={handleInputFocus}
-                onBlur={handleInputBlur}
-              />
-            </div>
-            
-            <button
-              onClick={handleContactSubmit}
-              disabled={isLoading}
-              style={{
-                background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
-                color: 'white',
-                border: 'none',
-                padding: 'clamp(0.6rem, 1.8vw, 0.8rem) clamp(1rem, 2.5vw, 1.34rem)', 
-                borderRadius: '8px',
-                fontSize: 'clamp(0.65rem, 1.5vw, 0.74rem)', 
-                fontWeight: '600',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 'clamp(0.25rem, 0.7vw, 0.34rem)',
-                marginTop: 'clamp(0.5rem, 1.3vw, 0.67rem)',
-                boxShadow: isLoading ? 'none' : '0 5px 21px rgba(255, 107, 53, 0.3)', 
-                fontFamily: "'Poppins', sans-serif",
-                opacity: isLoading ? 0.7 : 1
-              }}
-              onMouseOver={(e) => {
-                if (!isLoading) {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 8px 27px rgba(255, 107, 53, 0.4)';
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!isLoading) {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 5px 21px rgba(255, 107, 53, 0.3)';
-                }
-              }}
-            >
-              <Send style={{ width: 'clamp(0.5rem, 1.3vw, 0.67rem)', height: 'clamp(0.5rem, 1.3vw, 0.67rem)' }} />
-              {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
-            </button>
-          </div>
+              border: '2px solid rgba(245, 245, 220, 0.15)', // Border bej
+              fontSize: '0.75rem', 
+              backgroundColor: 'rgba(245, 245, 220, 0.05)', // Background bej foarte transparent
+              color: '#f5f5dc', // Text bej
+              boxSizing: 'border-box',
+              transition: 'all 0.3s ease',
+              fontFamily: "'Poppins', sans-serif",
+              opacity: isLoading ? 0.7 : 1
+            }}
+            placeholder="Numele tău"
+            onFocus={(e) => {
+              e.target.style.borderColor = '#f5f5dc'; // Focus border bej
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
+            }}
+          />
         </div>
-      </section>
+        
+        <div>
+          <label style={{ 
+            display: 'block', 
+            marginBottom: '0.34rem',
+            fontWeight: '600',
+            fontSize: '0.75rem',
+            color: '#f5f5dc' // Culoare bej pentru labels
+          }}>
+            Prenume *
+          </label>
+          <input
+            type="text"
+            value={contactForm.prenume}
+            onChange={(e) => setContactForm({...contactForm, prenume: e.target.value})}
+            required
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '0.67rem',
+              borderRadius: '8px',
+              border: '2px solid rgba(245, 245, 220, 0.15)',
+              fontSize: '0.75rem',
+              backgroundColor: 'rgba(245, 245, 220, 0.05)',
+              color: '#f5f5dc',
+              boxSizing: 'border-box',
+              transition: 'all 0.3s ease',
+              fontFamily: "'Poppins', sans-serif",
+              opacity: isLoading ? 0.7 : 1
+            }}
+            placeholder="Prenumele tău"
+            onFocus={(e) => {
+              e.target.style.borderColor = '#f5f5dc';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
+            }}
+          />
+        </div>
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f5f5dc'
+        }}>
+          Email *
+        </label>
+        <input
+          type="email"
+          value={contactForm.email}
+          onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+          required
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          placeholder="email@exemplu.ro"
+          onFocus={(e) => {
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
+          }}
+        />
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f5f5dc'
+        }}>
+          Selectează clasa *
+        </label>
+        <select
+          value={contactForm.optiune}
+          onChange={(e) => setContactForm({...contactForm, optiune: e.target.value})}
+          required
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
+          }}
+        >
+          <option value="" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Alege clasa</option>
+          <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Clasa a 7-a</option>
+          <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Clasa a 8-a</option>
+        </select>
+      </div>
+      
+      <div>
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '0.34rem',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          color: '#f5f5dc'
+        }}>
+          Mesaj
+        </label>
+        <textarea
+          value={contactForm.mesaj}
+          onChange={(e) => setContactForm({...contactForm, mesaj: e.target.value})}
+          disabled={isLoading}
+          rows={3} 
+          style={{
+            width: '100%',
+            padding: '0.67rem',
+            borderRadius: '8px',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
+            fontSize: '0.75rem',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
+            resize: 'vertical',
+            boxSizing: 'border-box',
+            transition: 'all 0.3s ease',
+            fontFamily: "'Poppins', sans-serif",
+            opacity: isLoading ? 0.7 : 1
+          }}
+          placeholder="Întrebări despre lecții? Trimiteți un mesaj..."
+          onFocus={(e) => {
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
+          }}
+        />
+      </div>
+      
+      <button
+        onClick={handleContactSubmit}
+        disabled={isLoading}
+        style={{
+          background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #f5f5dc, #ffffff)', // Gradient bej-alb
+          color: '#1f1f1f', // Text întunecat pe fundal deschis
+          border: 'none',
+          padding: '0.8rem 1.34rem', 
+          borderRadius: '8px',
+          fontSize: '0.74rem', 
+          fontWeight: '600',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.34rem',
+          marginTop: '0.67rem',
+          boxShadow: isLoading ? 'none' : '0 5px 21px rgba(245, 245, 220, 0.3)',
+          fontFamily: "'Poppins', sans-serif",
+          opacity: isLoading ? 0.7 : 1
+        }}
+        onMouseOver={(e) => {
+          if (!isLoading) {
+            e.target.style.transform = 'translateY(-1px)';
+            e.target.style.boxShadow = '0 8px 27px rgba(245, 245, 220, 0.4)';
+            e.target.style.background = 'linear-gradient(135deg, #ffffff, #f5f5dc)'; // Reverse gradient pe hover
+          }
+        }}
+        onMouseOut={(e) => {
+          if (!isLoading) {
+            e.target.style.transform = 'translateY(0)';
+            e.target.style.boxShadow = '0 5px 21px rgba(245, 245, 220, 0.3)';
+            e.target.style.background = 'linear-gradient(135deg, #f5f5dc, #ffffff)';
+          }
+        }}
+      >
+        <Send style={{ width: '0.67rem', height: '0.67rem', color: '#1f1f1f' }} />
+        {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
+      </button>
+    </div>
+  </div>
+</section>
 
       <style>
         {`
