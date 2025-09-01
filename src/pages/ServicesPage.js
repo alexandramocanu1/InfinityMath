@@ -612,11 +612,14 @@ const handleFinalSubmit = async () => {
     if (hasActiveSubscription && activeCourse) {
     return (
       <div style={{
-        fontFamily: "'Poppins', sans-serif",
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-        padding: '2rem 1rem'
-      }}>
+  fontFamily: "'Poppins', sans-serif",
+  minHeight: '100vh',
+  backgroundImage: 'url(/images/bk_11.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  padding: '2rem 1rem'
+}}>
         {/* Background decorations */}
         <div style={{
           position: 'absolute',
@@ -659,7 +662,7 @@ const handleFinalSubmit = async () => {
               fontWeight: '800',
               color: '#000000',
               marginBottom: '1rem',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
+              textShadow: '2px 2px 4px rgba(255,255,255,0.8)'
             }}>
               Cursul Tău
             </h1>
