@@ -2,6 +2,18 @@ import React from 'react';
 import { FileText, ExternalLink } from 'lucide-react';
 import NTPLogo from 'ntp-logo-react';
 
+import { Instagram } from 'lucide-react';
+
+const TikTokIcon = ({ style }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    style={style}
+    fill="currentColor"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+  </svg>
+);
+
 const Footer = () => {
   const documents = [
     {
@@ -95,7 +107,7 @@ const Footer = () => {
     logoSection: {
       display: 'flex',
       alignItems: 'center',
-      gap: '1rem',
+      gap: '1.5rem',
       flexWrap: 'wrap'
     },
     anpcImage: {
@@ -108,7 +120,19 @@ const Footer = () => {
       height: '35px',
       display: 'flex',
       alignItems: 'center'
-    }
+    },
+    socialLinks: {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '1rem'
+},
+socialLink: {
+  display: 'flex',
+  alignItems: 'center',
+  color: '#9ca3af',
+  textDecoration: 'none',
+  transition: 'color 0.2s ease, transform 0.2s ease'
+}
   };
 
   const handleDocumentClick = (fileName) => {
@@ -174,37 +198,74 @@ const Footer = () => {
         <div style={footerStyles.bottom}>
                     
           <div style={footerStyles.logoSection}>
-            {/* Logo-uri ANPC cu linkuri */}
-            <a 
-              href="https://anpc.ro/ce-este-sal/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <img 
-                src="/images/ANPC.jpeg" 
-                alt="ANPC - Soluționarea Alternativă a Litigiilor" 
-                style={footerStyles.anpcImage}
-                onMouseOver={(e) => e.target.style.opacity = '1'}
-                onMouseOut={(e) => e.target.style.opacity = '0.8'}
-              />
-            </a>
-            
-            <a 
-              href="https://ec.europa.eu/consumers/odr" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <img 
-                src="/images/ANPC2.jpeg" 
-                alt="ANPC - Soluționarea Online a Litigiilor" 
-                style={footerStyles.anpcImage}
-                onMouseOver={(e) => e.target.style.opacity = '1'}
-                onMouseOut={(e) => e.target.style.opacity = '0.8'}
-              />
-            </a>
-          </div>
+  {/* Logo-uri ANPC cu linkuri */}
+  <a 
+    href="https://anpc.ro/ce-este-sal/" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    style={{ display: 'flex', alignItems: 'center' }}
+  >
+    <img 
+      src="/images/ANPC.jpeg" 
+      alt="ANPC - Soluționarea Alternativă a Litigiilor" 
+      style={footerStyles.anpcImage}
+      onMouseOver={(e) => e.target.style.opacity = '1'}
+      onMouseOut={(e) => e.target.style.opacity = '0.8'}
+    />
+  </a>
+  
+  <a 
+    href="https://ec.europa.eu/consumers/odr" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    style={{ display: 'flex', alignItems: 'center' }}
+  >
+    <img 
+      src="/images/ANPC2.jpeg" 
+      alt="ANPC - Soluționarea Online a Litigiilor" 
+      style={footerStyles.anpcImage}
+      onMouseOver={(e) => e.target.style.opacity = '1'}
+      onMouseOut={(e) => e.target.style.opacity = '0.8'}
+    />
+  </a>
+
+  {/* Social Media Links */}
+  <div style={footerStyles.socialLinks}>
+    <a 
+      href="https://www.instagram.com/_infinity_math/?hl=en"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={footerStyles.socialLink}
+      onMouseOver={(e) => {
+        e.currentTarget.style.color = '#E4405F'; // Instagram color
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.color = '#9ca3af';
+        e.currentTarget.style.transform = 'translateY(0px)';
+      }}
+    >
+      <Instagram style={{ width: '1.5rem', height: '1.5rem' }} />
+    </a>
+    
+    <a 
+      href="https://www.tiktok.com/@_infinity_math?lang=en"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={footerStyles.socialLink}
+      onMouseOver={(e) => {
+        e.currentTarget.style.color = '#ff0050'; // TikTok color
+        e.currentTarget.style.transform = 'translateY(-2px)';
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.color = '#9ca3af';
+        e.currentTarget.style.transform = 'translateY(0px)';
+      }}
+    >
+      <TikTokIcon style={{ width: '1.5rem', height: '1.5rem' }} />
+    </a>
+  </div>
+</div>
         </div>
       </div>
     </footer>
