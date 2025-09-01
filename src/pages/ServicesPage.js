@@ -16,8 +16,8 @@ const services = {
     duration: '1h 30 minute', 
     color: '#f59e0b',
     subscriptions: {
-      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02' },
-      quarterly: { name: '3 Luni', price: 700, stripeUrl: 'https://buy.stripe.com/9B6fZhems6RvaiJf6V5AQ03' }
+      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' },
+      quarterly: { name: '3 Luni', price: 600, stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' }
     }
   },
   clasa7: { 
@@ -25,8 +25,8 @@ const services = {
     duration: '1h 30 minute', 
     color: '#ea580c',
     subscriptions: {
-      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/cNi14na6ccbP4Yp6Ap5AQ02' },
-      quarterly: { name: '3 Luni', price: 700, stripeUrl: 'https://buy.stripe.com/9B6fZhems6RvaiJf6V5AQ03' }
+      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' },
+      quarterly: { name: '3 Luni', price: 600, stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' }
     }
   }
 };
