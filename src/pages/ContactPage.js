@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Phone, Send, MapPin, Clock } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
+import { contactPageStyles } from './ContactPageStyles';
+
+
 // Custom hook pentru aplicarea stilurilor responsive
 const useResponsiveStyles = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -36,312 +39,6 @@ const useResponsiveStyles = () => {
   };
 
   return { windowWidth, getResponsiveStyle };
-};
-
-// Stilurile responsive
-const contactPageStyles = {
-  container: {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-    padding: '6rem 1rem 4rem',
-    position: 'relative',
-    overflow: 'hidden',
-    '@media (max-width: 768px)': {
-      padding: '4rem 1rem 2rem'
-    }
-  },
-
-  content: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    position: 'relative',
-    zIndex: 10
-  },
-
-  header: {
-    textAlign: 'center',
-    marginBottom: '4rem',
-    '@media (max-width: 768px)': {
-      marginBottom: '2rem'
-    }
-  },
-
-  title: {
-    fontSize: '4rem',
-    fontWeight: '800',
-    color: '#000000',
-    marginBottom: '1rem',
-    textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
-    letterSpacing: '-0.02em',
-    '@media (max-width: 768px)': {
-      fontSize: '2.5rem'
-    },
-    '@media (max-width: 480px)': {
-      fontSize: '2rem'
-    }
-  },
-
-  subtitle: {
-    fontSize: '1.2rem',
-    color: '#000000',
-    maxWidth: '600px',
-    margin: '0 auto',
-    fontWeight: '500',
-    opacity: '0.8',
-    '@media (max-width: 768px)': {
-      fontSize: '1rem',
-      padding: '0 1rem'
-    }
-  },
-
-  mainGrid: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '3rem',
-    alignItems: 'start',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-      gap: '2rem'
-    }
-  },
-
-  contactInfoCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    padding: '2.5rem',
-    borderRadius: '16px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
-    '@media (max-width: 768px)': {
-      padding: '1.5rem'
-    }
-  },
-
-  contactFormCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    padding: '2.5rem',
-    borderRadius: '16px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
-    '@media (max-width: 768px)': {
-      padding: '1.5rem'
-    }
-  },
-
-  cardTitle: {
-    fontSize: '1.8rem',
-    fontWeight: '600',
-    marginBottom: '2rem',
-    color: '#000000',
-    '@media (max-width: 768px)': {
-      fontSize: '1.5rem',
-      marginBottom: '1.5rem'
-    }
-  },
-
-  contactItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    marginBottom: '2rem',
-    padding: '1.5rem',
-    backgroundColor: 'rgba(248, 250, 252, 0.8)',
-    borderRadius: '12px',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      padding: '1rem',
-      marginBottom: '1.5rem'
-    }
-  },
-
-  contactIcon: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-    flexShrink: 0,
-    '@media (max-width: 768px)': {
-      width: '40px',
-      height: '40px'
-    }
-  },
-
-  contactItemTitle: {
-    fontSize: '1.1rem',
-    fontWeight: '600',
-    margin: '0 0 0.25rem 0',
-    color: '#000000',
-    '@media (max-width: 768px)': {
-      fontSize: '1rem'
-    }
-  },
-
-  contactLink: {
-    color: '#2563eb',
-    textDecoration: 'none',
-    fontSize: '1rem',
-    fontWeight: '500',
-    wordBreak: 'break-all',
-    '@media (max-width: 768px)': {
-      fontSize: '0.9rem'
-    }
-  },
-
-  contactText: {
-    color: '#374151',
-    margin: '0',
-    fontSize: '1rem',
-    '@media (max-width: 768px)': {
-      fontSize: '0.9rem'
-    }
-  },
-
-  successMessage: {
-    backgroundColor: 'rgba(240, 249, 255, 0.9)',
-    border: '2px solid #10b981',
-    color: '#065f46',
-    padding: '1rem',
-    borderRadius: '12px',
-    marginBottom: '1.5rem',
-    fontSize: '0.95rem',
-    fontWeight: '500',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      fontSize: '0.9rem',
-      padding: '0.75rem'
-    }
-  },
-
-  errorMessage: {
-    backgroundColor: 'rgba(254, 242, 242, 0.9)',
-    border: '2px solid #ef4444',
-    color: '#dc2626',
-    padding: '1rem',
-    borderRadius: '12px',
-    marginBottom: '1.5rem',
-    fontSize: '0.95rem',
-    fontWeight: '500',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      fontSize: '0.9rem',
-      padding: '0.75rem'
-    }
-  },
-
-  form: {
-    display: 'grid',
-    gap: '1.5rem',
-    '@media (max-width: 768px)': {
-      gap: '1rem'
-    }
-  },
-
-  formRow: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr',
-      gap: '1rem'
-    }
-  },
-
-  label: {
-    display: 'block',
-    marginBottom: '0.5rem',
-    fontWeight: '600',
-    color: '#374151',
-    '@media (max-width: 768px)': {
-      fontSize: '0.9rem'
-    }
-  },
-
-  input: {
-    width: '100%',
-    padding: '1rem',
-    borderRadius: '12px',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    fontSize: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    color: '#000000',
-    boxSizing: 'border-box',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      padding: '0.75rem',
-      fontSize: '16px'
-    }
-  },
-
-  select: {
-    width: '100%',
-    padding: '1rem',
-    borderRadius: '12px',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    fontSize: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    color: '#000000',
-    boxSizing: 'border-box',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      padding: '0.75rem',
-      fontSize: '16px'
-    }
-  },
-
-  textarea: {
-    width: '100%',
-    padding: '1rem',
-    borderRadius: '12px',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
-    fontSize: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    color: '#000000',
-    resize: 'vertical',
-    boxSizing: 'border-box',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(5px)',
-    '@media (max-width: 768px)': {
-      padding: '0.75rem',
-      fontSize: '16px',
-      minHeight: '120px'
-    }
-  },
-
-  submitButton: {
-    base: {
-      background: 'linear-gradient(135deg, #ff6b35, #f7931e)',
-      color: 'white',
-      border: 'none',
-      padding: '1.2rem 2rem',
-      borderRadius: '12px',
-      fontSize: '1.1rem',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0.5rem',
-      marginTop: '1rem',
-      boxShadow: '0 8px 32px rgba(255, 107, 53, 0.3)',
-      '@media (max-width: 768px)': {
-        padding: '1rem 1.5rem',
-        fontSize: '1rem'
-      }
-    },
-    hover: {
-      background: 'linear-gradient(135deg, #e55a2b, #e6851a)',
-      transform: 'translateY(-2px)',
-      boxShadow: '0 12px 40px rgba(255, 107, 53, 0.4)'
-    }
-  }
 };
 
 const ContactPage = () => {
@@ -482,12 +179,12 @@ const ContactPage = () => {
               <div>
                 <h3 style={getResponsiveStyle(contactPageStyles.contactItemTitle)}>Email</h3>
                 <a 
-                  href="mailto:raduordean@gmail.com"
+                  href="mailto:infinitymath@gmail.com"
                   style={getResponsiveStyle(contactPageStyles.contactLink)}
                   onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
                   onMouseOut={(e) => e.target.style.textDecoration = 'none'}
                 >
-                  raduordean@gmail.com
+                  infinitymath@gmail.com
                 </a>
               </div>
             </div>
@@ -527,7 +224,7 @@ const ContactPage = () => {
               <div>
                 <h3 style={getResponsiveStyle(contactPageStyles.contactItemTitle)}>Program</h3>
                 <p style={getResponsiveStyle(contactPageStyles.contactText)}>
-                  Luni - Duminică: 08:00 - 22:00
+                  Luni - Duminică: 09:00 - 21:00
                 </p>
               </div>
             </div>
