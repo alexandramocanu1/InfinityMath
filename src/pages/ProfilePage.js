@@ -13,7 +13,7 @@ import {
 } from '../firebase/services';
 import { doc, setDoc, serverTimestamp, collection, addDoc, getDocs, updateDoc, query, where, getDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
-import { profilePageStyles } from './ProfilePageStyles';
+import { getProfilePageStyles } from './ProfilePageStyles';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 const ProfilePage = ({ setCurrentPage }) => {
@@ -46,6 +46,21 @@ const ProfilePage = ({ setCurrentPage }) => {
   
   // Pentru elevi - cursurile la care sunt înscriși
   const [studentEnrollments, setStudentEnrollments] = useState([]);
+
+  // Add this after your other useState hooks
+const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const checkIsMobile = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+
+  checkIsMobile();
+  window.addEventListener('resize', checkIsMobile);
+  return () => window.removeEventListener('resize', checkIsMobile);
+}, []);
+
+const styles = getProfilePageStyles(isMobile);
 
   // Google Login
   const handleGoogleAuth = async () => {
@@ -440,48 +455,48 @@ const ProfilePage = ({ setCurrentPage }) => {
   // Cazul 1: Nu există utilizator autentificat
   if (!currentUser) {
     return (
-      <div style={profilePageStyles.authContainer}>
-        <div style={profilePageStyles.authCard}>
-          <h1 style={profilePageStyles.authTitle}>
+      <div style={styles.authContainer}>
+        <div style={styles.authCard}>
+          <h1 style={styles.authTitle}>
             {showRegister ? 'Înregistrare' : 'Autentificare'}
           </h1>
 
           {error && (
-            <div style={profilePageStyles.errorMessage}>
+            <div style={styles.errorMessage}>
               {error}
             </div>
           )}
 
           {!showRegister ? (
             <>
-              <form onSubmit={handleLogin} style={profilePageStyles.form}>
+              <form onSubmit={handleLogin} style={styles.form}>
                 <div>
-                  <label style={profilePageStyles.label}>Email</label>
-                  <div style={profilePageStyles.inputWrapper}>
-                    <Mail style={profilePageStyles.inputIcon} />
+                  <label style={styles.label}>Email</label>
+                  <div style={styles.inputWrapper}>
+                    <Mail style={styles.inputIcon} />
                     <input
                       type="email"
                       value={loginForm.email}
                       onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
                       required
                       disabled={loading}
-                      style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
+                      style={{...styles.input, ...styles.inputWithIcon}}
                       placeholder="email@exemplu.ro"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={profilePageStyles.label}>Parolă</label>
-                  <div style={profilePageStyles.inputWrapper}>
-                    <Lock style={profilePageStyles.inputIcon} />
+                  <label style={styles.label}>Parolă</label>
+                  <div style={styles.inputWrapper}>
+                    <Lock style={styles.inputIcon} />
                     <input
                       type="password"
                       value={loginForm.password}
                       onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
                       required
                       disabled={loading}
-                      style={{...profilePageStyles.input, ...profilePageStyles.inputWithIcon}}
+                      style={{...styles.input, ...styles.inputWithIcon}}
                       placeholder="••••••••"
                     />
                   </div>
@@ -491,7 +506,7 @@ const ProfilePage = ({ setCurrentPage }) => {
                   type="submit"
                   disabled={loading}
                   style={{
-                    ...profilePageStyles.submitButton,
+                    ...styles.submitButton,
                     backgroundColor: loading ? '#9ca3af' : '#2563eb'
                   }}
                 >
@@ -557,82 +572,82 @@ const ProfilePage = ({ setCurrentPage }) => {
             </>
           ) : (
             <>
-              <form onSubmit={handleRegister} style={profilePageStyles.form}>
-                <div style={profilePageStyles.formRow}>
+              <form onSubmit={handleRegister} style={styles.form}>
+                <div style={styles.formRow}>
                   <div>
-                    <label style={profilePageStyles.label}>Nume elev</label>
+                    <label style={styles.label}>Nume elev</label>
                     <input
                       type="text"
                       value={registerForm.numeElev}
                       onChange={(e) => setRegisterForm({...registerForm, numeElev: e.target.value})}
                       required
                       disabled={loading}
-                      style={profilePageStyles.input}
+                      style={styles.input}
                       placeholder="Nume elev"
                     />
                   </div>
                   <div>
-                    <label style={profilePageStyles.label}>Prenume elev</label>
+                    <label style={styles.label}>Prenume elev</label>
                     <input
                       type="text"
                       value={registerForm.prenumeElev}
                       onChange={(e) => setRegisterForm({...registerForm, prenumeElev: e.target.value})}
                       required
                       disabled={loading}
-                      style={profilePageStyles.input}
+                      style={styles.input}
                       placeholder="    Prenume elev"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={profilePageStyles.label}>Email</label>
+                  <label style={styles.label}>Email</label>
                   <input
                     type="email"
                     value={registerForm.email}
                     onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
                     required
                     disabled={loading}
-                    style={profilePageStyles.input}
+                    style={styles.input}
                     placeholder="email@exemplu.ro"
                   />
                 </div>
 
                 <div>
-                  <label style={profilePageStyles.label}>Telefon</label>
+                  <label style={styles.label}>Telefon</label>
                   <input
                     type="tel"
                     value={registerForm.telefon}
                     onChange={(e) => setRegisterForm({...registerForm, telefon: e.target.value})}
                     required
                     disabled={loading}
-                    style={profilePageStyles.input}
+                    style={styles.input}
                     placeholder="+40 123 456 789"
                   />
                 </div>
 
-                <div style={profilePageStyles.formRow}>
+                <div style={styles.formRow}>
                   <div>
-                    <label style={profilePageStyles.label}>Parolă</label>
+                    <label style={styles.label}>Parolă</label>
                     <input
                       type="password"
                       value={registerForm.password}
                       onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
                       required
                       disabled={loading}
-                      style={profilePageStyles.input}
+                      style={styles.input}
                       placeholder="••••••••"
                     />
                   </div>
                   <div>
-                    <label style={profilePageStyles.label}>Confirmă parola</label>
+                    <label style={styles.label}>Confirmă parola</label>
                     <input
                       type="password"
                       value={registerForm.confirmPassword}
                       onChange={(e) => setRegisterForm({...registerForm, confirmPassword: e.target.value})}
                       required
                       disabled={loading}
-                      style={profilePageStyles.input}
+                      style={styles.input}
                       placeholder="••••••••"
                     />
                   </div>
@@ -642,7 +657,7 @@ const ProfilePage = ({ setCurrentPage }) => {
                   type="submit"
                   disabled={loading}
                   style={{
-                    ...profilePageStyles.submitButton,
+                    ...styles.submitButton,
                     backgroundColor: loading ? '#9ca3af' : '#10b981'
                   }}
                 >
@@ -708,11 +723,11 @@ const ProfilePage = ({ setCurrentPage }) => {
             </>
           )}
 
-          <div style={profilePageStyles.authSwitch}>
+          <div style={styles.authSwitch}>
             <button
               onClick={() => setShowRegister(!showRegister)}
               disabled={loading}
-              style={profilePageStyles.authSwitchButton}
+              style={styles.authSwitchButton}
             >
               {showRegister ? 'Am deja cont - Autentificare' : 'Nu am cont - Înregistrare'}
             </button>
@@ -725,24 +740,24 @@ const ProfilePage = ({ setCurrentPage }) => {
   // Cazul 2: Utilizator autentificat dar fără userData (cu auto-fix)
   if (currentUser && !userData) {
     return (
-      <div style={profilePageStyles.loadingContainer}>
-        <div style={profilePageStyles.loadingCard}>
-          <style>{profilePageStyles.spinnerAnimation}</style>
+      <div style={styles.loadingContainer}>
+        <div style={styles.loadingCard}>
+          <style>{styles.spinnerAnimation}</style>
           
-          <div style={profilePageStyles.spinner}></div>
+          <div style={styles.spinner}></div>
           
-          <h2 style={profilePageStyles.loadingTitle}>
+          <h2 style={styles.loadingTitle}>
             {fixingDocument ? '🔧 Se repară profilul...' : '⏳ Se încarcă profilul...'}
           </h2>
           
-          <p style={profilePageStyles.loadingText}>
+          <p style={styles.loadingText}>
             {fixingDocument 
               ? 'Creez documentul lipsă în baza de date. Vă rog să așteptați...'
               : 'Încărc datele profilului dumneavoastră. Dacă durează prea mult, voi repara automat problema.'
             }
           </p>
 
-          <div style={profilePageStyles.statusBox}>
+          <div style={styles.statusBox}>
             <strong>Status:</strong><br/>
             User ID: {currentUser.uid}<br/>
             Email: {currentUser.email}<br/>
@@ -750,10 +765,10 @@ const ProfilePage = ({ setCurrentPage }) => {
           </div>
           
           {!fixingDocument && (
-            <div style={profilePageStyles.actionButtons}>
+            <div style={styles.actionButtons}>
               <button 
                 onClick={handleManualFix}
-                style={profilePageStyles.fixButton}
+                style={styles.fixButton}
               >
                 <RefreshCw style={{ width: '1rem', height: '1rem' }} />
                 🔧 Repară acum
@@ -761,7 +776,7 @@ const ProfilePage = ({ setCurrentPage }) => {
               
               <button
                 onClick={handleLogout}
-                style={profilePageStyles.logoutButton}
+                style={styles.logoutButton}
               >
                 Deconectare
               </button>
@@ -774,28 +789,28 @@ const ProfilePage = ({ setCurrentPage }) => {
 
   // Cazul 3: Tot OK - afișează profilul normal
   return (
-    <div style={profilePageStyles.mainContainer}>
-      <style>{profilePageStyles.spinnerAnimation}</style>
+    <div style={styles.mainContainer}>
+      <style>{styles.spinnerAnimation}</style>
       
-      <div style={profilePageStyles.content}>
+      <div style={styles.content}>
         {/* Header */}
-        <div style={profilePageStyles.header}>
-          <div style={profilePageStyles.userInfo}>
-            <div style={profilePageStyles.avatar}>
+        <div style={styles.header}>
+          <div style={styles.userInfo}>
+            <div style={styles.avatar}>
               <User style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
             </div>
             <div>
-              <h1 style={profilePageStyles.userName}>
+              <h1 style={styles.userName}>
                 {userData.prenumeElev} {userData.numeElev}
               </h1>
-              <p style={profilePageStyles.userType}>
+              <p style={styles.userType}>
                 {userData.tipCont === 'admin' ? 'Administrator' : 'Elev'}
               </p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            style={profilePageStyles.headerLogoutButton}
+            style={styles.headerLogoutButton}
           >
             <LogOut style={{ width: '1rem', height: '1rem' }} />
             Deconectare
@@ -804,23 +819,23 @@ const ProfilePage = ({ setCurrentPage }) => {
 
         {/* Content pentru admin */}
         {userData.tipCont === 'admin' && (
-          <div style={profilePageStyles.adminContent}>
+          <div style={styles.adminContent}>
             {/* Add new schedule */}
-            <div style={profilePageStyles.card}>
-              <h2 style={profilePageStyles.cardTitle}>
+            <div style={styles.card}>
+              <h2 style={styles.cardTitle}>
                 <Plus style={{ width: '1.5rem', height: '1.5rem' }} />
                 Adaugă program nou
               </h2>
               
-              <form onSubmit={addNewSchedule} style={profilePageStyles.scheduleForm}>
-                <div style={profilePageStyles.scheduleFormRow}>
+              <form onSubmit={addNewSchedule} style={styles.scheduleForm}>
+                <div style={styles.scheduleFormRow}>
                   <div>
-                    <label style={profilePageStyles.label}>Ziua săptămânii</label>
+                    <label style={styles.label}>Ziua săptămânii</label>
                     <select
                       value={newSchedule.zi}
                       onChange={(e) => setNewSchedule({...newSchedule, zi: e.target.value})}
                       disabled={loading}
-                      style={profilePageStyles.select}
+                      style={styles.select}
                     >
                       <option value="luni">Luni</option>
                       <option value="marti">Marți</option>
@@ -833,24 +848,24 @@ const ProfilePage = ({ setCurrentPage }) => {
                   </div>
                   
                   <div>
-                    <label style={profilePageStyles.label}>Ora</label>
+                    <label style={styles.label}>Ora</label>
                     <input
                       type="time"
                       value={newSchedule.ora}
                       onChange={(e) => setNewSchedule({...newSchedule, ora: e.target.value})}
                       required
                       disabled={loading}
-                      style={profilePageStyles.input}
+                      style={styles.input}
                     />
                   </div>
                   
                   <div>
-                    <label style={profilePageStyles.label}>Clasa</label>
+                    <label style={styles.label}>Clasa</label>
                     <select
                       value={newSchedule.tip}
                       onChange={(e) => setNewSchedule({...newSchedule, tip: e.target.value})}
                       disabled={loading}
-                      style={profilePageStyles.select}
+                      style={styles.select}
                     >
                       <option value="evaluare">Clasa a 7-a</option>
                       <option value="bac">Clasa a 8-a (Evaluare)</option>
@@ -862,7 +877,7 @@ const ProfilePage = ({ setCurrentPage }) => {
                   type="submit"
                   disabled={loading}
                   style={{
-                    ...profilePageStyles.addScheduleButton,
+                    ...styles.addScheduleButton,
                     backgroundColor: loading ? '#9ca3af' : '#10b981'
                   }}
                 >
@@ -873,36 +888,36 @@ const ProfilePage = ({ setCurrentPage }) => {
             </div>
 
             {/* Existing schedules */}
-            <div style={profilePageStyles.card}>
-              <h2 style={profilePageStyles.cardTitle}>
+            <div style={styles.card}>
+              <h2 style={styles.cardTitle}>
                 <Calendar style={{ width: '1.5rem', height: '1.5rem' }} />
                 Programe existente ({adminSchedules.length})
               </h2>
               
-              <div style={profilePageStyles.schedulesList}>
+              <div style={styles.schedulesList}>
                 {adminSchedules.map((schedule) => (
                   <div key={schedule.id} style={{
-                    ...profilePageStyles.scheduleItem,
+                    ...styles.scheduleItem,
                     borderLeft: `4px solid ${getTipColor(schedule.tip)}`
                   }}>
-                    <div style={profilePageStyles.scheduleHeader}>
+                    <div style={styles.scheduleHeader}>
                       <div>
                         <h3 style={{
-                          ...profilePageStyles.scheduleTitle,
+                          ...styles.scheduleTitle,
                           color: getTipColor(schedule.tip)
                         }}>
                           {getTipText(schedule.tip)}
                         </h3>
-                        <div style={profilePageStyles.scheduleInfo}>
-                          <div style={profilePageStyles.scheduleInfoItem}>
+                        <div style={styles.scheduleInfo}>
+                          <div style={styles.scheduleInfoItem}>
                             <Calendar style={{ width: '0.9rem', height: '0.9rem' }} />
                             {getZiText(schedule.zi)}
                           </div>
-                          <div style={profilePageStyles.scheduleInfoItem}>
+                          <div style={styles.scheduleInfoItem}>
                             <Clock style={{ width: '0.9rem', height: '0.9rem' }} />
                             {schedule.ora}
                           </div>
-                          <div style={profilePageStyles.scheduleInfoItem}>
+                          <div style={styles.scheduleInfoItem}>
                             <Users style={{ width: '0.9rem', height: '0.9rem' }} />
                             {schedule.enrolledCount || 0} înscriși
                           </div>
@@ -911,57 +926,57 @@ const ProfilePage = ({ setCurrentPage }) => {
                     </div>
                     
                     {/* Link management */}
-                    <div style={profilePageStyles.linkSection}>
+                    <div style={styles.linkSection}>
                       {editingSchedule === schedule.id ? (
-                        <div style={profilePageStyles.linkEditForm}>
+                        <div style={styles.linkEditForm}>
                           <input
                             type="url"
                             value={editLink}
                             onChange={(e) => setEditLink(e.target.value)}
                             placeholder="https://meet.google.com/... sau https://zoom.us/..."
-                            style={profilePageStyles.linkInput}
+                            style={styles.linkInput}
                           />
-                          <div style={profilePageStyles.linkEditButtons}>
+                          <div style={styles.linkEditButtons}>
                             <button
                               onClick={() => updateScheduleLink(schedule.id)}
                               disabled={loading}
-                              style={profilePageStyles.saveButton}
+                              style={styles.saveButton}
                             >
                               <Save style={{ width: '0.9rem', height: '0.9rem' }} />
                             </button>
                             <button
                               onClick={cancelEditLink}
-                              style={profilePageStyles.cancelButton}
+                              style={styles.cancelButton}
                             >
                               <X style={{ width: '0.9rem', height: '0.9rem' }} />
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <div style={profilePageStyles.linkDisplay}>
+                        <div style={styles.linkDisplay}>
                           {schedule.link ? (
-                            <div style={profilePageStyles.linkContainer}>
-                              <div style={profilePageStyles.linkText}>
+                            <div style={styles.linkContainer}>
+                              <div style={styles.linkText}>
                                 {schedule.link}
                               </div>
-                              <div style={profilePageStyles.linkActions}>
+                              <div style={styles.linkActions}>
                                 <button
                                   onClick={() => copyLink(schedule.link)}
-                                  style={profilePageStyles.copyButton}
+                                  style={styles.copyButton}
                                   title="Copiază link"
                                 >
                                   <Copy style={{ width: '0.9rem', height: '0.9rem' }} />
                                 </button>
                                 <button
                                   onClick={() => window.open(schedule.link, '_blank')}
-                                  style={profilePageStyles.openButton}
+                                  style={styles.openButton}
                                   title="Deschide link"
                                 >
                                   <ExternalLink style={{ width: '0.9rem', height: '0.9rem' }} />
                                 </button>
                                 <button
                                   onClick={() => startEditLink(schedule)}
-                                  style={profilePageStyles.editButton}
+                                  style={styles.editButton}
                                   title="Editează link"
                                 >
                                   <Edit style={{ width: '0.9rem', height: '0.9rem' }} />
@@ -971,7 +986,7 @@ const ProfilePage = ({ setCurrentPage }) => {
                           ) : (
                             <button
                               onClick={() => startEditLink(schedule)}
-                              style={profilePageStyles.addLinkButton}
+                              style={styles.addLinkButton}
                             >
                               <LinkIcon style={{ width: '1rem', height: '1rem' }} />
                               Adaugă link curs
@@ -984,7 +999,7 @@ const ProfilePage = ({ setCurrentPage }) => {
                 ))}
                 
                 {adminSchedules.length === 0 && (
-                  <div style={profilePageStyles.emptyState}>
+                  <div style={styles.emptyState}>
                     Nu există programe create încă
                   </div>
                 )}
@@ -995,19 +1010,19 @@ const ProfilePage = ({ setCurrentPage }) => {
 
         {/* Content pentru elev */}
         {userData.tipCont === 'elev' && (
-          <div style={profilePageStyles.studentContent}>
+          <div style={styles.studentContent}>
             {/* Cursurile la care este înscris */}
-            <div style={profilePageStyles.card}>
-              <h2 style={profilePageStyles.cardTitle}>
+            <div style={styles.card}>
+              <h2 style={styles.cardTitle}>
                 <PlayCircle style={{ width: '1.5rem', height: '1.5rem' }} />
                 Cursurile mele ({studentEnrollments.length})
               </h2>
               
               {studentEnrollments.length > 0 ? (
-                <div style={profilePageStyles.enrollmentsList}>
+                <div style={styles.enrollmentsList}>
                   {studentEnrollments.map((enrollment) => (
                     <div key={enrollment.id} style={{
-                      ...profilePageStyles.enrollmentItem,
+                      ...styles.enrollmentItem,
                       borderLeft: `4px solid ${getTipColor(enrollment.schedule?.tip)}`
                     }}>
 
@@ -1029,20 +1044,20 @@ const ProfilePage = ({ setCurrentPage }) => {
     )}
 
 
-                      <div style={profilePageStyles.enrollmentHeader}>
+                      <div style={styles.enrollmentHeader}>
                         <h3 style={{
-                          ...profilePageStyles.enrollmentTitle,
+                          ...styles.enrollmentTitle,
                           color: getTipColor(enrollment.schedule?.tip)
                         }}>
                           {getTipText(enrollment.schedule?.tip)}
                         </h3>
                         
-                        <div style={profilePageStyles.enrollmentInfo}>
-                          <div style={profilePageStyles.enrollmentInfoItem}>
+                        <div style={styles.enrollmentInfo}>
+                          <div style={styles.enrollmentInfoItem}>
                             <Calendar style={{ width: '0.9rem', height: '0.9rem' }} />
                             {getZiText(enrollment.schedule?.zi)} la {enrollment.schedule?.ora}
                           </div>
-                          <div style={profilePageStyles.enrollmentInfoItem}>
+                          <div style={styles.enrollmentInfoItem}>
                             <Clock style={{ width: '0.9rem', height: '0.9rem' }} />
                             {getNextSessionDate(enrollment.schedule?.zi, enrollment.schedule?.ora)}
                           </div>
@@ -1051,34 +1066,34 @@ const ProfilePage = ({ setCurrentPage }) => {
                       
                       {/* Link pentru curs */}
                       {enrollment.schedule?.link ? (
-                        <div style={profilePageStyles.courseLink}>
-                          <div style={profilePageStyles.courseLinkAvailable}>
+                        <div style={styles.courseLink}>
+                          <div style={styles.courseLinkAvailable}>
                             <ExternalLink style={{ width: '1.5rem', height: '1.5rem', color: '#22c55e' }} />
                             <div>
-                              <h4 style={profilePageStyles.courseLinkTitle}>
+                              <h4 style={styles.courseLinkTitle}>
                                 Link-ul cursului este disponibil
                               </h4>
                             </div>
                           </div>
                           
-                          <div style={profilePageStyles.courseLinkContainer}>
-                            <div style={profilePageStyles.courseLinkActions}>
+                          <div style={styles.courseLinkContainer}>
+                            <div style={styles.courseLinkActions}>
                               <input
                                 type="text"
                                 value={enrollment.schedule.link}
                                 readOnly
-                                style={profilePageStyles.courseLinkInput}
+                                style={styles.courseLinkInput}
                               />
                               <button
                                 onClick={() => copyLink(enrollment.schedule.link)}
-                                style={profilePageStyles.copyButton}
+                                style={styles.copyButton}
                                 title="Copiază link"
                               >
                                 <Copy style={{ width: '1rem', height: '1rem' }} />
                               </button>
                               <button
                                 onClick={() => window.open(enrollment.schedule.link, '_blank')}
-                                style={profilePageStyles.openButton}
+                                style={styles.openButton}
                                 title="Deschide link"
                               >
                                 <ExternalLink style={{ width: '1rem', height: '1rem' }} />
@@ -1088,24 +1103,24 @@ const ProfilePage = ({ setCurrentPage }) => {
                           
                           <button
                             onClick={() => window.open(enrollment.schedule.link, '_blank')}
-                            style={profilePageStyles.joinCourseButton}
+                            style={styles.joinCourseButton}
                           >
                             <PlayCircle style={{ width: '1.2rem', height: '1.2rem' }} />
                             Intră la curs
                           </button>
                         </div>
                       ) : (
-                        <div style={profilePageStyles.courseLinkPending}>
+                        <div style={styles.courseLinkPending}>
                           <Clock style={{ 
                             width: '3rem', 
                             height: '3rem', 
                             color: '#f59e0b',
                             margin: '0 auto 1rem'
                           }} />
-                          <h4 style={profilePageStyles.courseLinkPendingTitle}>
+                          <h4 style={styles.courseLinkPendingTitle}>
                             Link-ul cursului va fi încărcat în curând
                           </h4>
-                          <p style={profilePageStyles.courseLinkPendingText}>
+                          <p style={styles.courseLinkPendingText}>
                             Te vom anunța când link-ul pentru cursul tău va fi disponibil.
                           </p>
                         </div>
@@ -1114,17 +1129,17 @@ const ProfilePage = ({ setCurrentPage }) => {
                   ))}
                 </div>
               ) : (
-                <div style={profilePageStyles.noEnrollments}>
+                <div style={styles.noEnrollments}>
                   <PlayCircle style={{ 
                     width: '4rem', 
                     height: '4rem', 
                     color: '#eab308',
                     margin: '0 auto 1rem'
                   }} />
-                  <h3 style={profilePageStyles.noEnrollmentsTitle}>
+                  <h3 style={styles.noEnrollmentsTitle}>
                     Nu ești înscris la niciun curs încă
                   </h3>
-                  <p style={profilePageStyles.noEnrollmentsText}>
+                  <p style={styles.noEnrollmentsText}>
                     Alege-ți cursul și începe să înveți astăzi!
                   </p>
                   
@@ -1132,7 +1147,7 @@ const ProfilePage = ({ setCurrentPage }) => {
  onClick={() => {
    setCurrentPage('services');
  }}
- style={profilePageStyles.startLearningButton}
+ style={styles.startLearningButton}
  onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
  onMouseOut={(e) => e.target.style.backgroundColor = '#eab308'}
 >
