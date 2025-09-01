@@ -26,14 +26,25 @@ export const servicesPageStyles = {
     }
   `,
 
-  // Container and layout - cu fundal colorat ca în FAQ și Contact
+  // Container and layout - asta i cu gradient
+  // container: {
+  //   minHeight: '100vh',
+  //   background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+  //   padding: '2rem 1rem',
+  //   position: 'relative',
+  //   overflow: 'hidden'
+  // },
+
   container: {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-    padding: '2rem 1rem',
-    position: 'relative',
-    overflow: 'hidden'
-  },
+  minHeight: '100vh',
+  backgroundImage: 'url(/images/bk_11.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  padding: 'clamp(1rem, 3vw, 2rem) 1rem',
+  position: 'relative',
+  overflow: 'hidden'
+},
 
   maxWidth: {
     maxWidth: '1200px',

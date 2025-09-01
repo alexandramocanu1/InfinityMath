@@ -59,7 +59,7 @@ export const contactPageStyles = {
 
 subtitle: {
   fontSize: '0.8rem', 
-  color: '#000000', // Text negru
+  color: '#000000', 
   maxWidth: '402px', 
   margin: '0 auto',
   fontWeight: '500',
@@ -73,7 +73,7 @@ subtitle: {
   mainGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '2rem', // 67%
+    gap: '2rem', 
     alignItems: 'start',
     '@media (max-width: 768px)': {
       gridTemplateColumns: '1fr',

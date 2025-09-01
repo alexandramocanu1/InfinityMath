@@ -970,13 +970,18 @@ const handleFinalSubmit = async () => {
   return (
     <>
       <div style={{ 
-        fontFamily: "'Poppins', sans-serif", 
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-        padding: 'clamp(1rem, 3vw, 2rem) 1rem',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+  fontFamily: "'Poppins', sans-serif", 
+  minHeight: '100vh',
+  backgroundImage: 'url(/images/bk_11.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  padding: 'clamp(1rem, 3vw, 2rem) 1rem',
+  position: 'relative',
+  overflow: 'hidden'
+}}>
+
+        
       {/* Background decorations */}
       <div style={{
         position: 'absolute',
@@ -1042,68 +1047,72 @@ const handleFinalSubmit = async () => {
             Înapoi la Pagina Principală
           </button>
           
-          <h1 style={{
-            fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-            fontWeight: '800',
-            color: '#000000',
-            marginBottom: '1rem',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
-            letterSpacing: '-0.02em'
-          }}>
-            {step === 0 ? 'Alege Serviciul' : `Programare: ${currentService?.name}`}
-          </h1>
+<h1 style={{
+  fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+  fontWeight: '800',
+  color: '#000000',
+  marginBottom: '1rem',
+  textShadow: '2px 2px 6px rgba(255,255,255,1), 0 0 8px rgba(255,255,255,0.8)',
+  letterSpacing: '-0.02em'
+}}>
+  {step === 0 ? 'Alege Serviciul' : `Programare: ${currentService?.name}`}
+</h1>
           
           {/* Progress Steps */}
           {step > 0 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 'clamp(0.5rem, 2vw, 1rem)',
-              marginBottom: '2rem',
-              flexWrap: 'wrap'
-            }}>
+  <div style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 'clamp(0.5rem, 2vw, 1rem)',
+    marginBottom: '2rem',
+    flexWrap: 'wrap',
+    maxWidth: '400px', 
+    margin: '0 auto 2rem auto'
+  }}>
               {[1, 2, 3, 4].map((stepNum) => (
-                <React.Fragment key={stepNum}>
-                  <div style={{
-                    width: 'clamp(30px, 6vw, 40px)',
-                    height: 'clamp(30px, 6vw, 40px)',
-                    borderRadius: '50%',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: '600',
-                    fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
-                    backgroundColor: step >= stepNum ? (currentService?.color || '#ea580c') : '#e5e7eb'
-                  }}>
-                    {stepNum}
+      <React.Fragment key={stepNum}>
+        <div style={{
+          width: 'clamp(30px, 6vw, 40px)',
+          height: 'clamp(30px, 6vw, 40px)',
+          borderRadius: '50%',
+          color: 'white',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: '600',
+          fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
+          backgroundColor: step >= stepNum ? (currentService?.color || '#ea580c') : '#e5e7eb',
+          flexShrink: 0 
+        }}>
+          {stepNum}
                   </div>
-                  {stepNum < 3 && (
-                    <div style={{
-                      width: 'clamp(30px, 8vw, 60px)',
-                      height: '2px',
-                      backgroundColor: step > stepNum ? (currentService?.color || '#ea580c') : '#e5e7eb'
-                    }} />
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+        {stepNum < 4 && ( 
+          <div style={{
+            width: 'clamp(20px, 5vw, 40px)', 
+            height: '2px',
+            backgroundColor: step > stepNum ? (currentService?.color || '#ea580c') : '#e5e7eb',
+            flexShrink: 0
+          }} />
+        )}
+      </React.Fragment>
+    ))}
+  </div>
           )}
           
           <div style={{
-            fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-            color: '#000000',
-            marginBottom: '1rem',
-            fontWeight: '500',
-            opacity: '0.8'
-          }}>
-            {step === 1 && 'Selectează programul săptămânal'}
-            {step === 2 && 'Alege tipul de abonament'}
-            {step === 3 && 'Completează datele de contact'}
-            {step === 4 && 'Confirmă programarea'}
-          </div>
+  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+  color: '#f5f5dc', 
+  marginBottom: '1rem',
+  fontWeight: '500',
+  textShadow: '1px 1px 2px rgba(0,0,0,0.8)' 
+}}>
+  {step === 1 && 'Selectează programul săptămânal'}
+  {step === 2 && 'Alege tipul de abonament'}
+  {step === 3 && 'Completează datele de contact'}
+  {step === 4 && 'Confirmă programarea'}
+</div>
         </div>
 
         {/* Abonament Activ */}
