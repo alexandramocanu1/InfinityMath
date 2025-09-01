@@ -338,8 +338,8 @@ heroSubtitle: {
 
   // Reviews Section - primu comentat e gradientu 
   reviewsSection: {
-  background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-  // backgroundImage: 'url(/images/bk_11.png)',
+  // background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+  backgroundImage: 'url(/images/bk_08.png)',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',

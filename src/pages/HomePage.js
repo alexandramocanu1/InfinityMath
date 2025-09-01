@@ -502,43 +502,72 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
         </section>
 
         {/* Reviews Section */}
+{/* Reviews Section - Versiunea nouă */}
 <section style={{
   ...homePageStyles.reviewsSection,
   padding: isMobile ? '2rem 1rem' : '3rem 1rem'
 }}>
+  {/* Overlay pentru vizibilitatea textului */}
+  <div style={{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    zIndex: 1
+  }}></div>
+
   <div style={homePageStyles.reviewsBackground.decoration1}></div>
   <div style={homePageStyles.reviewsBackground.decoration2}></div>
 
   <div style={{
     ...homePageStyles.reviewsContainer,
-    maxWidth: '1200px' 
+    maxWidth: '1200px',
+    position: 'relative',
+    zIndex: 2
   }}>
-    <h2 style={homePageStyles.reviewsTitle}>
+    <h2 style={{
+      ...homePageStyles.reviewsTitle,
+      color: '#ffffff',
+      textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
+    }}>
       Ce spun elevii și părinții?
     </h2>
     
+    {/* Grid nou cu shadow mai mare și modal */}
     <div style={{
-  display: 'grid',
-  gridTemplateColumns: isMobile ? 
-    'repeat(auto-fit, minmax(150px, 1fr))' : 
-    'repeat(auto-fit, minmax(200px, 1fr))', 
-  gap: '1rem', 
-  maxWidth: '1100px',
-  margin: '0 auto'
-}}>
+      display: 'grid',
+      gridTemplateColumns: isMobile ? 
+        'repeat(auto-fit, minmax(150px, 1fr))' : 
+        'repeat(auto-fit, minmax(200px, 1fr))', 
+      gap: '1rem', 
+      maxWidth: '1100px',
+      margin: '0 auto'
+    }}>
       {reviews.map((review, index) => (
         <div 
           key={review.id} 
+          onClick={() => openModal(index)}
           style={{
             backgroundColor: 'white',
             borderRadius: '12px',
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
             overflow: 'hidden',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             height: index % 4 === 0 ? '140px' : 
                    index % 3 === 0 ? '120px' : 
-                   index % 2 === 0 ? '130px' : '110px'
+                   index % 2 === 0 ? '130px' : '110px',
+            transform: 'translateY(0)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+            e.currentTarget.style.boxShadow = '0 15px 45px rgba(0, 0, 0, 0.35)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.25)';
           }}
         >
           <img 
@@ -560,6 +589,165 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
     </div>
   </div>
 </section>
+
+{/* Modal Fullscreen */}
+{isModalOpen && (
+  <div 
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.95)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 9999,
+      padding: isMobile ? '2rem 1rem' : '2rem'
+    }}
+    onClick={closeModal}
+  >
+    {/* Close Button */}
+    <button
+      onClick={closeModal}
+      style={{
+        position: 'absolute',
+        top: isMobile ? '1rem' : '2rem',
+        right: isMobile ? '1rem' : '2rem',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        border: 'none',
+        borderRadius: '50%',
+        width: isMobile ? '40px' : '50px',
+        height: isMobile ? '40px' : '50px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        zIndex: 10001
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+      }}
+    >
+      <X size={isMobile ? 20 : 24} color="white" />
+    </button>
+
+    {/* Previous Button */}
+    {reviews.length > 1 && (
+      <button
+        onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
+        style={{
+          position: 'absolute',
+          left: isMobile ? '0.5rem' : '2rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          border: 'none',
+          borderRadius: '50%',
+          width: isMobile ? '45px' : '60px',
+          height: isMobile ? '45px' : '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          zIndex: 10001
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        }}
+      >
+        <ChevronLeft size={isMobile ? 20 : 28} color="white" />
+      </button>
+    )}
+
+    {/* Next Button */}
+    {reviews.length > 1 && (
+      <button
+        onClick={(e) => { e.stopPropagation(); goToNext(); }}
+        style={{
+          position: 'absolute',
+          right: isMobile ? '0.5rem' : '2rem',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
+          border: 'none',
+          borderRadius: '50%',
+          width: isMobile ? '45px' : '60px',
+          height: isMobile ? '45px' : '60px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          zIndex: 10001
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+        }}
+      >
+        <ChevronRight size={isMobile ? 20 : 28} color="white" />
+      </button>
+    )}
+
+    {/* Image Container */}
+    <div 
+      style={{
+        maxWidth: '95%',
+        maxHeight: '90%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <img 
+        src={`/images/${reviews[currentImageIndex]?.image}`}
+        alt={reviews[currentImageIndex]?.alt}
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain',
+          borderRadius: '8px',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'white'
+        }}
+        onError={(e) => {
+          e.target.style.display = 'none';
+        }}
+      />
+    </div>
+
+    {/* Counter */}
+    {reviews.length > 1 && (
+      <div style={{
+        position: 'absolute',
+        bottom: isMobile ? '1rem' : '2rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        color: 'white',
+        padding: '0.5rem 1rem',
+        borderRadius: '20px',
+        fontSize: isMobile ? '0.8rem' : '0.9rem',
+        backdropFilter: 'blur(10px)'
+      }}>
+        {currentImageIndex + 1} / {reviews.length}
+      </div>
+    )}
+  </div>
+)}
 
 
               {/* Steps Section */}
@@ -709,10 +897,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
   </div>
 </section>
 
-        {/* Contact Form Section */}
+{/* Contact Form Section - cu text alb/bej */}
 <section style={{
   background: 'linear-gradient(135deg, #000000 0%, #1f1f1f 100%)',
-  color: 'white',
+  color: '#f5f5dc', // Culoare bej ca iconița
   padding: '2.5rem 1rem', 
   position: 'relative',
   overflow: 'hidden'
@@ -747,18 +935,16 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
     zIndex: 10 
   }}>
     <h2 style={{
-      fontSize: '2.35rem', 
-      fontWeight: '800',
-      marginBottom: '2rem', 
-      textAlign: 'center',
-      background: 'linear-gradient(135deg, #ff6b35, #f7931e, #ffcd3c)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      backgroundClip: 'text',
-      letterSpacing: '-0.02em'
-    }}>
-      Când începem?
-    </h2>
+  fontSize: '2.35rem', 
+  fontWeight: '800',
+  marginBottom: '2rem', 
+  textAlign: 'center',
+  color: '#f5f5dc', 
+  textShadow: '2px 2px 4px rgba(0,0,0,0.5)', 
+  letterSpacing: '-0.02em'
+}}>
+  Când începem?
+</h2>
     
     {/* Success Message */}
     {showSuccess && (
@@ -799,24 +985,24 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
     <div style={{
       display: 'grid',
       gap: '1rem', 
-      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+      backgroundColor: 'rgba(245, 245, 220, 0.05)', // Background bej foarte transparent
       padding: '2rem', 
       borderRadius: '13px', 
-      border: '1px solid rgba(255, 255, 255, 0.1)',
+      border: '1px solid rgba(245, 245, 220, 0.1)', // Border bej transparent
       backdropFilter: 'blur(10px)'
     }}>
       <div style={{
-  display: 'grid',
-  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-  gap: isMobile ? '1rem' : '0.67rem'
-}}>
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+        gap: isMobile ? '1rem' : '0.67rem'
+      }}>
         <div>
           <label style={{ 
             display: 'block', 
             marginBottom: '0.34rem', 
             fontWeight: '600',
             fontSize: '0.75rem', 
-            color: '#f7931e' 
+            color: '#f5f5dc' // Culoare bej pentru labels
           }}>
             Nume *
           </label>
@@ -830,10 +1016,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
               width: '100%',
               padding: '0.67rem', 
               borderRadius: '8px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              border: '2px solid rgba(245, 245, 220, 0.15)', // Border bej
               fontSize: '0.75rem', 
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              color: '#ffffff',
+              backgroundColor: 'rgba(245, 245, 220, 0.05)', // Background bej foarte transparent
+              color: '#f5f5dc', // Text bej
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
               fontFamily: "'Poppins', sans-serif",
@@ -841,12 +1027,12 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             }}
             placeholder="Numele tău"
             onFocus={(e) => {
-              e.target.style.borderColor = '#ff6b35';
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.borderColor = '#f5f5dc'; // Focus border bej
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+              e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
             }}
           />
         </div>
@@ -857,7 +1043,7 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             marginBottom: '0.34rem',
             fontWeight: '600',
             fontSize: '0.75rem',
-            color: '#f7931e' 
+            color: '#f5f5dc' // Culoare bej pentru labels
           }}>
             Prenume *
           </label>
@@ -871,10 +1057,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
               width: '100%',
               padding: '0.67rem',
               borderRadius: '8px',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
+              border: '2px solid rgba(245, 245, 220, 0.15)',
               fontSize: '0.75rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              color: '#ffffff',
+              backgroundColor: 'rgba(245, 245, 220, 0.05)',
+              color: '#f5f5dc',
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
               fontFamily: "'Poppins', sans-serif",
@@ -882,12 +1068,12 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             }}
             placeholder="Prenumele tău"
             onFocus={(e) => {
-              e.target.style.borderColor = '#ff6b35';
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.borderColor = '#f5f5dc';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-              e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+              e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+              e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
             }}
           />
         </div>
@@ -899,7 +1085,7 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           marginBottom: '0.34rem',
           fontWeight: '600',
           fontSize: '0.75rem',
-          color: '#f7931e' 
+          color: '#f5f5dc'
         }}>
           Email *
         </label>
@@ -913,10 +1099,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             width: '100%',
             padding: '0.67rem',
             borderRadius: '8px',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
             fontSize: '0.75rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            color: '#ffffff',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
             boxSizing: 'border-box',
             transition: 'all 0.3s ease',
             fontFamily: "'Poppins', sans-serif",
@@ -924,12 +1110,12 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           }}
           placeholder="email@exemplu.ro"
           onFocus={(e) => {
-            e.target.style.borderColor = '#ff6b35';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
           }}
         />
       </div>
@@ -940,7 +1126,7 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           marginBottom: '0.34rem',
           fontWeight: '600',
           fontSize: '0.75rem',
-          color: '#f7931e' 
+          color: '#f5f5dc'
         }}>
           Selectează clasa *
         </label>
@@ -953,27 +1139,27 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             width: '100%',
             padding: '0.67rem',
             borderRadius: '8px',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
             fontSize: '0.75rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            color: '#ffffff',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
             boxSizing: 'border-box',
             transition: 'all 0.3s ease',
             fontFamily: "'Poppins', sans-serif",
             opacity: isLoading ? 0.7 : 1
           }}
           onFocus={(e) => {
-            e.target.style.borderColor = '#ff6b35';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
           }}
         >
-          <option value="" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Alege clasa</option>
-          <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 7-a</option>
-          <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#ffffff' }}>Clasa a 8-a</option>
+          <option value="" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Alege clasa</option>
+          <option value="Clasa a 7-a" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Clasa a 7-a</option>
+          <option value="Clasa a 8-a" style={{ backgroundColor: '#1f1f1f', color: '#f5f5dc' }}>Clasa a 8-a</option>
         </select>
       </div>
       
@@ -983,7 +1169,7 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           marginBottom: '0.34rem',
           fontWeight: '600',
           fontSize: '0.75rem',
-          color: '#f7931e' 
+          color: '#f5f5dc'
         }}>
           Mesaj
         </label>
@@ -996,10 +1182,10 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             width: '100%',
             padding: '0.67rem',
             borderRadius: '8px',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
+            border: '2px solid rgba(245, 245, 220, 0.15)',
             fontSize: '0.75rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            color: '#ffffff',
+            backgroundColor: 'rgba(245, 245, 220, 0.05)',
+            color: '#f5f5dc',
             resize: 'vertical',
             boxSizing: 'border-box',
             transition: 'all 0.3s ease',
@@ -1008,12 +1194,12 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           }}
           placeholder="Întrebări despre lecții? Trimiteți un mesaj..."
           onFocus={(e) => {
-            e.target.style.borderColor = '#ff6b35';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            e.target.style.borderColor = '#f5f5dc';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.1)';
           }}
           onBlur={(e) => {
-            e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-            e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            e.target.style.borderColor = 'rgba(245, 245, 220, 0.15)';
+            e.target.style.backgroundColor = 'rgba(245, 245, 220, 0.05)';
           }}
         />
       </div>
@@ -1022,8 +1208,8 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
         onClick={handleContactSubmit}
         disabled={isLoading}
         style={{
-          background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #ff6b35, #f7931e)',
-          color: 'white',
+          background: isLoading ? 'rgba(156, 163, 175, 0.8)' : 'linear-gradient(135deg, #f5f5dc, #ffffff)', // Gradient bej-alb
+          color: '#1f1f1f', // Text întunecat pe fundal deschis
           border: 'none',
           padding: '0.8rem 1.34rem', 
           borderRadius: '8px',
@@ -1036,24 +1222,26 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
           justifyContent: 'center',
           gap: '0.34rem',
           marginTop: '0.67rem',
-          boxShadow: isLoading ? 'none' : '0 5px 21px rgba(255, 107, 53, 0.3)', // ~67% din 0 8px 32px
+          boxShadow: isLoading ? 'none' : '0 5px 21px rgba(245, 245, 220, 0.3)',
           fontFamily: "'Poppins', sans-serif",
           opacity: isLoading ? 0.7 : 1
         }}
         onMouseOver={(e) => {
           if (!isLoading) {
             e.target.style.transform = 'translateY(-1px)';
-            e.target.style.boxShadow = '0 8px 27px rgba(255, 107, 53, 0.4)'; // ~67% din 0 12px 40px
+            e.target.style.boxShadow = '0 8px 27px rgba(245, 245, 220, 0.4)';
+            e.target.style.background = 'linear-gradient(135deg, #ffffff, #f5f5dc)'; // Reverse gradient pe hover
           }
         }}
         onMouseOut={(e) => {
           if (!isLoading) {
             e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 5px 21px rgba(255, 107, 53, 0.3)';
+            e.target.style.boxShadow = '0 5px 21px rgba(245, 245, 220, 0.3)';
+            e.target.style.background = 'linear-gradient(135deg, #f5f5dc, #ffffff)';
           }
         }}
       >
-        <Send style={{ width: '0.67rem', height: '0.67rem' }} />
+        <Send style={{ width: '0.67rem', height: '0.67rem', color: '#1f1f1f' }} />
         {isLoading ? 'Se trimite...' : 'Trimite mesajul'}
       </button>
     </div>
