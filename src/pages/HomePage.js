@@ -260,7 +260,7 @@ fontSize: isMobile ? '1rem' : '1.1rem'
         {/* Cursuri Online Section */}
 <section style={{
   padding: isMobile ? '2rem 1rem' : '3rem 1rem', 
-  backgroundColor: '#ffffff'
+  backgroundColor: '#ffffff',
 }}>
   <div style={{
     maxWidth: '1200px', 
@@ -275,7 +275,7 @@ fontSize: isMobile ? '1rem' : '1.1rem'
         fontWeight: '600',
         color: '#2d3748',
         marginBottom: '0.5rem',
-        fontFamily: 'Georgia, serif'
+        fontFamily: 'Poppins, serif'
       }}>
         Cursuri Online
       </h2>
@@ -564,132 +564,150 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
 
               {/* Steps Section */}
 <section style={{
- padding: '4rem 2rem',
- backgroundColor: '#ffffff',
- fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  padding: isMobile ? '3rem 1rem' : '4rem 2rem',
+  backgroundColor: '#ffffff',
+  fontFamily: '"Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
 }}>
- <div style={{
-   maxWidth: '1200px',
-   margin: '0 auto'
- }}>
-   <div style={{
-     textAlign: 'center',
-     marginBottom: '3rem'
-   }}>
-     <h2 style={{
-       fontSize: isMobile ? '2rem' : '2.25rem',
-       fontWeight: '600',
-       color: '#2d3748',
-       marginBottom: '0.5rem',
-       fontFamily: 'Georgia, serif'
-     }}>
-       Alătură-te în doar 4 pași simpli 
-     </h2>
-   </div>
+  <div style={{
+    maxWidth: '1200px',
+    margin: '0 auto'
+  }}>
+    <div style={{
+      textAlign: 'center',
+      marginBottom: isMobile ? '2rem' : '3rem'
+    }}>
+      <h2 style={{
+        fontSize: isMobile ? '1.8rem' : '2.25rem',
+        fontWeight: '600',
+        color: '#2d3748',
+        marginBottom: '0.5rem',
+        fontFamily: '"Poppins", Georgia, serif'
+      }}>
+        Alătură-te în doar 4 pași simpli 
+      </h2>
+    </div>
 
-   <div style={{
-     display: 'grid',
-     gridTemplateColumns: 'repeat(4, 1fr)',
-     gap: '2rem',
-     alignItems: 'start'
-   }}>
-     {[
-       {
-         number: 1,
-         title: "Creează-ți un cont",
-         subtitle: "Înregistrează-te pe platformă și adaugă datele necesare.",
-         image: "/images/pas_1.png"
-       },
-       {
-         number: 2,
-         title: "Alege cursurile preferate",
-         subtitle: "Selectează pachetul dorit și adaugă-l în coș.",
-         image: "/images/pas_2.png"
-       },
-       {
-         number: 3,
-         title: "Plătește rapid și sigur",
-         subtitle: "Finalizează comanda direct pe site printr-o plată securizată cu cardul.",
-         image: "/images/pas_3.png"
-       },
-       {
-         number: 4,
-         title: "Primește linkul și conectează-te",
-         subtitle: "După confirmarea plății, acceseaza linkul de Google Meet din pagina ,,Profilul meu’’ pentru a te conecta la curs.",
-         image: "/images/pas_4.png"
-       }
-     ].map((step, index) => (
-       <div key={step.number} style={{
-         textAlign: 'center',
-         position: 'relative'
-       }}>
-         <div style={{
-           width: '100px',
-           height: '100px',
-           margin: '0 auto 1rem',
-           borderRadius: '50%',
-           backgroundColor: '#ff9035',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center',
-           position: 'relative',
-           marginBottom: '1.5rem'
-         }}>
-           <img 
-             src={step.image}
-             alt={`Pasul ${step.number}`}
-             style={{
-               width: '60px',
-               height: '60px',
-               objectFit: 'contain'
-             }}
-             onError={(e) => {
-               e.target.style.display = 'none';
-               e.target.parentNode.innerHTML = `<div style="
-                 width: 50px;
-                 height: 50px;
-                 backgroundColor: #2d3748;
-                 color: white;
-                 borderRadius: 50%;
-                 display: flex;
-                 alignItems: center;
-                 justifyContent: center;
-                 fontSize: 1.5rem;
-                 fontWeight: bold;
-               ">${step.number}</div>`;
-             }}
-           />
-         </div>
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+      gap: isMobile ? '2.5rem' : '2rem',
+      alignItems: 'start'
+    }}>
+      {[
+        {
+          number: 1,
+          title: "Creează-ți un cont",
+          subtitle: "Înregistrează-te pe platformă și adaugă datele necesare.",
+          image: "/images/pas_1.png"
+        },
+        {
+          number: 2,
+          title: "Alege cursurile preferate",
+          subtitle: "Selectează pachetul dorit și adaugă-l în coș.",
+          image: "/images/pas_2.png"
+        },
+        {
+          number: 3,
+          title: "Plătește rapid și sigur",
+          subtitle: "Finalizează comanda direct pe site printr-o plată securizată cu cardul.",
+          image: "/images/pas_3.png"
+        },
+        {
+          number: 4,
+          title: "Primește linkul și conectează-te",
+          subtitle: "După confirmarea plății, accesează linkul de Google Meet din pagina Profilul meu pentru a te conecta la curs.",
+          image: "/images/pas_4.png"
+        }
+      ].map((step, index) => (
+        <div key={step.number} style={{
+          textAlign: 'center',
+          position: 'relative',
+          maxWidth: isMobile ? '300px' : 'none',
+          margin: isMobile ? '0 auto' : '0'
+        }}>
+          <div style={{
+            width: isMobile ? '90px' : '100px',
+            height: isMobile ? '90px' : '100px',
+            margin: '0 auto 1rem',
+            borderRadius: '50%',
+            backgroundColor: '#ff9035',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            marginBottom: '1.5rem',
+            boxShadow: '0 4px 12px rgba(255, 144, 53, 0.3)'
+          }}>
+            <img 
+              src={step.image}
+              alt={`Pasul ${step.number}`}
+              style={{
+                width: isMobile ? '50px' : '60px',
+                height: isMobile ? '50px' : '60px',
+                objectFit: 'contain'
+              }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentNode.innerHTML = `<div style="
+                  width: ${isMobile ? '45px' : '50px'};
+                  height: ${isMobile ? '45px' : '50px'};
+                  backgroundColor: #2d3748;
+                  color: white;
+                  borderRadius: 50%;
+                  display: flex;
+                  alignItems: center;
+                  justifyContent: center;
+                  fontSize: ${isMobile ? '1.3rem' : '1.5rem'};
+                  fontWeight: bold;
+                  fontFamily: Poppins, sans-serif;
+                ">${step.number}</div>`;
+              }}
+            />
+          </div>
 
-         <div style={{
-           fontSize: isMobile ? '2rem' : '2.25rem',
-           fontWeight: 'bold',
-           color: '#2d3748',
-           marginBottom: '0.5rem'
-         }}>
-           {step.number}.
-         </div>
+          <div style={{
+            fontSize: isMobile ? '1.8rem' : '2.25rem',
+            fontWeight: 'bold',
+            color: '#2d3748',
+            marginBottom: '1rem',
+            fontFamily: '"Poppins", sans-serif'
+          }}>
+            {step.number}.
+          </div>
 
-         <div>
-           <p style={{
-             fontSize: '0.9rem',
-             color: '#4a5568',
-             lineHeight: '1.4',
-             margin: 0,
-             maxWidth: '200px',
-             margin: '0 auto'
-           }}>
-             <strong>{step.title}</strong><br/>
-             {step.subtitle}
-           </p>
-         </div>
-       </div>
-     ))}
-   </div>
- </div>
+          <div>
+            <p style={{
+              fontSize: isMobile ? '1rem' : '0.9rem',
+              color: '#4a5568',
+              lineHeight: '1.5',
+              margin: 0,
+              maxWidth: isMobile ? '280px' : '200px',
+              margin: '0 auto',
+              fontFamily: '"Poppins", sans-serif'
+            }}>
+              <strong style={{ 
+                fontWeight: '600',
+                marginBottom: '0.5rem',
+                display: 'block',
+                fontSize: isMobile ? '1.1rem' : '1rem'
+              }}>
+                {step.title}
+              </strong>
+              <span style={{ 
+                fontWeight: '400',
+                fontSize: isMobile ? '0.95rem' : '0.85rem'
+              }}>
+                {step.subtitle}
+              </span>
+            </p>
+          </div>
+
+
+        </div>
+      ))}
+    </div>
+  </div>
 </section>
-
-
 
         {/* Contact Form Section */}
 <section style={{

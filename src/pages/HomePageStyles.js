@@ -336,13 +336,28 @@ heroSubtitle: {
     }
   },
 
-  // Reviews Section
+  // Reviews Section - primu comentat e gradientu 
   reviewsSection: {
-    background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
-    padding: '6rem 1rem',
-    position: 'relative',
-    overflow: 'hidden'
-  },
+  background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%)',
+  // backgroundImage: 'url(/images/bk_11.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  padding: '6rem 1rem',
+  position: 'relative',
+  overflow: 'hidden',
+  // overlay
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    zIndex: 1
+  }
+},
 
   reviewsBackground: {
     decoration1: {
