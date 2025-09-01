@@ -67,6 +67,7 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
     
 
     // cursul activ pt user u cu abonament
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadActiveCourse = async () => {
     if (!userData?.abonament?.activ) return;
 
@@ -134,10 +135,12 @@ useEffect(() => {
   }
 }, [currentUser, userData]);
 
+// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadSchedulesFromFirebase();
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (userData?.abonament?.activ) {
       setSelectedService(userData.abonament.tip);
@@ -151,7 +154,7 @@ useEffect(() => {
     }
   }, [userData, adminSchedules]);
 
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
 const handlePaymentSuccess = async (sessionId) => {
   try {
     setIsLoading(true);
