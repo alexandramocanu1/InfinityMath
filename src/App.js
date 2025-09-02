@@ -184,26 +184,29 @@ function App() {
             gap: '1rem',
             flexWrap: 'wrap'
           }}>
-            <span>Pentru experiență completă, deschide în browser</span>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                onClick={openInBrowser}
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.2)',
-                  color: 'white',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '6px',
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem'
-                }}
-              >
-                <ExternalLink style={{ width: '0.75rem', height: '0.75rem' }} />
-                Deschide
-              </button>
+              <a
+  href={window.location.href}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.3)',
+    padding: '0.25rem 0.75rem',
+    borderRadius: '6px',
+    fontSize: '0.85rem',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    textDecoration: 'none'
+  }}
+>
+  <ExternalLink style={{ width: '0.75rem', height: '0.75rem' }} />
+  Deschide în browser
+</a>
+
               <button
                 onClick={() => setShowWebViewBanner(false)}
                 style={{
