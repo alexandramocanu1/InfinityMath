@@ -159,10 +159,9 @@ useEffect(() => {
   }
 }, [currentUser, userData]);
 
-// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    loadSchedulesFromFirebase();
-  }, []);
+  loadSchedulesFromFirebase();
+}, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -328,34 +327,46 @@ const handlePaymentSuccess = async (sessionId) => {
 
 
   const loadSchedulesFromFirebase = async () => {
-    try {
-      const schedulesRef = collection(db, 'schedules');
-      const querySnapshot = await getDocs(schedulesRef);
+  try {
+    console.log('Încercare de încărcare programe...');
+    const schedulesRef = collection(db, 'schedules');
+    const querySnapshot = await getDocs(schedulesRef);
+    
+    console.log('Query snapshot size:', querySnapshot.size);
+    
+    const schedulesByType = {
+      evaluare: [],
+      bac: []
+    };
+    
+    querySnapshot.forEach((doc) => {
+      const scheduleData = { id: doc.id, ...doc.data() };
+      console.log('Document găsit:', scheduleData);
       
-      const schedulesByType = {
-        evaluare: [],
-        bac: []
-      };
-      
-      querySnapshot.forEach((doc) => {
-        const scheduleData = { id: doc.id, ...doc.data() };
-        
-        if (schedulesByType[scheduleData.tip]) {
-          schedulesByType[scheduleData.tip].push({
-            id: scheduleData.id,
-            zi: getZiTextRo(scheduleData.zi),
-            ora: scheduleData.ora,
-            tip: scheduleData.tip,
-            enrolledCount: scheduleData.enrolledCount || 0
-          });
-        }
-      });
-      
-      setAdminSchedules(schedulesByType);
-    } catch (error) {
-      console.error('Eroare la încărcarea programelor:', error);
-    }
-  };
+      if (schedulesByType[scheduleData.tip]) {
+        schedulesByType[scheduleData.tip].push({
+          id: scheduleData.id,
+          zi: getZiTextRo(scheduleData.zi),
+          ora: scheduleData.ora,
+          tip: scheduleData.tip,
+          enrolledCount: scheduleData.enrolledCount || 0
+        });
+      }
+    });
+    
+    console.log('Schedules loaded:', schedulesByType);
+    setAdminSchedules(schedulesByType);
+  } catch (error) {
+    console.error('Eroare la încărcarea programelor:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    setAdminSchedules({
+      evaluare: [],
+      bac: []
+    });
+  }
+};
 
   const copyLink = (link) => {
     navigator.clipboard.writeText(link);
