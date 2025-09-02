@@ -20,7 +20,7 @@ const services = {
       quarterly: { name: '3 Luni', price: 600, stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' }
     }
   },
-  clasa7: { 
+  bac: { 
     name: 'Clasa a 8-a', 
     duration: '1h 30 minute', 
     color: '#ea580c',
@@ -60,7 +60,7 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
   const [authLoading, setAuthLoading] = useState(false);
   const [adminSchedules, setAdminSchedules] = useState({
     evaluare: [],
-    clasa7: []
+    bac: []
   });
     const [activeCourse, setActiveCourse] = useState(null);
 
@@ -310,7 +310,7 @@ const handlePaymentSuccess = async (sessionId) => {
       
       const schedulesByType = {
         evaluare: [],
-        clasa7: []
+        bac: []
       };
       
       querySnapshot.forEach((doc) => {
@@ -341,7 +341,7 @@ const handlePaymentSuccess = async (sessionId) => {
   const getTipText = (tip) => {
     switch(tip) {
       case 'evaluare': return 'Clasa a 7-a';
-      case 'clasa7': return 'Clasa a 8-a';
+      case 'bac': return 'Clasa a 8-a';
       default: return tip;
     }
   };
@@ -349,7 +349,7 @@ const handlePaymentSuccess = async (sessionId) => {
   const getTipColor = (tip) => {
     switch(tip) {
       case 'evaluare': return '#f59e0b';
-      case 'clasa7': return '#ea580c';
+      case 'bac': return '#ea580c';
       default: return '#6b7280';
     }
   };
