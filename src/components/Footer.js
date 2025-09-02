@@ -240,7 +240,7 @@ const Footer = () => {
           {/* Linkurile sociale în dreapta */}
           <div style={footerStyles.socialLinks}>
             <a 
-              href="https://www.facebook.com/people/Infinity-math/100063583206537/"
+              href="https://www.facebook.com/profile.php?id=100090209250255"
               target="_blank"
               rel="noopener noreferrer"
               style={footerStyles.socialLink}
