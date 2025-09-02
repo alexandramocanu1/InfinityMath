@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BookOpen, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, User, ExternalLink } from 'lucide-react';
 import HomePage from './pages/HomePage';
 import ServicesPage from './pages/ServicesPage';
 import FAQPage from './pages/FAQPage';
@@ -14,11 +14,39 @@ function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [selectedService, setSelectedService] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showWebViewBanner, setShowWebViewBanner] = useState(false);
+
+  // Detectare WebView și ascundere PWA
+  useEffect(() => {
+    const userAgent = navigator.userAgent || '';
+    const isWebView = /Instagram|FBAN|FBAV|Twitter|LinkedInApp/i.test(userAgent);
+    
+    setShowWebViewBanner(isWebView);
+    
+    // Ascunde PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      return false;
+    });
+
+    // Dezactivează service worker dacă este WebView
+    if (isWebView && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  }, []);
+
+  const openInBrowser = () => {
+    window.open(window.location.href, '_blank');
+  };
 
   const headerStyle = {
     backgroundColor: 'white',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-    padding: '0.5rem 0', // Redus de la 1rem la 0.5rem
+    padding: '0.5rem 0',
     position: 'sticky',
     top: 0,
     zIndex: 100
@@ -36,7 +64,7 @@ function App() {
   const logoStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem', // redus
+    gap: '0.75rem',
     cursor: 'pointer'
   };
 
@@ -49,7 +77,7 @@ function App() {
   const buttonStyle = {
     background: 'transparent',
     border: 'none',
-    padding: '0.5rem 0.75rem', // redus
+    padding: '0.5rem 0.75rem',
     borderRadius: '8px',
     fontSize: '0.95rem',
     fontWeight: '500',
@@ -142,6 +170,57 @@ function App() {
         display: 'flex',
         flexDirection: 'column'
       }}>
+        {/* WebView Banner */}
+        {showWebViewBanner && (
+          <div style={{
+            backgroundColor: '#2563eb',
+            color: 'white',
+            padding: '0.75rem 1rem',
+            textAlign: 'center',
+            fontSize: '0.9rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap'
+          }}>
+            <span>Pentru experiență completă, deschide în browser</span>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={openInBrowser}
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}
+              >
+                <ExternalLink style={{ width: '0.75rem', height: '0.75rem' }} />
+                Deschide
+              </button>
+              <button
+                onClick={() => setShowWebViewBanner(false)}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.25rem',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <header style={headerStyle}>
           <div style={navStyle}>
@@ -150,8 +229,8 @@ function App() {
                 src="/images/logo_VIII_1.png" 
                 alt="Infinity Math" 
                 style={{
-                  width: '40px', // Redus de la 48px la 40px
-                  height: '40px', // Redus de la 48px la 40px
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '12px',
                   objectFit: 'cover'
                 }}
@@ -159,7 +238,7 @@ function App() {
               <div>
                 <h1 style={{ 
                   margin: 0, 
-                  fontSize: '1.35rem', // Redus de la 1.5rem la 1.35rem
+                  fontSize: '1.35rem',
                   color: '#1f2937',
                   fontWeight: '700' 
                 }}>
@@ -168,7 +247,7 @@ function App() {
                 <p style={{ 
                   margin: 0, 
                   color: '#6b7280', 
-                  fontSize: '0.8rem' // Redus de la 0.875rem la 0.8rem
+                  fontSize: '0.8rem'
                 }}>
                   Matematică pe întelesul tuturor
                 </p>
@@ -385,18 +464,14 @@ function App() {
             />
           )}
           
-          {/* Pagina Culegere */}
           {currentPage === 'culegere' && <CulegerePage />}
-          
           {currentPage === 'faq' && <FAQPage />}
           {currentPage === 'contact' && <ContactPage />}
           {currentPage === 'profile' && <ProfilePage setCurrentPage={setCurrentPage} />}
         </main>
 
-        {/* Footer */}
         <Footer />
 
-        {/* CSS pentru animații și responsive */}
         <style>
           {`
             @keyframes spin {
@@ -404,7 +479,6 @@ function App() {
               100% { transform: rotate(360deg); }
             }
             
-            /* Mobile responsive styles */
             @media (max-width: 768px) {
               .desktop-menu {
                 display: none !important;
