@@ -16,8 +16,18 @@ const services = {
     duration: '1h 30 minute', 
     color: '#f59e0b',
     subscriptions: {
-      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' },
-      quarterly: { name: '3 Luni', price: 600, stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' }
+      monthly: { 
+        name: '1 Lună', 
+        price: 240, 
+        originalPrice: 300,
+        stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' 
+      },
+      quarterly: { 
+        name: '3 Luni', 
+        price: 600, 
+        originalPrice: 900,
+        stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' 
+      }
     }
   },
   bac: { 
@@ -25,8 +35,18 @@ const services = {
     duration: '1h 30 minute', 
     color: '#ea580c',
     subscriptions: {
-      monthly: { name: '1 Lună', price: 240, stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' },
-      quarterly: { name: '3 Luni', price: 600, stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' }
+      monthly: { 
+        name: '1 Lună', 
+        price: 600, 
+        originalPrice: 750,
+        stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' 
+      },
+      quarterly: { 
+        name: '3 Luni', 
+        price: 1500, 
+        originalPrice: 2250,
+        stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' 
+      }
     }
   }
 };
@@ -1224,6 +1244,7 @@ const handleFinalSubmit = async () => {
       </p>
     </div>
 
+
     {/* Service Cards */}
     <div style={{
       display: 'flex',
@@ -1385,7 +1406,7 @@ const handleFinalSubmit = async () => {
                   fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
                   color: '#475569'
                 }}>
-                  Aceste ore se repetă în fiecare săptămână. Odată înscris, vei participa la aceeași oră în fiecare săptămână.
+                  Chiar dacă achiziționezi un abonament acum, el va fi activ din data de 16 septembrie, când vor începe și cursurile
                 </p>
               </div>
 
