@@ -20,12 +20,14 @@ const services = {
         name: '1 Lună', 
         price: 240, 
         originalPrice: 300,
+        discount: '20% DISCOUNT',
         stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' 
       },
       quarterly: { 
         name: '3 Luni', 
         price: 600, 
         originalPrice: 900,
+        discount: '33% DISCOUNT',
         stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' 
       }
     }
@@ -37,14 +39,16 @@ const services = {
     subscriptions: {
       monthly: { 
         name: '1 Lună', 
-        price: 600, 
-        originalPrice: 750,
+        price: 240, 
+        originalPrice: 300,
+        discount: '20% DISCOUNT',
         stripeUrl: 'https://buy.stripe.com/6oUbJ13HO2BfbmN8Ix5AQ01' 
       },
       quarterly: { 
         name: '3 Luni', 
-        price: 1500, 
-        originalPrice: 2250,
+        price: 600, 
+        originalPrice: 900,
+        discount: '33% DISCOUNT',
         stripeUrl: 'https://buy.stripe.com/4gM00jdiodfTaiJ4sh5AQ04' 
       }
     }
@@ -435,13 +439,7 @@ const handlePaymentSuccess = async (sessionId) => {
   if (step === 1 && selectedSchedule) {
     setStep(2); 
   } else if (step === 2 && selectedSubscription) {
-    if (currentUser && userData) {
-      setStep(4); 
-    } else {
-      setStep(3); 
-    }
-  } else if (step === 3 && clientData.name && clientData.email && clientData.phone) {
-    setStep(4);
+    setStep(4); 
   }
 };
 
@@ -1085,7 +1083,7 @@ const handleFinalSubmit = async () => {
 </h1>
           
           {/* Progress Steps */}
-          {step > 0 && (
+{step > 0 && (
   <div style={{
     display: 'flex',
     justifyContent: 'center',
@@ -1093,10 +1091,10 @@ const handleFinalSubmit = async () => {
     gap: 'clamp(0.5rem, 2vw, 1rem)',
     marginBottom: '2rem',
     flexWrap: 'wrap',
-    maxWidth: '400px', 
+    maxWidth: '300px', 
     margin: '0 auto 2rem auto'
   }}>
-              {[1, 2, 3, 4].map((stepNum) => (
+    {[1, 2, 3].map((stepNum) => ( 
       <React.Fragment key={stepNum}>
         <div style={{
           width: 'clamp(30px, 6vw, 40px)',
@@ -1113,8 +1111,8 @@ const handleFinalSubmit = async () => {
           flexShrink: 0 
         }}>
           {stepNum}
-                  </div>
-        {stepNum < 4 && ( 
+        </div>
+        {stepNum < 3 && ( 
           <div style={{
             width: 'clamp(20px, 5vw, 40px)', 
             height: '2px',
@@ -1125,8 +1123,7 @@ const handleFinalSubmit = async () => {
       </React.Fragment>
     ))}
   </div>
-          )}
-          
+)}
           <div style={{
   fontSize: 'clamp(0.9rem, 2vw, 1rem)',
   color: '#f5f5dc', 
@@ -1136,8 +1133,7 @@ const handleFinalSubmit = async () => {
 }}>
   {step === 1 && 'Selectează programul săptămânal'}
   {step === 2 && 'Alege tipul de abonament'}
-  {step === 3 && 'Completează datele de contact'}
-  {step === 4 && 'Confirmă programarea'}
+  {step === 4 && 'Confirmă programarea'} 
 </div>
         </div>
 
@@ -1253,118 +1249,157 @@ const handleFinalSubmit = async () => {
       flexWrap: 'wrap'
     }}>
       {Object.entries(services).map(([serviceId, service]) => (
-        <div 
-          key={serviceId} 
-          onClick={() => handleServiceSelect(serviceId)}
-          style={{
-            backgroundColor: 'rgba(248, 250, 252, 0.8)',
-            borderRadius: '16px',
-            padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-            textAlign: 'center',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            width: 'clamp(280px, 45vw, 350px)',
-            backdropFilter: 'blur(5px)',
-            border: selectedService === serviceId ? `3px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
-            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-            e.currentTarget.style.borderColor = service.color;
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
-            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
-            if (selectedService !== serviceId) {
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-            }
-          }}
-        >
-          <div style={{
-            width: 'clamp(60px, 12vw, 80px)',
-            height: 'clamp(60px, 12vw, 80px)',
-            margin: '0 auto 1.5rem'
-          }}>
-            <img 
-              src={serviceId === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
-              alt={service.name}
-              style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }}
-            />
-          </div>
-          
-          <h3 style={{
-            fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-            fontWeight: '600',
-            color: '#2d3748',
-            marginBottom: '0.5rem'
-          }}>
-            {service.name}
-          </h3>
-          
-          <div style={{ marginBottom: '1.5rem' }}>
-            <div style={{
-              fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
-              fontWeight: '700',
-              color: service.color,
-              marginBottom: '0.5rem'
-            }}>
-              60 RON / ședință
-            </div>
-            
-            <div style={{
-              fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
-              fontWeight: '600',
-              color: '#718096',
-              marginBottom: '0.2rem'
-            }}>
-              Abonament lunar la 240 RON
-            </div>
-            
-            <div style={{
-              fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-              color: '#718096'
-            }}>
-              {service.duration} / ședință
-            </div>
-          </div>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleServiceSelect(serviceId);
-            }}
-            style={{
-              backgroundColor: service.color,
-              color: 'white',
-              border: 'none',
-              padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
-              borderRadius: '8px',
-              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              width: '100%'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.opacity = '0.9';
-              e.target.style.transform = 'translateY(-1px)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.opacity = '1';
-              e.target.style.transform = 'translateY(0)';
-            }}
-          >
-            Selectează
-          </button>
-        </div>
-      ))}
+  <div 
+    key={serviceId} 
+    onClick={() => handleServiceSelect(serviceId)}
+    style={{
+      backgroundColor: 'rgba(248, 250, 252, 0.8)',
+      borderRadius: '16px',
+      padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+      textAlign: 'center',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      width: 'clamp(280px, 45vw, 350px)',
+      backdropFilter: 'blur(5px)',
+      border: selectedService === serviceId ? `3px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.3)',
+      position: 'relative' // Adăugat pentru positioning
+    }}
+    onMouseOver={(e) => {
+      e.currentTarget.style.transform = 'translateY(-4px)';
+      e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+      e.currentTarget.style.borderColor = service.color;
+    }}
+    onMouseOut={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = 'none';
+      e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
+      if (selectedService !== serviceId) {
+        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+      }
+    }}
+  >
+    {/* Badge Ofertă Limitată */}
+    <div style={{
+  position: 'absolute',
+  top: '10px',
+  right: '-5px', // Iese puțin din card
+  backgroundColor: '#16a34a',
+  color: 'white',
+  padding: '0.25rem 0.5rem',
+  borderRadius: '8px',
+  fontSize: 'clamp(0.6rem, 1.2vw, 0.7rem)',
+  fontWeight: '700',
+  boxShadow: '0 3px 12px rgba(22, 163, 74, 0.4)',
+  transform: 'rotate(15deg)',
+  transformOrigin: 'center',
+  zIndex: 2,
+  whiteSpace: 'nowrap',
+  letterSpacing: '0.025em'
+}}>
+  OFERTĂ LIMITATĂ
+</div>
+
+    <div style={{
+      width: 'clamp(60px, 12vw, 80px)',
+      height: 'clamp(60px, 12vw, 80px)',
+      margin: '0 auto 1.5rem'
+    }}>
+      <img 
+        src={serviceId === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
+        alt={service.name}
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          objectFit: 'cover'
+        }}
+      />
+    </div>
+    
+    <h3 style={{
+      fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
+      fontWeight: '600',
+      color: '#2d3748',
+      marginBottom: '0.5rem'
+    }}>
+      {service.name}
+    </h3>
+    
+    <div style={{ marginBottom: '1.5rem' }}>
+      <div style={{
+        fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+        fontWeight: '700',
+        color: service.color,
+        marginBottom: '0.5rem'
+      }}>
+        60 RON / ședință
+      </div>
+      
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '0.5rem'
+      }}>
+        <span style={{
+          fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
+          fontWeight: '600',
+          color: '#718096'
+        }}>
+          Abonament lunar la 240 RON
+        </span>
+      </div>
+
+      {/* Economisește badge verde */}
+      {/* <div style={{
+        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+        color: '#16a34a',
+        fontWeight: '600',
+        marginBottom: '0.2rem'
+      }}>
+        Economisești 60 RON
+      </div> */}
+      
+      <div style={{
+        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+        color: '#718096'
+      }}>
+        {service.duration} / ședință
+      </div>
+    </div>
+    
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        handleServiceSelect(serviceId);
+      }}
+      style={{
+        backgroundColor: service.color,
+        color: 'white',
+        border: 'none',
+        padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
+        borderRadius: '8px',
+        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        width: '100%'
+      }}
+      onMouseOver={(e) => {
+        e.target.style.opacity = '0.9';
+        e.target.style.transform = 'translateY(-1px)';
+      }}
+      onMouseOut={(e) => {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }}
+    >
+      Selectează
+    </button>
+  </div>
+))}
     </div>
   </div>
 )}
@@ -1562,32 +1597,83 @@ const handleFinalSubmit = async () => {
           key={key}
           onClick={() => setSelectedSubscription(key)}
           style={{
-            borderRadius: '12px',
+            borderRadius: '16px',
             padding: 'clamp(1.5rem, 4vw, 2rem)',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             backgroundColor: selectedSubscription === key ? '#f0f9ff' : '#f8fafc',
             border: selectedSubscription === key ? 
                    `3px solid ${currentService?.color}` : '1px solid rgba(255, 255, 255, 0.3)',
-            textAlign: 'center'
+            textAlign: 'center',
+            position: 'relative'
           }}
         >
+          {/* Ofertă Limitată Badge */}
+          <div style={{
+  position: 'absolute',
+  top: '10px',
+  right: '-5px', // Iese puțin din card
+  backgroundColor: '#16a34a',
+  color: 'white',
+  padding: '0.25rem 0.5rem',
+  borderRadius: '8px',
+  fontSize: 'clamp(0.6rem, 1.2vw, 0.7rem)',
+  fontWeight: '700',
+  boxShadow: '0 3px 12px rgba(22, 163, 74, 0.4)',
+  transform: 'rotate(15deg)',
+  transformOrigin: 'center',
+  zIndex: 2,
+  whiteSpace: 'nowrap',
+  letterSpacing: '0.025em'
+}}>
+  OFERTĂ LIMITATĂ
+</div>
+          
           <div style={{
             fontSize: 'clamp(1.3rem, 3.2vw, 1.6rem)',
             fontWeight: '700',
             color: currentService?.color,
-            marginBottom: '0.5rem'
+            marginBottom: '0.5rem',
+            marginTop: '1rem' // Space pentru badge
           }}>
             {subscription.name}
           </div>
           
           <div style={{
-            fontSize: 'clamp(1.8rem, 4vw, 2.2rem)',
-            fontWeight: '800',
-            color: '#1f2937',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  marginBottom: '0.5rem'
+}}>
+  {/* Prețul tăiat sus */}
+  <span style={{
+    fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
+    color: '#9ca3af',
+    textDecoration: 'line-through',
+    fontWeight: '500',
+    marginBottom: '0.25rem'
+  }}>
+    {subscription.originalPrice} RON
+  </span>
+  
+  {/* Prețul principal jos */}
+  <span style={{
+    fontSize: 'clamp(1.8rem, 4vw, 2.2rem)',
+    fontWeight: '800',
+    color: '#1f2937'
+  }}>
+    {subscription.price} RON
+  </span>
+</div>
+
+          {/* Economisește badge */}
+          <div style={{
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+            color: '#16a34a',
+            fontWeight: '600',
             marginBottom: '1rem'
           }}>
-            {subscription.price} RON
+            Economisești {subscription.originalPrice - subscription.price} RON
           </div>
           
           <div style={{
@@ -1598,7 +1684,6 @@ const handleFinalSubmit = async () => {
             {key === 'monthly' ? '4 ședințe' : '12 ședințe'}
           </div>
         
-          
           <div style={{
             padding: '0.5rem',
             borderRadius: '6px',
@@ -1615,196 +1700,8 @@ const handleFinalSubmit = async () => {
   </div>
 )}
 
-          {/* Step 3: Contact Details */}
-          {step === 3 && (
-            <div>
-              <h3 style={{
-                fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-                marginBottom: '1.5rem',
-                color: '#1f2937',
-                textAlign: 'center',
-                fontWeight: '600'
-              }}>
-                Datele Tale de Contact
-              </h3>
-              
-              {/* Selection Summary */}
-              <div style={{
-                backgroundColor: 'rgba(240, 249, 255, 0.9)',
-                border: `2px solid ${currentService?.color}`,
-                borderRadius: '12px',
-                padding: 'clamp(1rem, 3vw, 1.5rem)',
-                marginBottom: '2rem',
-                backdropFilter: 'blur(5px)'
-              }}>
-                <h4 style={{
-                  margin: '0 0 1rem 0',
-                  fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
-                  fontWeight: '600',
-                  color: currentService?.color
-                }}>
-                  Programare Selectată
-                </h4>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                  gap: '1rem'
-                }}>
-                  <div>
-                    <span style={{ color: '#6b7280', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)' }}>Serviciu:</span>
-                    <div style={{ fontWeight: '600', color: '#1f2937' }}>{currentService?.name}</div>
-                  </div>
-                  <div>
-                    <span style={{ color: '#6b7280', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)' }}>Program:</span>
-                    <div style={{ fontWeight: '600', color: '#1f2937' }}>
-                      {selectedSchedule?.zi} la {selectedSchedule?.ora}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ color: '#6b7280', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)' }}>Preț:</span>
-                    <div style={{
-                      fontWeight: '600',
-                      fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
-                      color: currentService?.color
-                    }}>
-                      240 RON/lună
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Form */}
-              <div style={{
-                display: 'grid',
-                gap: 'clamp(1rem, 3vw, 1.5rem)'
-              }}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))',
-                  gap: '1rem'
-                }}>
-                  <div>
-                    <label style={{
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)'
-                    }}>
-                      Nume Complet *
-                    </label>
-                    <input
-                      type="text"
-                      value={clientData.name}
-                      onChange={(e) => setClientData({...clientData, name: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: 'clamp(0.7rem, 2vw, 0.8rem)',
-                        border: '1px solid rgba(209, 213, 219, 0.5)',
-                        borderRadius: '8px',
-                        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                        boxSizing: 'border-box',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        color: '#1f2937',
-                        backdropFilter: 'blur(5px)'
-                      }}
-                      placeholder="Introdu numele complet"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label style={{
-                      display: 'block',
-                      marginBottom: '0.5rem',
-                      color: '#374151',
-                      fontWeight: '500',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)'
-                    }}>
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      value={clientData.email}
-                      onChange={(e) => setClientData({...clientData, email: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: 'clamp(0.7rem, 2vw, 0.8rem)',
-                        border: '1px solid rgba(209, 213, 219, 0.5)',
-                        borderRadius: '8px',
-                        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                        boxSizing: 'border-box',
-                        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                        color: '#1f2937',
-                        backdropFilter: 'blur(5px)'
-                      }}
-                      placeholder="email@exemplu.ro"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    color: '#374151',
-                    fontWeight: '500',
-                    fontSize: 'clamp(0.9rem, 2vw, 1rem)'
-                  }}>
-                    Număr de Telefon *
-                  </label>
-                  <input
-                    type="tel"
-                    value={clientData.phone}
-                    onChange={(e) => setClientData({...clientData, phone: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: 'clamp(0.7rem, 2vw, 0.8rem)',
-                      border: '1px solid rgba(209, 213, 219, 0.5)',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      boxSizing: 'border-box',
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      color: '#1f2937',
-                      backdropFilter: 'blur(5px)'
-                    }}
-                    placeholder="+40 XXX XXX XXX"
-                  />
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '0.5rem',
-                    color: '#374151',
-                    fontWeight: '500',
-                    fontSize: 'clamp(0.9rem, 2vw, 1rem)'
-                  }}>
-                    Mesaj (opțional)
-                  </label>
-                  <textarea
-                    value={clientData.message}
-                    onChange={(e) => setClientData({...clientData, message: e.target.value})}
-                    rows={3}
-                    style={{
-                      width: '100%',
-                      padding: 'clamp(0.7rem, 2vw, 0.8rem)',
-                      border: '1px solid rgba(209, 213, 219, 0.5)',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      resize: 'vertical',
-                      boxSizing: 'border-box',
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      color: '#1f2937',
-                      backdropFilter: 'blur(5px)'
-                    }}
-                    placeholder="Detalii suplimentare sau întrebări..."
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Final Confirmation */}
+          
+          {/* Step 3: Final Confirmation */}
           {step === 4 && (
             <div>
               <h3 style={{
@@ -2173,8 +2070,7 @@ const handleFinalSubmit = async () => {
   onClick={handleContinue}
   disabled={
     (step === 1 && !selectedSchedule) ||
-    (step === 2 && !selectedSubscription) || 
-    (step === 3 && (!clientData.name || !clientData.email || !clientData.phone))
+    (step === 2 && !selectedSubscription)
   }
   style={{
                     display: 'flex',
@@ -2191,8 +2087,7 @@ const handleFinalSubmit = async () => {
                     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
                     backgroundColor: currentService?.color || '#ea580c',
                     opacity: (step === 1 && !selectedSchedule) || 
-             (step === 2 && !selectedSubscription) || 
-             (step === 3 && (!clientData.name || !clientData.email || !clientData.phone)) ? 0.5 : 1
+             (step === 2 && !selectedSubscription) ? 0.5 : 1
   }}
                 >
                   Continuă
