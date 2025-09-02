@@ -170,7 +170,7 @@ function App() {
                   color: '#6b7280', 
                   fontSize: '0.8rem' // Redus de la 0.875rem la 0.8rem
                 }}>
-                  Matematică pentru toți
+                  Matematică pe întelesul tuturor
                 </p>
               </div>
             </div>

@@ -14,21 +14,31 @@ const TikTokIcon = ({ style }) => (
   </svg>
 );
 
+const FacebookIcon = ({ style }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    style={style}
+    fill="currentColor"
+  >
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
+
 const Footer = () => {
   const documents = [
     {
       name: 'Termeni și Condiții',
-      file: 'Termeni_si_Conditii_InfinityMath.pdf', // ✅ Schimbat la .pdf
+      file: 'Termeni_si_Conditii_InfinityMath.pdf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Returnare',
-      file: 'Politica_Retur.pdf', // ✅ Schimbat la .pdf
+      file: 'Politica_Retur.pdf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     },
     {
       name: 'Politica de Confidențialitate',
-      file: 'Politica_Confidentialitate.pdf', // ✅ Schimbat la .pdf
+      file: 'Politica_Confidentialitate.pdf',
       icon: <FileText style={{ width: '1rem', height: '1rem' }} />
     }
   ];
@@ -104,7 +114,7 @@ const Footer = () => {
     copyright: {
       margin: 0
     },
-    logoSection: {
+    leftSection: {
       display: 'flex',
       alignItems: 'center',
       gap: '1.5rem',
@@ -122,24 +132,22 @@ const Footer = () => {
       alignItems: 'center'
     },
     socialLinks: {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '1rem'
-},
-socialLink: {
-  display: 'flex',
-  alignItems: 'center',
-  color: '#9ca3af',
-  textDecoration: 'none',
-  transition: 'color 0.2s ease, transform 0.2s ease'
-}
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      marginLeft: 'auto' // Împinge linkurile sociale în dreapta
+    },
+    socialLink: {
+      display: 'flex',
+      alignItems: 'center',
+      color: '#9ca3af',
+      textDecoration: 'none',
+      transition: 'color 0.2s ease, transform 0.2s ease'
+    }
   };
 
   const handleDocumentClick = (fileName) => {
-    // Pentru PDF-uri: deschide într-o pagină nouă
     const fileUrl = `/documents/${fileName}`;
-    
-    // Deschide PDF-ul într-un tab nou ca viewer în browser
     window.open(fileUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -196,76 +204,92 @@ socialLink: {
         <div style={footerStyles.divider}></div>
 
         <div style={footerStyles.bottom}>
-                    
-          <div style={footerStyles.logoSection}>
-  {/* Logo-uri ANPC cu linkuri */}
-  <a 
-    href="https://anpc.ro/ce-este-sal/" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    style={{ display: 'flex', alignItems: 'center' }}
-  >
-    <img 
-      src="/images/ANPC.jpeg" 
-      alt="ANPC - Soluționarea Alternativă a Litigiilor" 
-      style={footerStyles.anpcImage}
-      onMouseOver={(e) => e.target.style.opacity = '1'}
-      onMouseOut={(e) => e.target.style.opacity = '0.8'}
-    />
-  </a>
-  
-  <a 
-    href="https://ec.europa.eu/consumers/odr" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    style={{ display: 'flex', alignItems: 'center' }}
-  >
-    <img 
-      src="/images/ANPC2.jpeg" 
-      alt="ANPC - Soluționarea Online a Litigiilor" 
-      style={footerStyles.anpcImage}
-      onMouseOver={(e) => e.target.style.opacity = '1'}
-      onMouseOut={(e) => e.target.style.opacity = '0.8'}
-    />
-  </a>
+          {/* Secțiunea din stânga cu logo-urile ANPC */}
+          <div style={footerStyles.leftSection}>
+            <a 
+              href="https://anpc.ro/ce-este-sal/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <img 
+                src="/images/ANPC.jpeg" 
+                alt="ANPC - Soluționarea Alternativă a Litigiilor" 
+                style={footerStyles.anpcImage}
+                onMouseOver={(e) => e.target.style.opacity = '1'}
+                onMouseOut={(e) => e.target.style.opacity = '0.8'}
+              />
+            </a>
+            
+            <a 
+              href="https://ec.europa.eu/consumers/odr" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              style={{ display: 'flex', alignItems: 'center' }}
+            >
+              <img 
+                src="/images/ANPC2.jpeg" 
+                alt="ANPC - Soluționarea Online a Litigiilor" 
+                style={footerStyles.anpcImage}
+                onMouseOver={(e) => e.target.style.opacity = '1'}
+                onMouseOut={(e) => e.target.style.opacity = '0.8'}
+              />
+            </a>
+          </div>
 
-  {/* Social Media Links */}
-  <div style={footerStyles.socialLinks}>
-    <a 
-      href="https://www.instagram.com/_infinity_math/?hl=en"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={footerStyles.socialLink}
-      onMouseOver={(e) => {
-        e.currentTarget.style.color = '#E4405F'; // Instagram color
-        e.currentTarget.style.transform = 'translateY(-2px)';
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.color = '#9ca3af';
-        e.currentTarget.style.transform = 'translateY(0px)';
-      }}
-    >
-      <Instagram style={{ width: '1.5rem', height: '1.5rem' }} />
-    </a>
-    
-    <a 
-      href="https://www.tiktok.com/@_infinity_math?lang=en"
-      target="_blank"
-      rel="noopener noreferrer"
-      style={footerStyles.socialLink}
-      onMouseOver={(e) => {
-        e.currentTarget.style.color = '#ff0050'; // TikTok color
-        e.currentTarget.style.transform = 'translateY(-2px)';
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.color = '#9ca3af';
-        e.currentTarget.style.transform = 'translateY(0px)';
-      }}
-    >
-      <TikTokIcon style={{ width: '1.5rem', height: '1.5rem' }} />
-    </a>
-  </div>
-</div>
+          {/* Linkurile sociale în dreapta */}
+          <div style={footerStyles.socialLinks}>
+            <a 
+              href="https://www.facebook.com/people/Infinity-math/100063583206537/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={footerStyles.socialLink}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#1877F2'; // Facebook color
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#9ca3af';
+                e.currentTarget.style.transform = 'translateY(0px)';
+              }}
+            >
+              <FacebookIcon style={{ width: '1.5rem', height: '1.5rem' }} />
+            </a>
+
+            <a 
+              href="https://www.instagram.com/_infinity_math/?hl=en"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={footerStyles.socialLink}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#E4405F'; // Instagram color
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#9ca3af';
+                e.currentTarget.style.transform = 'translateY(0px)';
+              }}
+            >
+              <Instagram style={{ width: '1.5rem', height: '1.5rem' }} />
+            </a>
+            
+            <a 
+              href="https://www.tiktok.com/@_infinity_math?lang=en"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={footerStyles.socialLink}
+              onMouseOver={(e) => {
+                e.currentTarget.style.color = '#ff0050'; // TikTok color
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.color = '#9ca3af';
+                e.currentTarget.style.transform = 'translateY(0px)';
+              }}
+            >
+              <TikTokIcon style={{ width: '1.5rem', height: '1.5rem' }} />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

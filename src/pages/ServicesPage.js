@@ -1185,128 +1185,168 @@ const handleFinalSubmit = async () => {
         }}>
           
           {/* Step 0: Service Selection */}
-          {step === 0 && (
+{step === 0 && (
+  <div>
+    {/* Course Start Date Notice */}
+    <div style={{
+      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+      border: '2px solid #3b82f6',
+      borderRadius: '12px',
+      padding: 'clamp(1rem, 3vw, 1.5rem)',
+      marginBottom: 'clamp(2rem, 4vw, 3rem)',
+      textAlign: 'center',
+      backdropFilter: 'blur(5px)'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        marginBottom: '0.75rem'
+      }}>
+        <Calendar style={{ width: '1.25rem', height: '1.25rem', color: '#3b82f6' }} />
+        <span style={{
+          fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
+          fontWeight: '600',
+          color: '#3b82f6'
+        }}>
+          Data de Început
+        </span>
+      </div>
+      <p style={{
+        margin: '0',
+        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+        color: '#1e40af',
+        fontWeight: '500',
+        lineHeight: '1.5'
+      }}>
+        Cursurile pentru ambele clase vor începe din <strong>16 Septembrie</strong>
+      </p>
+    </div>
+
+    {/* Service Cards */}
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      gap: 'clamp(1rem, 3vw, 2rem)',
+      flexWrap: 'wrap'
+    }}>
+      {Object.entries(services).map(([serviceId, service]) => (
+        <div 
+          key={serviceId} 
+          onClick={() => handleServiceSelect(serviceId)}
+          style={{
+            backgroundColor: 'rgba(248, 250, 252, 0.8)',
+            borderRadius: '16px',
+            padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+            textAlign: 'center',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            width: 'clamp(280px, 45vw, 350px)',
+            backdropFilter: 'blur(5px)',
+            border: selectedService === serviceId ? `3px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.3)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            e.currentTarget.style.borderColor = service.color;
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+            e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
+            if (selectedService !== serviceId) {
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            }
+          }}
+        >
+          <div style={{
+            width: 'clamp(60px, 12vw, 80px)',
+            height: 'clamp(60px, 12vw, 80px)',
+            margin: '0 auto 1.5rem'
+          }}>
+            <img 
+              src={serviceId === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
+              alt={service.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
+          </div>
+          
+          <h3 style={{
+            fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
+            fontWeight: '600',
+            color: '#2d3748',
+            marginBottom: '0.5rem'
+          }}>
+            {service.name}
+          </h3>
+          
+          <div style={{ marginBottom: '1.5rem' }}>
             <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 'clamp(1rem, 3vw, 2rem)',
-              flexWrap: 'wrap'
+              fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+              fontWeight: '700',
+              color: service.color,
+              marginBottom: '0.5rem'
             }}>
-              {Object.entries(services).map(([serviceId, service]) => (
-                <div 
-                  key={serviceId} 
-                  onClick={() => handleServiceSelect(serviceId)}
-                  style={{
-                    backgroundColor: 'rgba(248, 250, 252, 0.8)',
-                    borderRadius: '16px',
-                    padding: 'clamp(1.5rem, 4vw, 2.5rem)',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    width: 'clamp(280px, 45vw, 350px)',
-                    backdropFilter: 'blur(5px)',
-                    border: selectedService === serviceId ? `3px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.3)'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-                    e.currentTarget.style.borderColor = service.color;
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.backgroundColor = 'rgba(248, 250, 252, 0.8)';
-                    if (selectedService !== serviceId) {
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-                    }
-                  }}
-                >
-                  <div style={{
-                    width: 'clamp(60px, 12vw, 80px)',
-                    height: 'clamp(60px, 12vw, 80px)',
-                    margin: '0 auto 1.5rem'
-                  }}>
-                    <img 
-                      src={serviceId === 'evaluare' ? '/images/logo_VII_2.png' : '/images/logo_VIII_2.png'}
-                      alt={service.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        borderRadius: '50%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  </div>
-                  
-                  <h3 style={{
-                    fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-                    fontWeight: '600',
-                    color: '#2d3748',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {service.name}
-                  </h3>
-                  
-                  <div style={{ marginBottom: '1.5rem' }}>
-                    <div style={{
-                      fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
-                      fontWeight: '700',
-                      color: service.color,
-                      marginBottom: '0.5rem'
-                    }}>
-                      60 RON / ședință
-                    </div>
-                    
-                    <div style={{
-                      fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
-                      fontWeight: '600',
-                      color: '#718096',
-                      marginBottom: '0.2rem'
-                    }}>
-                      Abonament lunar la 240 RON
-                    </div>
-                    
-                    <div style={{
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      color: '#718096'
-                    }}>
-                      {service.duration} / ședință
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleServiceSelect(serviceId);
-                    }}
-                    style={{
-                      backgroundColor: service.color,
-                      color: 'white',
-                      border: 'none',
-                      padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      width: '100%'
-                    }}
-                    onMouseOver={(e) => {
-                      e.target.style.opacity = '0.9';
-                      e.target.style.transform = 'translateY(-1px)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.target.style.opacity = '1';
-                      e.target.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    Selectează
-                  </button>
-                </div>
-              ))}
+              60 RON / ședință
             </div>
-          )}
+            
+            <div style={{
+              fontSize: 'clamp(0.9rem, 2.2vw, 1.1rem)',
+              fontWeight: '600',
+              color: '#718096',
+              marginBottom: '0.2rem'
+            }}>
+              Abonament lunar la 240 RON
+            </div>
+            
+            <div style={{
+              fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+              color: '#718096'
+            }}>
+              {service.duration} / ședință
+            </div>
+          </div>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleServiceSelect(serviceId);
+            }}
+            style={{
+              backgroundColor: service.color,
+              color: 'white',
+              border: 'none',
+              padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem)',
+              borderRadius: '8px',
+              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              width: '100%'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.opacity = '0.9';
+              e.target.style.transform = 'translateY(-1px)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.opacity = '1';
+              e.target.style.transform = 'translateY(0)';
+            }}
+          >
+            Selectează
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
           {/* Step 1: Schedule Selection */}
           {step === 1 && (

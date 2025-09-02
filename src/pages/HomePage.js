@@ -485,7 +485,7 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
             
             <p style={homePageStyles.howText}>
               Cursurile mele de matematică au loc <strong>săptămânal, online</strong>, și sunt dedicate 
-              pregătirii pentru <strong>Evaluarea Națională și Bacalaureat</strong>. Fiecare sesiune 
+              pregătirii pentru <strong>Evaluarea Națională</strong>. Fiecare sesiune 
               durează aproximativ <strong>90 de minute</strong> și se desfășoară online, live pe Google Meet, cu posibilitatea 
               de a pune întrebări și de a interacționa.
             </p>
