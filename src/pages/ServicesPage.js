@@ -279,50 +279,64 @@ const handlePaymentSuccess = async (sessionId) => {
 };
 
   const handleGoogleLogin = async () => {
-    setAuthLoading(true);
-    setAuthError('');
+  setAuthLoading(true);
+  setAuthError('');
 
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      
-      if (!userDoc.exists()) {
-        const userDocData = {
-          numeElev: user.displayName?.split(' ')[1] || 'Elev',
-          prenumeElev: user.displayName?.split(' ')[0] || 'Nou',
-          email: user.email,
-          telefon: '',
-          tipCont: user.email.includes('admin') ? 'admin' : 'elev',
-          createdAt: serverTimestamp(),
-          abonament: {
-            activ: false,
-            tip: 'evaluare',
-            dataInceperii: null,
-            linkCurs: null,
-            ziuaSaptamanii: null,
-            oraCurs: null,
-            dataUrmatoareiSedinte: null
-          }
-        };
-
-        await setDoc(doc(db, 'users', user.uid), userDocData);
-      }
-
-      setShowAuthModal(false);
-      setStep(3);
-      
-    } catch (error) {
-      console.error('Eroare la Google Login:', error);
-      setAuthError('Eroare la autentificarea cu Google. Te rog să încerci din nou.');
-    }
+  try {
+    console.log('1. Începe Google Login...');
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
     
-    setAuthLoading(false);
-  };
+    console.log('2. Google Login Success:', user.uid, user.email);
+    
+    console.log('3. Verifică document utilizator...');
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    
+    if (!userDoc.exists()) {
+      console.log('4. Creează document utilizator nou...');
+      const userDocData = {
+        numeElev: user.displayName?.split(' ')[1] || 'Elev',
+        prenumeElev: user.displayName?.split(' ')[0] || 'Nou',
+        email: user.email,
+        telefon: '',
+        tipCont: user.email.includes('admin') ? 'admin' : 'elev',
+        createdAt: serverTimestamp(),
+        abonament: {
+          activ: false,
+          tip: 'evaluare',
+          dataInceperii: null,
+          linkCurs: null,
+          ziuaSaptamanii: null,
+          oraCurs: null,
+          dataUrmatoareiSedinte: null
+        }
+      };
 
+      await setDoc(doc(db, 'users', user.uid), userDocData);
+      console.log('5. Document utilizator creat cu succes');
+    } else {
+      console.log('4. Document utilizator există deja');
+    }
+
+    console.log('6. Închide modal și continuă la pasul de confirmare...');
+    setShowAuthModal(false);
+    setStep(4); // Trece la pasul de confirmare după autentificare
+    
+  } catch (error) {
+    console.error('Eroare detaliată la Google Login:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    
+    if (error.code === 'permission-denied') {
+      setAuthError('Eroare de permisiuni. Verifică regulile Firebase.');
+    } else {
+      setAuthError(`Eroare la autentificarea cu Google: ${error.message}`);
+    }
+  }
   
+  setAuthLoading(false);
+};
 
 
 
@@ -450,58 +464,66 @@ const handlePaymentSuccess = async (sessionId) => {
   if (step === 1 && selectedSchedule) {
     setStep(2); 
   } else if (step === 2 && selectedSubscription) {
+    if (!currentUser) {
+      setShowAuthModal(true);
+      return;
+    }
     setStep(4); 
   }
 };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError('');
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  setAuthLoading(true);
+  setAuthError('');
 
-    const result = await loginUser(loginForm.email, loginForm.password);
+  const result = await loginUser(loginForm.email, loginForm.password);
+  
+  if (result.success) {
+    setLoginForm({ email: '', password: '' });
+    setShowAuthModal(false);
     
-    if (result.success) {
-      setLoginForm({ email: '', password: '' });
-      setShowAuthModal(false);
-      setStep(3);
-    } else {
-      setAuthError(result.error);
-    }
-    
-    setAuthLoading(false);
-  };
+    setStep(4);
+  } else {
+    setAuthError(result.error);
+  }
+  
+  setAuthLoading(false);
+};
+
 
   const handleRegister = async (e) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError('');
+  e.preventDefault();
+  setAuthLoading(true);
+  setAuthError('');
 
-    if (registerForm.password !== registerForm.confirmPassword) {
-      setAuthError('Parolele nu coincid');
-      setAuthLoading(false);
-      return;
-    }
-
-    const result = await registerUser(registerForm);
-    
-    if (result.success) {
-      setRegisterForm({
-        numeElev: '',
-        prenumeElev: '',
-        email: '',
-        telefon: '',
-        password: '',
-        confirmPassword: ''
-      });
-      setShowAuthModal(false);
-      setStep(3);
-    } else {
-      setAuthError(result.error);
-    }
-    
+  if (registerForm.password !== registerForm.confirmPassword) {
+    setAuthError('Parolele nu coincid');
     setAuthLoading(false);
-  };
+    return;
+  }
+
+  const result = await registerUser(registerForm);
+  
+  if (result.success) {
+    setRegisterForm({
+      numeElev: '',
+      prenumeElev: '',
+      email: '',
+      telefon: '',
+      password: '',
+      confirmPassword: ''
+    });
+    setShowAuthModal(false);
+    
+    setStep(4);
+  } else {
+    setAuthError(result.error);
+  }
+  
+  setAuthLoading(false);
+};
+
 
   const closeAuthModal = () => {
     setShowAuthModal(false);
@@ -520,8 +542,9 @@ const handlePaymentSuccess = async (sessionId) => {
 const handleFinalSubmit = async () => {
   setIsLoading(true);
   
-   try {
+  try {
     if (currentUser && userData) {
+      // Fluxul existent pentru utilizatori autentificați
       const currentService = services[selectedService];
       
       if (!selectedService || !selectedSchedule || !selectedSubscription) {
@@ -530,7 +553,7 @@ const handleFinalSubmit = async () => {
         return;
       }
       
-       const enrollmentData = {
+      const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
         subscriptionType: selectedSubscription, 
@@ -547,7 +570,7 @@ const handleFinalSubmit = async () => {
         userId: currentUser.uid
       };
 
-       console.log('Saving enrollment data:', enrollmentData);
+      console.log('Saving enrollment data:', enrollmentData);
       const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
       console.log('Enrollment saved with ID:', enrollmentRef.id);
       
@@ -560,17 +583,8 @@ const handleFinalSubmit = async () => {
         timestamp: Date.now()
       };
 
-
       sessionStorage.setItem('pendingEnrollment', JSON.stringify(pendingData));
       console.log('Pending enrollment saved to sessionStorage:', pendingData);
-
-      sessionStorage.setItem('pendingEnrollment', JSON.stringify({
-        enrollmentId: enrollmentRef.id,
-        selectedService,
-        selectedSchedule,
-        selectedSubscription, 
-        userId: currentUser.uid
-      }));
       
       const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
       const baseUrl = window.location.origin;
@@ -583,32 +597,12 @@ const handleFinalSubmit = async () => {
       window.location.href = stripeUrl;
       
     } else {
-      // non-authenticated users
-      const currentService = services[selectedService];
-      
-      const enrollmentData = {
-        scheduleId: selectedSchedule.id,
-        serviceTip: selectedService,
-        clientName: clientData.name,
-        clientEmail: clientData.email,
-        clientPhone: clientData.phone,
-        clientMessage: clientData.message,
-        scheduleDay: selectedSchedule.zi,
-        scheduleTime: selectedSchedule.ora,
-        serviceName: currentService.name,
-        servicePrice: currentService.subscriptions[selectedSubscription].price,
-        createdAt: serverTimestamp(),
-        status: 'pending'
-      };
-
-            console.log('Non-authenticated user flow...');
-
-      
-      await addDoc(collection(db, 'enrollments'), enrollmentData);
-      setIsComplete(true);
+      setShowAuthModal(true);
+      setIsLoading(false);
+      return;
     }
     
-   } catch (error) {
+  } catch (error) {
     console.error('Eroare la salvarea programării:', error);
     alert('A apărut o eroare la salvarea programării. Te rog să încerci din nou.');
   }
