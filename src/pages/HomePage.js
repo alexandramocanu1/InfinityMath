@@ -381,7 +381,6 @@ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',  gap: '2rem',
     color: '#718096',
     marginBottom: '0.2rem'
   }}>
-    Abonament lunar la 240 RON
   </div>
   
   {/* Durata */}

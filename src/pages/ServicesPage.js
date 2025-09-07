@@ -1404,7 +1404,6 @@ if (hasActiveSubscription && activeCourse) {
           fontWeight: '600',
           color: '#718096'
         }}>
-          Abonament lunar la 240 RON
         </span>
       </div>
 
@@ -2602,7 +2601,7 @@ if (hasActiveSubscription && activeCourse) {
                 color: '#1f2937',
                 marginBottom: '1rem'
               }}>
-                {currentUser && userData ? 'Abonament Activat!' : 'Programare Confirmată!'}
+                {currentUser && userData ? 'Programarea a fost confirmata!' : 'Programare Confirmată!'}
               </h2>
               
               <p style={{
@@ -2613,11 +2612,11 @@ if (hasActiveSubscription && activeCourse) {
               }}>
                 {currentUser && userData ? (
                   <>
-                    Felicitări! Abonamentul tău pentru <strong style={{ color: currentService?.color }}>{currentService?.name}</strong> a fost activat cu succes.
+                    Vei fi contactat în curând pentru instrucțiuni de conectare și detaliile de plată.
                     <br/>
-                    Program: <strong style={{ color: '#1f2937' }}>{selectedSchedule?.zi} la {selectedSchedule?.ora}</strong>
+                    Program: <strong style={{ color: currentService?.color }}>{currentService?.name} </strong>, <strong style={{ color: '#1f2937' }}>{selectedSchedule?.zi} la {selectedSchedule?.ora}</strong>
                     <br/><br/>
-                    Poți vedea cursul în pagina ta de profil. Te vei întorce acolo în câteva secunde!
+                    Poți vedea cursul în pagina ta de profil.
                   </>
                 ) : (
                   <>
@@ -2625,7 +2624,7 @@ if (hasActiveSubscription && activeCourse) {
                     <br/>
                     Program: <strong style={{ color: '#1f2937' }}>{selectedSchedule?.zi} la {selectedSchedule?.ora}</strong>
                     <br/><br/>
-                    Vei fi contactat în următoarele 24 de ore pentru confirmarea finală și detaliile sesiunii!
+                    Vei fi contactat în curând pentru confirmarea finală și detaliile sesiunii!
                   </>
                 )}
               </p>
