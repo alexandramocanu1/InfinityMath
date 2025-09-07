@@ -55,7 +55,7 @@ const services = {
   }
 };
 
-  const hasActiveSubscription = userData?.abonament?.activ;
+  // const hasActiveSubscription = userData?.abonament?.activ;
 
 
 const [step, setStep] = useState(selectedService ? 1 : 0);
@@ -93,10 +93,12 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
     // cursul activ pt user u cu abonament
     // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadActiveCourse = async () => {
-    if (!userData?.abonament?.activ) return;
+  if (!userData?.abonament?.activ) return;
 
-    try {
-      // programul
+  try {
+    // Pentru utilizatori cu abonament activ (indiferent de status)
+    if (userData.abonament.ziuaSaptamanii && userData.abonament.oraCurs && userData.abonament.tip) {
+      // Caută programul în schedules
       const schedulesRef = collection(db, 'schedules');
       const q = query(
         schedulesRef,
@@ -117,14 +119,29 @@ const [step, setStep] = useState(selectedService ? 1 : 0);
           schedule: schedule,
           serviceTip: userData.abonament.tip,
           clientName: `${userData.prenumeElev} ${userData.numeElev}`,
-          status: 'active',
+          status: userData.abonament.status || 'pending_payment',
+          isActiveSubscription: true
+        });
+      } else {
+        // Dacă nu găsește schedule-ul în baza de date, creează unul temporar
+        setActiveCourse({
+          schedule: {
+            zi: userData.abonament.ziuaSaptamanii,
+            ora: userData.abonament.oraCurs,
+            tip: userData.abonament.tip,
+            link: null
+          },
+          serviceTip: userData.abonament.tip,
+          clientName: `${userData.prenumeElev} ${userData.numeElev}`,
+          status: userData.abonament.status || 'pending_payment',
           isActiveSubscription: true
         });
       }
-    } catch (error) {
-      console.error('Eroare la încărcarea cursului activ:', error);
     }
-  };
+  } catch (error) {
+    console.error('Eroare la încărcarea cursului activ:', error);
+  }
+};
 
 
 // // redirectla profil dc are abonament
@@ -471,13 +488,14 @@ const handlePaymentSuccess = async (sessionId) => {
 //   }
 // };
 
-const handleContinue = () => {
+const handleContinue = async () => {
   if (step === 1 && selectedSchedule) {
     if (!currentUser) {
       setShowAuthModal(true);
       return;
     }
-    setStep(3);
+    
+    await handleFinalSubmit();
   }
 };
 
@@ -549,6 +567,14 @@ const handleContinue = () => {
   };
 
 const handleFinalSubmit = async () => {
+  console.log('🔥 handleFinalSubmit START');
+  console.log('📊 Data check:', {
+    currentUser: !!currentUser,
+    userData: !!userData,
+    selectedService,
+    selectedSchedule: !!selectedSchedule
+  });
+  
   setIsLoading(true);
   
   try {
@@ -556,11 +582,13 @@ const handleFinalSubmit = async () => {
       const currentService = services[selectedService];
       
       if (!selectedService || !selectedSchedule) {
+        console.log('❌ Date incomplete:', { selectedService, selectedSchedule });
         alert('Eroare: Date incomplete. Te rog să selectezi toate opțiunile.');
         setIsLoading(false);
         return;
       }
       
+      console.log('✅ Preparing enrollment data...');
       const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
@@ -572,15 +600,17 @@ const handleFinalSubmit = async () => {
         scheduleTime: selectedSchedule.ora,
         serviceName: currentService.name,
         createdAt: serverTimestamp(),
-        status: 'pending_payment', // Status pentru plată în așteptare
+        status: 'pending_payment',
         userId: currentUser.uid
       };
 
-      console.log('Saving enrollment data:', enrollmentData);
-      const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
-      console.log('Enrollment saved with ID:', enrollmentRef.id);
+      console.log('📝 Enrollment data:', enrollmentData);
+      console.log('💾 Adding to enrollments collection...');
       
-      // Actualizează direct utilizatorul cu statusul pending
+      const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
+      console.log('✅ Enrollment saved with ID:', enrollmentRef.id);
+      
+      console.log('👤 Updating user document...');
       const userRef = doc(db, 'users', currentUser.uid);
       const updateData = {
         'abonament.activ': true,
@@ -589,36 +619,31 @@ const handleFinalSubmit = async () => {
         'abonament.ziuaSaptamanii': selectedSchedule.zi,
         'abonament.oraCurs': selectedSchedule.ora,
         'abonament.linkCurs': null, 
-        'abonament.status': 'pending_payment' // Status pending
+        'abonament.status': 'pending_payment',
+        'abonament.enrollmentId': enrollmentRef.id
       };
       
+      console.log('📝 User update data:', updateData);
       await updateDoc(userRef, updateData);
-      await refreshUserData();
+      console.log('✅ User document updated');
+      
       
       setIsComplete(true);
+      
+      setTimeout(() => {
+        setStep(0);
+      }, 3000);
       
     } else {
-      // Pentru utilizatori neautentificați - doar salvează programarea
-      const enrollmentData = {
-        scheduleId: selectedSchedule.id,
-        serviceTip: selectedService,
-        clientName: clientData.name,
-        clientEmail: clientData.email,
-        clientPhone: clientData.phone,
-        clientMessage: clientData.message,
-        scheduleDay: selectedSchedule.zi,
-        scheduleTime: selectedSchedule.ora,
-        serviceName: services[selectedService].name,
-        createdAt: serverTimestamp(),
-        status: 'pending_contact'
-      };
-      
-      await addDoc(collection(db, 'enrollments'), enrollmentData);
-      setIsComplete(true);
+      console.log('❌ Missing currentUser or userData:', { currentUser: !!currentUser, userData: !!userData });
+      throw new Error('Utilizator sau date utilizator lipsesc');
     }
     
   } catch (error) {
-    console.error('Eroare la salvarea programării:', error);
+    console.error('❌ DETAILED ERROR in handleFinalSubmit:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     alert('A apărut o eroare la salvarea programării. Te rog să încerci din nou.');
   }
   
@@ -650,8 +675,13 @@ const handleFinalSubmit = async () => {
   const currentService = selectedService ? services[selectedService] : null;
   const availableSchedules = selectedService ? adminSchedules[selectedService] || [] : [];
 
-if (userData?.abonament?.activ) {
-        return (
+const hasActiveSubscription = userData?.abonament?.activ && 
+  (userData?.abonament?.status === 'pending_payment' || 
+   userData?.abonament?.status === 'activ' || 
+   userData?.abonament?.status === 'active');
+
+if (hasActiveSubscription && activeCourse) { 
+          return (
       <div style={{
   fontFamily: "'Poppins', sans-serif",
   minHeight: '100vh',
@@ -713,7 +743,7 @@ if (userData?.abonament?.activ) {
               opacity: '0.8',
               marginBottom: '0'
             }}>
-              Ai acces la cursul pentru {getTipText(activeCourse.serviceTip)}
+              Ai acces la cursul pentru {getTipText(activeCourse?.serviceTip)}
             </p>
           </div>
 
@@ -726,51 +756,24 @@ if (userData?.abonament?.activ) {
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.2)'
           }}>
-            {/* Status activ */}
             <div style={{
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              border: '2px solid #10b981',
-              borderRadius: '12px',
-              padding: '1rem',
-              marginBottom: '2rem',
-              textAlign: 'center'
             }}>
-              <Check style={{
-                width: '2rem',
-                height: '2rem',
-                color: '#10b981',
-                marginBottom: '0.5rem'
-              }} />
-              <h3 style={{
-                fontSize: 'clamp(1.2rem, 3vw, 1.4rem)',
-                fontWeight: '700',
-                color: '#10b981',
-                margin: '0 0 0.5rem 0'
-              }}>
-                Abonament Activ
-              </h3>
-              <p style={{
-                fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                color: '#059669',
-                margin: '0'
-              }}>
-                Ai acces complet la toate funcționalitățile cursului
-              </p>
+              
             </div>
 
             {/* Informații despre curs */}
             <div style={{
-              borderLeft: `4px solid ${getTipColor(activeCourse.serviceTip)}`,
+              borderLeft: `4px solid ${getTipColor(activeCourse?.serviceTip)}`,
               marginBottom: '2rem'
             }}>
               <div style={{ padding: '0 0 0 1.5rem' }}>
                 <h2 style={{
                   fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
                   fontWeight: '700',
-                  color: getTipColor(activeCourse.serviceTip),
+                  color: getTipColor(activeCourse?.serviceTip),
                   marginBottom: '1rem'
                 }}>
-                  {getTipText(activeCourse.serviceTip)}
+                  {getTipText(activeCourse?.serviceTip)}
                 </h2>
 
                 <div style={{
@@ -797,7 +800,9 @@ if (userData?.abonament?.activ) {
                   }}>
                     <Clock style={{ width: '1.2rem', height: '1.2rem', color: '#6b7280' }} />
                     <span style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', color: '#374151' }}>
-                      Următoarea sesiune: <strong>{getNextSessionDate(activeCourse.schedule.zi, activeCourse.schedule.ora)}</strong>
+                      Următoarea sesiune: <strong>{activeCourse?.schedule?.zi && activeCourse?.schedule?.ora ? 
+  getNextSessionDate(activeCourse.schedule.zi, activeCourse.schedule.ora) : 
+  'Se încarcă...'}</strong>
                     </span>
                   </div>
 
@@ -816,113 +821,113 @@ if (userData?.abonament?.activ) {
             </div>
 
             {/* Link pentru curs */}
-            {activeCourse.schedule?.link ? (
-              <div style={{
-                backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                border: '2px solid #22c55e',
-                borderRadius: '12px',
-                padding: '1.5rem'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  marginBottom: '1rem'
-                }}>
-                  <ExternalLink style={{ width: '2rem', height: '2rem', color: '#22c55e' }} />
-                  <div>
-                    <h4 style={{
-                      fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
-                      fontWeight: '600',
-                      color: '#16a34a',
-                      margin: '0 0 0.25rem 0'
-                    }}>
-                      Link-ul cursului este disponibil
-                    </h4>
-                    <p style={{
-                      fontSize: 'clamp(0.85rem, 1.8vw, 0.9rem)',
-                      color: '#15803d',
-                      margin: '0'
-                    }}>
-                      Poți accesa cursul folosind link-ul de mai jos
-                    </p>
-                  </div>
-                </div>
+{activeCourse?.schedule?.link ? (
+  <div style={{
+    backgroundColor: 'rgba(34, 197, 94, 0.05)',
+    border: '2px solid #22c55e',
+    borderRadius: '12px',
+    padding: '1.5rem'
+  }}>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      marginBottom: '1rem'
+    }}>
+      <ExternalLink style={{ width: '2rem', height: '2rem', color: '#22c55e' }} />
+      <div>
+        <h4 style={{
+          fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+          fontWeight: '600',
+          color: '#16a34a',
+          margin: '0 0 0.25rem 0'
+        }}>
+          Link-ul cursului este disponibil
+        </h4>
+        <p style={{
+          fontSize: 'clamp(0.85rem, 1.8vw, 0.9rem)',
+          color: '#15803d',
+          margin: '0'
+        }}>
+          Poți accesa cursul folosind link-ul de mai jos
+        </p>
+      </div>
+    </div>
 
-                <div style={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  marginBottom: '1rem',
-                  flexWrap: 'wrap'
-                }}>
-                  <input
-                    type="text"
-                    value={activeCourse.schedule.link}
-                    readOnly
-                    style={{
-                      flex: '1',
-                      minWidth: '250px',
-                      padding: '0.75rem',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      backgroundColor: '#f9fafb',
-                      color: '#374151'
-                    }}
-                  />
-                  <button
-                    onClick={() => copyLink(activeCourse.schedule.link)}
-                    style={{
-                      padding: '0.75rem 1rem',
-                      backgroundColor: '#f3f4f6',
-                      border: '2px solid #e5e7eb',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                    title="Copiază link"
-                  >
-                    <Copy style={{ width: '1rem', height: '1rem' }} />
-                  </button>
-                </div>
+    <div style={{
+      display: 'flex',
+      gap: '0.5rem',
+      marginBottom: '1rem',
+      flexWrap: 'wrap'
+    }}>
+      <input
+        type="text"
+        value={activeCourse.schedule.link}
+        readOnly
+        style={{
+          flex: '1',
+          minWidth: '250px',
+          padding: '0.75rem',
+          border: '2px solid #e5e7eb',
+          borderRadius: '8px',
+          fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+          backgroundColor: '#f9fafb',
+          color: '#374151'
+        }}
+      />
+      <button
+        onClick={() => copyLink(activeCourse.schedule.link)}
+        style={{
+          padding: '0.75rem 1rem',
+          backgroundColor: '#f3f4f6',
+          border: '2px solid #e5e7eb',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}
+        title="Copiază link"
+      >
+        <Copy style={{ width: '1rem', height: '1rem' }} />
+      </button>
+    </div>
 
-                <button
-                  onClick={() => window.open(activeCourse.schedule.link, '_blank')}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.75rem',
-                    padding: '1rem 1.5rem',
-                    backgroundColor: '#22c55e',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.backgroundColor = '#16a34a';
-                    e.target.style.transform = 'translateY(-2px)';
-                    e.target.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.backgroundColor = '#22c55e';
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.3)';
-                  }}
-                >
-                  <PlayCircle style={{ width: '1.5rem', height: '1.5rem' }} />
-                  Intră la curs
-                </button>
-              </div>
-            ) : userData?.abonament?.status === 'pending_payment' ? (
+    <button
+      onClick={() => window.open(activeCourse.schedule.link, '_blank')}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.75rem',
+        padding: '1rem 1.5rem',
+        backgroundColor: '#22c55e',
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'
+      }}
+      onMouseOver={(e) => {
+        e.target.style.backgroundColor = '#16a34a';
+        e.target.style.transform = 'translateY(-2px)';
+        e.target.style.boxShadow = '0 6px 20px rgba(34, 197, 94, 0.4)';
+      }}
+      onMouseOut={(e) => {
+        e.target.style.backgroundColor = '#22c55e';
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 4px 16px rgba(34, 197, 94, 0.3)';
+      }}
+    >
+      <PlayCircle style={{ width: '1.5rem', height: '1.5rem' }} />
+      Intră la curs
+    </button>
+  </div>
+) : userData?.abonament?.status === 'pending_payment' ? (
   <div style={{
     backgroundColor: 'rgba(245, 158, 11, 0.05)',
     border: '2px solid #f59e0b',
@@ -984,58 +989,57 @@ if (userData?.abonament?.activ) {
       Profesorul va adăuga link-ul pentru cursul tău în curând. 
     </p>
   </div>
-            )}
+)}
 
+<div style={{
+  display: 'flex',
+  gap: '1rem',
+  marginTop: '2rem',
+  justifyContent: 'center',
+  flexWrap: 'wrap'
+}}>
+  <button
+    onClick={() => setCurrentPage('profile')}
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      backgroundColor: getTipColor(activeCourse?.serviceTip),
+      color: 'white',
+      border: 'none',
+      padding: '1rem 1.5rem',
+      borderRadius: '8px',
+      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    <User style={{ width: '1rem', height: '1rem' }} />
+    Vezi Profilul
+  </button>
 
-            <div style={{
-              display: 'flex',
-              gap: '1rem',
-              marginTop: '2rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => setCurrentPage('profile')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  backgroundColor: getTipColor(activeCourse.serviceTip),
-                  color: 'white',
-                  border: 'none',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '8px',
-                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <User style={{ width: '1rem', height: '1rem' }} />
-                Vezi Profilul
-              </button>
-
-              <button
-                onClick={() => setCurrentPage('home')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  backgroundColor: 'rgba(107, 114, 128, 0.1)',
-                  color: '#374151',
-                  border: '2px solid #e5e7eb',
-                  padding: '1rem 1.5rem',
-                  borderRadius: '8px',
-                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
-                Înapoi Acasă
-              </button>
-            </div>
+  <button
+    onClick={() => setCurrentPage('home')}
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      backgroundColor: 'rgba(107, 114, 128, 0.1)',
+      color: '#374151',
+      border: '2px solid #e5e7eb',
+      padding: '1rem 1.5rem',
+      borderRadius: '8px',
+      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease'
+    }}
+  >
+    <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+    Înapoi Acasă
+  </button>
+</div>
           </div>
         </div>
       </div>
