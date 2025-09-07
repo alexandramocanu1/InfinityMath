@@ -321,7 +321,7 @@ const handlePaymentSuccess = async (sessionId) => {
 
     console.log('6. Închide modal și continuă la pasul de confirmare...');
     setShowAuthModal(false);
-    setStep(4); // Trece la pasul de confirmare după autentificare
+    setStep(3); 
     
   } catch (error) {
     console.error('Eroare detaliată la Google Login:', error);
@@ -337,7 +337,6 @@ const handlePaymentSuccess = async (sessionId) => {
   
   setAuthLoading(false);
 };
-
 
 
   const loadSchedulesFromFirebase = async () => {
@@ -460,15 +459,25 @@ const handlePaymentSuccess = async (sessionId) => {
     }
   };
 
-  const handleContinue = () => {
+//   const handleContinue = () => {
+//   if (step === 1 && selectedSchedule) {
+//     setStep(2); 
+//   } else if (step === 2 && selectedSubscription) {
+//     if (!currentUser) {
+//       setShowAuthModal(true);
+//       return;
+//     }
+//     setStep(3); 
+//   }
+// };
+
+const handleContinue = () => {
   if (step === 1 && selectedSchedule) {
-    setStep(2); 
-  } else if (step === 2 && selectedSubscription) {
     if (!currentUser) {
       setShowAuthModal(true);
       return;
     }
-    setStep(4); 
+    setStep(3);
   }
 };
 
@@ -483,7 +492,7 @@ const handlePaymentSuccess = async (sessionId) => {
     setLoginForm({ email: '', password: '' });
     setShowAuthModal(false);
     
-    setStep(4);
+    setStep(3);
   } else {
     setAuthError(result.error);
   }
@@ -516,7 +525,7 @@ const handlePaymentSuccess = async (sessionId) => {
     });
     setShowAuthModal(false);
     
-    setStep(4);
+    setStep(3);
   } else {
     setAuthError(result.error);
   }
@@ -544,10 +553,9 @@ const handleFinalSubmit = async () => {
   
   try {
     if (currentUser && userData) {
-      // Fluxul existent pentru utilizatori autentificați
       const currentService = services[selectedService];
       
-      if (!selectedService || !selectedSchedule || !selectedSubscription) {
+      if (!selectedService || !selectedSchedule) {
         alert('Eroare: Date incomplete. Te rog să selectezi toate opțiunile.');
         setIsLoading(false);
         return;
@@ -556,7 +564,6 @@ const handleFinalSubmit = async () => {
       const enrollmentData = {
         scheduleId: selectedSchedule.id,
         serviceTip: selectedService,
-        subscriptionType: selectedSubscription, 
         clientName: currentUser.displayName || `${userData.prenumeElev} ${userData.numeElev}`,
         clientEmail: userData.email,
         clientPhone: userData.telefon || clientData.phone,
@@ -564,9 +571,8 @@ const handleFinalSubmit = async () => {
         scheduleDay: selectedSchedule.zi,
         scheduleTime: selectedSchedule.ora,
         serviceName: currentService.name,
-        servicePrice: currentService.subscriptions[selectedSubscription].price, 
         createdAt: serverTimestamp(),
-        status: 'pending',
+        status: 'pending_payment', // Status pentru plată în așteptare
         userId: currentUser.uid
       };
 
@@ -574,32 +580,41 @@ const handleFinalSubmit = async () => {
       const enrollmentRef = await addDoc(collection(db, 'enrollments'), enrollmentData);
       console.log('Enrollment saved with ID:', enrollmentRef.id);
       
-      const pendingData = {
-        enrollmentId: enrollmentRef.id,
-        selectedService,
-        selectedSchedule,
-        selectedSubscription,
-        userId: currentUser.uid,
-        timestamp: Date.now()
+      // Actualizează direct utilizatorul cu statusul pending
+      const userRef = doc(db, 'users', currentUser.uid);
+      const updateData = {
+        'abonament.activ': true,
+        'abonament.tip': selectedService,
+        'abonament.dataInceperii': serverTimestamp(),
+        'abonament.ziuaSaptamanii': selectedSchedule.zi,
+        'abonament.oraCurs': selectedSchedule.ora,
+        'abonament.linkCurs': null, 
+        'abonament.status': 'pending_payment' // Status pending
       };
-
-      sessionStorage.setItem('pendingEnrollment', JSON.stringify(pendingData));
-      console.log('Pending enrollment saved to sessionStorage:', pendingData);
       
-      const selectedSubscriptionData = currentService.subscriptions[selectedSubscription];
-      const baseUrl = window.location.origin;
-      const successUrl = `${baseUrl}/services?payment_success=true&service=${selectedService}&session_id={CHECKOUT_SESSION_ID}`;
-      const cancelUrl = `${baseUrl}/services`;
-
-      const stripeUrl = `${selectedSubscriptionData.stripeUrl}?success_url=${encodeURIComponent(successUrl)}&cancel_url=${encodeURIComponent(cancelUrl)}`;
+      await updateDoc(userRef, updateData);
+      await refreshUserData();
       
-      console.log('Redirecting to Stripe:', stripeUrl);
-      window.location.href = stripeUrl;
+      setIsComplete(true);
       
     } else {
-      setShowAuthModal(true);
-      setIsLoading(false);
-      return;
+      // Pentru utilizatori neautentificați - doar salvează programarea
+      const enrollmentData = {
+        scheduleId: selectedSchedule.id,
+        serviceTip: selectedService,
+        clientName: clientData.name,
+        clientEmail: clientData.email,
+        clientPhone: clientData.phone,
+        clientMessage: clientData.message,
+        scheduleDay: selectedSchedule.zi,
+        scheduleTime: selectedSchedule.ora,
+        serviceName: services[selectedService].name,
+        createdAt: serverTimestamp(),
+        status: 'pending_contact'
+      };
+      
+      await addDoc(collection(db, 'enrollments'), enrollmentData);
+      setIsComplete(true);
     }
     
   } catch (error) {
@@ -635,8 +650,8 @@ const handleFinalSubmit = async () => {
   const currentService = selectedService ? services[selectedService] : null;
   const availableSchedules = selectedService ? adminSchedules[selectedService] || [] : [];
 
-    if (hasActiveSubscription && activeCourse) {
-    return (
+if (userData?.abonament?.activ) {
+        return (
       <div style={{
   fontFamily: "'Poppins', sans-serif",
   minHeight: '100vh',
@@ -907,37 +922,68 @@ const handleFinalSubmit = async () => {
                   Intră la curs
                 </button>
               </div>
-            ) : (
-              <div style={{
-                backgroundColor: 'rgba(245, 158, 11, 0.05)',
-                border: '2px solid #f59e0b',
-                borderRadius: '12px',
-                padding: '2rem',
-                textAlign: 'center'
-              }}>
-                <Clock style={{
-                  width: '3rem',
-                  height: '3rem',
-                  color: '#f59e0b',
-                  margin: '0 auto 1rem'
-                }} />
-                <h4 style={{
-                  fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
-                  fontWeight: '600',
-                  color: '#d97706',
-                  margin: '0 0 0.5rem 0'
-                }}>
-                  Link-ul cursului va fi încărcat în curând
-                </h4>
-                <p style={{
-                  fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                  color: '#92400e',
-                  margin: '0',
-                  lineHeight: '1.5'
-                }}>
-                  Profesorul va adăuga link-ul pentru cursul tău în curând. 
-                </p>
-              </div>
+            ) : userData?.abonament?.status === 'pending_payment' ? (
+  <div style={{
+    backgroundColor: 'rgba(245, 158, 11, 0.05)',
+    border: '2px solid #f59e0b',
+    borderRadius: '12px',
+    padding: '2rem',
+    textAlign: 'center'
+  }}>
+    <Clock style={{
+      width: '3rem',
+      height: '3rem',
+      color: '#f59e0b',
+      margin: '0 auto 1rem'
+    }} />
+    <h4 style={{
+      fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+      fontWeight: '600',
+      color: '#d97706',
+      margin: '0 0 0.5rem 0'
+    }}>
+      Așteptare confirmare plată
+    </h4>
+    <p style={{
+      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+      color: '#92400e',
+      margin: '0',
+      lineHeight: '1.5'
+    }}>
+      Cursul va fi activat după confirmarea plății. Vei fi contactat în curând cu detaliile.
+    </p>
+  </div>
+) : (
+  <div style={{
+    backgroundColor: 'rgba(245, 158, 11, 0.05)',
+    border: '2px solid #f59e0b',
+    borderRadius: '12px',
+    padding: '2rem',
+    textAlign: 'center'
+  }}>
+    <Clock style={{
+      width: '3rem',
+      height: '3rem',
+      color: '#f59e0b',
+      margin: '0 auto 1rem'
+    }} />
+    <h4 style={{
+      fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+      fontWeight: '600',
+      color: '#d97706',
+      margin: '0 0 0.5rem 0'
+    }}>
+      Link-ul cursului va fi încărcat în curând
+    </h4>
+    <p style={{
+      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+      color: '#92400e',
+      margin: '0',
+      lineHeight: '1.5'
+    }}>
+      Profesorul va adăuga link-ul pentru cursul tău în curând. 
+    </p>
+  </div>
             )}
 
 
@@ -1086,8 +1132,9 @@ const handleFinalSubmit = async () => {
 }}>
   {step === 0 ? 'Alege Serviciul' : `Programare: ${currentService?.name}`}
 </h1>
-          
-          {/* Progress Steps */}
+
+
+   {/* Progress Steps */}
 {step > 0 && (
   <div style={{
     display: 'flex',
@@ -1096,10 +1143,10 @@ const handleFinalSubmit = async () => {
     gap: 'clamp(0.5rem, 2vw, 1rem)',
     marginBottom: '2rem',
     flexWrap: 'wrap',
-    maxWidth: '300px', 
+    maxWidth: '200px', // Redus pentru 2 pași
     margin: '0 auto 2rem auto'
   }}>
-    {[1, 2, 3].map((stepNum) => ( 
+    {[1, 2].map((stepNum) => ( // Doar 2 pași
       <React.Fragment key={stepNum}>
         <div style={{
           width: 'clamp(30px, 6vw, 40px)',
@@ -1117,7 +1164,7 @@ const handleFinalSubmit = async () => {
         }}>
           {stepNum}
         </div>
-        {stepNum < 3 && ( 
+        {stepNum < 2 && ( // Doar o linie
           <div style={{
             width: 'clamp(20px, 5vw, 40px)', 
             height: '2px',
@@ -1706,330 +1753,197 @@ const handleFinalSubmit = async () => {
 )}
 
           
-          {/* Step 3: Final Confirmation */}
-          {step === 4 && (
-            <div>
-              <h3 style={{
-                fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-                marginBottom: '1.5rem',
-                color: '#1f2937',
-                textAlign: 'center',
-                fontWeight: '600'
-              }}>
-                Confirmă Programarea
-              </h3>
-              
-              {/* Final Summary */}
-              <div style={{
-                backgroundColor: 'rgba(240, 249, 255, 0.9)',
-                border: `2px solid ${currentService?.color}`,
-                borderRadius: '12px',
-                padding: 'clamp(1rem, 3vw, 2rem)',
-                marginBottom: 'clamp(1rem, 3vw, 2rem)',
-                backdropFilter: 'blur(5px)'
-              }}>
-                <h4 style={{
-                  margin: '0 0 clamp(1rem, 2.5vw, 1.5rem) 0',
-                  fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
-                  textAlign: 'center',
-                  fontWeight: '600',
-                  color: currentService?.color
-                }}>
-                  Sumar Programare
-                </h4>
-                
-                <div style={{
-                  display: 'grid',
-                  gap: 'clamp(0.75rem, 2vw, 1rem)'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '1rem',
-                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                  }}>
-                    <span style={{ 
-                      color: '#6b7280',
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      minWidth: 'fit-content'
-                    }}>
-                      Serviciu:
-                    </span>
-                    <span style={{ 
-                      fontWeight: '600', 
-                      color: '#1f2937',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      textAlign: window.innerWidth < 400 ? 'left' : 'right'
-                    }}>
-                      {currentService?.name}
-                    </span>
-                  </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '1rem',
-                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                  }}>
-                    <span style={{ 
-                      color: '#6b7280',
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      minWidth: 'fit-content'
-                    }}>
-                      Program săptămânal:
-                    </span>
-                    <span style={{ 
-                      fontWeight: '600', 
-                      color: '#1f2937',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      textAlign: window.innerWidth < 400 ? 'left' : 'right'
-                    }}>
-                      {selectedSchedule?.zi} la {selectedSchedule?.ora}
-                    </span>
-                  </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: '1rem',
-                    flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                  }}>
-                    <span style={{ 
-                      color: '#6b7280',
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      minWidth: 'fit-content'
-                    }}>
-                      Client:
-                    </span>
-                    <span style={{ 
-                      fontWeight: '600', 
-                      color: '#1f2937',
-                      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                      textAlign: window.innerWidth < 400 ? 'left' : 'right',
-                      wordBreak: 'break-word'
-                    }}>
-                      {currentUser && userData 
-                        ? `${userData.prenumeElev} ${userData.numeElev}`
-                        : clientData.name
-                      }
-                    </span>
-                  </div>
-                    
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: '1rem',
-                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                    }}>
-                      <span style={{ 
-                        color: '#6b7280',
-                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                        minWidth: 'fit-content'
-                      }}>
-                        Email:
-                      </span>
-                      <span style={{ 
-                        fontWeight: '600', 
-                        color: '#1f2937',
-                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                        textAlign: window.innerWidth < 400 ? 'left' : 'right',
-                        wordBreak: 'break-all'
-                      }}>
-                        {currentUser && userData ? userData.email : clientData.email}
-                      </span>
-                    </div>
-                    
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      gap: '1rem',
-                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                    }}>
-                      <span style={{ 
-                        color: '#6b7280',
-                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                        minWidth: 'fit-content'
-                      }}>
-                        Telefon:
-                      </span>
-                      <span style={{ 
-                        fontWeight: '600', 
-                        color: '#1f2937',
-                        fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                        textAlign: window.innerWidth < 400 ? 'left' : 'right'
-                      }}>
-                        {currentUser && userData ? userData.telefon : clientData.phone}
-                      </span>
-                    </div>
-                    
-                    {clientData.message && (
-                      <div style={{
-                        display: 'grid',
-                        gap: '0.5rem'
-                      }}>
-                        <span style={{ 
-                          color: '#6b7280',
-                          fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)'
-                        }}>
-                          Mesaj:
-                        </span>
-                        <div style={{
-                          fontWeight: '600',
-                          color: '#1f2937',
-                          fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-                          padding: '0.5rem',
-                          backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                          borderRadius: '6px',
-                          wordBreak: 'break-word'
-                        }}>
-                          {clientData.message}
-                        </div>
-                      </div>
-                    )}
-                    
-                    <hr style={{
-                      border: 'none',
-                      borderTop: '1px solid rgba(229, 231, 235, 0.5)',
-                      margin: 'clamp(0.75rem, 2vw, 1rem) 0'
-                    }} />
-                    
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      flexDirection: window.innerWidth < 400 ? 'column' : 'row'
-                    }}>
-                      <span style={{
-                        fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
-                        fontWeight: '600',
-                        color: '#1f2937'
-                      }}>
-                        Total lunar:
-                      </span>
-                      <span style={{
-                        fontSize: 'clamp(1.3rem, 3vw, 1.5rem)',
-                        fontWeight: '700',
-                        color: currentService?.color
-                      }}>
-                        {currentService?.subscriptions?.[selectedSubscription]?.price} RON
-                      </span>
-                    </div>
+{/* Step 3: Final Confirmation */}
+{step === 3 && (
+  <div>
+    {/* Data în dreapta sus */}
+    <div style={{
+      textAlign: 'right',
+      marginBottom: '1rem',
+      fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+      color: '#6b7280',
+      fontWeight: '500'
+    }}>
+      Data: {new Date().toLocaleDateString('ro-RO', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })}
+    </div>
 
-                    
-                    <div style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      padding: 'clamp(0.75rem, 2vw, 1rem)',
-                      borderRadius: '8px',
-                      fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
-                      textAlign: 'center',
-                      border: `1px solid ${currentService?.color}40`,
-                      color: currentService?.color,
-                      backdropFilter: 'blur(5px)',
-                      lineHeight: '1.4'
-                    }}>
-                      📚 {currentUser && userData 
-                        ? 'Înscrierea va fi confirmată instantaneu!' 
-                        : 'Programare confirmată pentru cursurile săptămânale'
-                      }
-                    </div>
-                  </div>
-                </div>
+    <h3 style={{
+      fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+      marginBottom: '1.5rem',
+      color: '#10b981',
+      textAlign: 'center',
+      fontWeight: '700'
+    }}>
+      Programarea a fost confirmată!
+    </h3>
+    
+    <p style={{
+      fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
+      color: '#374151',
+      textAlign: 'center',
+      marginBottom: '2rem',
+      lineHeight: '1.6'
+    }}>
+      Vei fi contactat în curând pentru instrucțiuni de conectare și detaliile de plată.
+    </p>
+    
+    {/* Sumar programare simplificat */}
+    <div style={{
+      backgroundColor: 'rgba(240, 249, 255, 0.9)',
+      border: `2px solid ${currentService?.color}`,
+      borderRadius: '12px',
+      padding: 'clamp(1rem, 3vw, 2rem)',
+      marginBottom: 'clamp(1rem, 3vw, 2rem)',
+      backdropFilter: 'blur(5px)'
+    }}>
+      <h4 style={{
+        margin: '0 0 clamp(1rem, 2.5vw, 1.5rem) 0',
+        fontSize: 'clamp(1rem, 2.4vw, 1.2rem)',
+        textAlign: 'center',
+        fontWeight: '600',
+        color: currentService?.color
+      }}>
+        Sumar Programare
+      </h4>
+      
+      <div style={{
+        display: 'grid',
+        gap: 'clamp(0.75rem, 2vw, 1rem)'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '1rem',
+          flexDirection: window.innerWidth < 400 ? 'column' : 'row'
+        }}>
+          <span style={{ 
+            color: '#6b7280',
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+            minWidth: 'fit-content'
+          }}>
+            Serviciu:
+          </span>
+          <span style={{ 
+            fontWeight: '600', 
+            color: '#1f2937',
+            fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+            textAlign: window.innerWidth < 400 ? 'left' : 'right'
+          }}>
+            {currentService?.name}
+          </span>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '1rem',
+          flexDirection: window.innerWidth < 400 ? 'column' : 'row'
+        }}>
+          <span style={{ 
+            color: '#6b7280',
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+            minWidth: 'fit-content'
+          }}>
+            Program săptămânal:
+          </span>
+          <span style={{ 
+            fontWeight: '600', 
+            color: '#1f2937',
+            fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+            textAlign: window.innerWidth < 400 ? 'left' : 'right'
+          }}>
+            {selectedSchedule?.zi} la {selectedSchedule?.ora}
+          </span>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: '1rem',
+          flexDirection: window.innerWidth < 400 ? 'column' : 'row'
+        }}>
+          <span style={{ 
+            color: '#6b7280',
+            fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+            minWidth: 'fit-content'
+          }}>
+            Client:
+          </span>
+          <span style={{ 
+            fontWeight: '600', 
+            color: '#1f2937',
+            fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+            textAlign: window.innerWidth < 400 ? 'left' : 'right',
+            wordBreak: 'break-word'
+          }}>
+            {currentUser && userData 
+              ? `${userData.prenumeElev} ${userData.numeElev}`
+              : clientData.name
+            }
+          </span>
+        </div>
+        
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          padding: 'clamp(0.75rem, 2vw, 1rem)',
+          borderRadius: '8px',
+          fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+          textAlign: 'center',
+          border: `1px solid ${currentService?.color}40`,
+          color: currentService?.color,
+          backdropFilter: 'blur(5px)',
+          lineHeight: '1.4'
+        }}>
+          📚 Programarea ta a fost înregistrată cu succes!
+        </div>
+      </div>
+    </div>
 
-                {/* Status pentru utilizatori autentificați vs neautentificați */}
-                <div style={{
-                  backgroundColor: 'rgba(249, 250, 251, 0.9)',
-                  padding: 'clamp(0.75rem, 2vw, 1rem)',
-                  borderRadius: '8px',
-                  marginBottom: 'clamp(1rem, 3vw, 2rem)',
-                  fontSize: 'clamp(0.75rem, 1.6vw, 0.8rem)',
-                  color: '#6b7280',
-                  lineHeight: '1.5',
-                  border: '1px solid rgba(229, 231, 235, 0.5)',
-                  backdropFilter: 'blur(5px)'
-                }}>
-                  {currentUser && userData ? (
-                    <>
-                      ✅ <strong style={{ color: '#10b981' }}>Înscrierea instantanee</strong><br/>
-                      • Contul tău este verificat - înscrierea se face automat<br/>
-                      • Vei vedea cursul în pagina ta de profil imediat după plată<br/>
-                      • Link-ul cursului va apărea când profesorul îl va adăuga<br/>
-                      • Poți gestiona înscrierea din pagina de profil
-                    </>
-                  ) : (
-                    <>
-                      📞 <strong style={{ color: '#10b981' }}>Sesiune programată cu succes!</strong><br/>
-                      • Poți vedea programarile tale din pagina de profil
-                    </>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleFinalSubmit}
-                  disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    color: 'white',
-                    border: 'none',
-                    padding: 'clamp(1rem, 2.5vw, 1.2rem) clamp(1.5rem, 4vw, 2rem)',
-                    borderRadius: '8px',
-                    fontSize: 'clamp(1rem, 2.4vw, 1.1rem)',
-                    fontWeight: '600',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.2)',
-                    backgroundColor: isLoading ? '#9ca3af' : currentService?.color,
-                    cursor: isLoading ? 'not-allowed' : 'pointer',
-                    opacity: isLoading ? 0.7 : 1
-                  }}
-                  onMouseOver={(e) => {
-                    if (!isLoading && currentService?.color) {
-                      const colors = {
-                        '#f59e0b': '#d97706',
-                        '#ea580c': '#c2410c',
-                        '#dc2626': '#b91c1c'
-                      };
-                      e.target.style.backgroundColor = colors[currentService.color] || currentService.color;
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!isLoading) {
-                      e.target.style.backgroundColor = currentService?.color;
-                    }
-                  }}
-                >
-                  {isLoading ? (
-                    <>
-                      <div style={{
-                        width: '1rem',
-                        height: '1rem',
-                        border: '2px solid transparent',
-                        borderTop: '2px solid white',
-                        borderRadius: '50%',
-                        animation: 'spin 1s linear infinite'
-                      }} />
-                      {currentUser && userData ? 'Se înscrie...' : 'Se salvează programarea...'}
-                    </>
-                  ) : (
-                    <>
-                      <Check style={{ width: '1rem', height: '1rem' }} />
-                      {currentUser && userData ? 'Către plată' : 'Confirmă Programarea'}
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
+    {/* Buton pentru a reveni acasă */}
+    <div style={{
+      textAlign: 'center',
+      marginTop: '2rem'
+    }}>
+      <button
+        onClick={() => setCurrentPage('home')}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          backgroundColor: 'rgba(107, 114, 128, 0.1)',
+          color: '#374151',
+          border: '2px solid #e5e7eb',
+          padding: '1rem 2rem',
+          borderRadius: '8px',
+          fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+          fontWeight: '500',
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          margin: '0 auto'
+        }}
+        onMouseOver={(e) => {
+          e.target.style.backgroundColor = 'rgba(107, 114, 128, 0.2)';
+        }}
+        onMouseOut={(e) => {
+          e.target.style.backgroundColor = 'rgba(107, 114, 128, 0.1)';
+        }}
+      >
+        <ArrowLeft style={{ width: '1rem', height: '1rem' }} />
+        Înapoi la Pagina Principală
+      </button>
+    </div>
+  </div>
+)}
 
             {/* Navigation Buttons */}
-            {step > 0 && step < 4 && (
+            {step > 0 && step < 3 && (
               <div style={{
                 display: 'flex',
                 gap: '1rem',
@@ -2072,12 +1986,12 @@ const handleFinalSubmit = async () => {
                 </button>
                 
                 <button
-  onClick={handleContinue}
-  disabled={
-    (step === 1 && !selectedSchedule) ||
-    (step === 2 && !selectedSubscription)
-  }
-  style={{
+                    onClick={handleContinue}
+                    disabled={
+                      step === 1 && !selectedSchedule
+                  //  (step === 2 && !selectedSubscription)
+                    }
+                style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
@@ -2091,8 +2005,9 @@ const handleFinalSubmit = async () => {
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)',
                     backgroundColor: currentService?.color || '#ea580c',
-                    opacity: (step === 1 && !selectedSchedule) || 
-             (step === 2 && !selectedSubscription) ? 0.5 : 1
+                    opacity: (step === 1 && !selectedSchedule) ? 0.5 : 1
+            //         opacity: (step === 1 && !selectedSchedule) || 
+            //  (step === 2 && !selectedSubscription) ? 0.5 : 1
   }}
                 >
                   Continuă
